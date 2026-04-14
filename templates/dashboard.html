@@ -1321,10 +1321,26 @@ async function pollSignals() {
       document.getElementById('statScans').textContent = data.scan_count;
     }
 
-    // Inject new signals
-    if (data.signals && data.signals.length > lastSignalCount) {
+    // Replace demo signals with real ones on first load
+    if (data.signals && !window._liveLoaded) {
+      window._liveLoaded = true;
+      // Remove all demo signals
+      signals = signals.filter(s => !s._demo);
+      // Add real signals
+      data.signals.forEach(s => {
+        s.timestamp = new Date(s.timestamp);
+        s._isNew = true;
+        signals.push(s);
+      });
+      // Sort by score
+      signals.sort((a,b) => b.score - a.score);
+      lastSignalCount = data.signals.length;
+      renderFeed();
+      addLog(`✅ Live data loaded — ${data.signals.length} signals`, 'var(--green)');
+    } else if (data.signals && data.signals.length > lastSignalCount) {
+      // Add newer signals on subsequent polls
       const newSigs = data.signals.slice(lastSignalCount);
-      newSigs.reverse().forEach(s => {
+      newSigs.forEach(s => {
         s.timestamp = new Date(s.timestamp);
         s._isNew = true;
         signals.unshift(s);
