@@ -1197,7 +1197,7 @@ class CryptoSignalScannerV2:
             log.info(f"   Nansen SM tokens: {len(sm_tokens)} | CG coins: {len(cg_markets)} | Trending: {len(trending)}")
 
             # ── If no Nansen key, fall back to CoinGecko high-volume coins ──
-            if not sm_tokens and not NANSEN_API_KEY:
+            if not sm_tokens and not self._nansen_rot.has_keys():
                 log.warning("   ⚠️  No Nansen key — scanning CoinGecko volume anomalies as fallback")
                 # Build a list of high vol/mcap ratio coins as candidates
                 sm_tokens = [
@@ -1212,9 +1212,6 @@ class CryptoSignalScannerV2:
             credits_used = 0
 
             for token in sm_tokens:
-                if credits_used >= NANSEN_CREDIT_BUDGET_PER_SCAN:
-                    log.info(f"   Credit budget reached ({NANSEN_CREDIT_BUDGET_PER_SCAN}), stopping")
-                    break
 
                 sym       = (token.get("symbol") or "").upper()
                 name      = token.get("name", sym)
@@ -1233,7 +1230,7 @@ class CryptoSignalScannerV2:
 
                 # ── Score Layer 2: Nansen Smart Money netflow ─────────
                 nm_nf_pts, nm_nf_notes, net_flow = 0, [], 0.0
-                if tok_addr and NANSEN_API_KEY and credits_used + 5 <= NANSEN_CREDIT_BUDGET_PER_SCAN:
+                if tok_addr and self.nansen.rotator.has_keys():
                     nf_data = await self.nansen.get_smart_money_netflow(session, tok_addr, chain)
                     nm_nf_pts, nm_nf_notes, net_flow = self.nansen.score_netflow(nf_data)
                     credits_used += 5  # Netflow = 5 credits
@@ -1331,8 +1328,8 @@ async def main():
     print("╚" + "═"*63 + "╝")
     print(f"  Threshold : {SIGNAL_THRESHOLD}/100")
     print(f"  Interval  : every {SCAN_INTERVAL_SEC//60} minutes")
-    print(f"  Nansen        : {'✅ Smart Money connected' if NANSEN_API_KEY else '⚠️  Not set — nansen.ai ($49/mo)'}")
-    print(f"  Etherscan     : {'✅ Contract safety checks active' if ETHERSCAN_API_KEY else '⚠️  Add free key at etherscan.io/register'}")
+    print(f"  Nansen        : {scanner._nansen_rot.status()}")
+    print(f"  Etherscan     : {scanner._etherscan_rot.status()}")
     print(f"  CryptoCompare : {'✅ Social layer connected' if CRYPTOCOMPARE_API_KEY else '⚠️  Add free key at cryptocompare.com'}")
     print(f"  Fear&Greed    : ✅ Free, no key needed (alternative.me)")
     print(f"  CoinGecko     : ✅ Free, no key needed")
@@ -1340,7 +1337,7 @@ async def main():
     print(f"  Arkham        : ⚠️  No API response — replaced by Etherscan")
     print()
 
-    if not NANSEN_API_KEY:
+    if not scanner._nansen_rot.has_keys():
         print("  ℹ️  WITHOUT Nansen: scanner will use CoinGecko volume anomalies as fallback.")
         print("     This gives UNCONFIRMED signals only — use as watchlist, not buy triggers.")
         print()
