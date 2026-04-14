@@ -65,7 +65,7 @@ TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
 SCAN_INTERVAL_SEC   = 300   # 5 minutes
-SIGNAL_THRESHOLD    = 30    # Lowered for testing — raise back to 65 when live
+SIGNAL_THRESHOLD    = 65    # Out of 100
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
 
@@ -245,8 +245,9 @@ class NansenLayer:
             "pagination": {"page": 1, "per_page": 50},
             "filters": {
                 "only_smart_money": True,
-                "market_cap_usd":   {"min": 100_000, "max": 10_000_000_000},
-                "liquidity":        {"min": 10_000},
+                "market_cap_usd":   {"min": 500_000, "max": 5_000_000_000},
+                "liquidity":        {"min": 100_000},
+                "nof_traders":      {"min": 20},
             },
             "order_by": [{"field": "volume", "direction": "DESC"}]
         }
@@ -343,49 +344,38 @@ class NansenLayer:
         return {}
 
     def score_screener(self, token: dict) -> tuple[int, list]:
-        """
-        Score based on Nansen Smart Money screener result. Max 30 pts.
-        Real Nansen fields: nof_traders, buy_volume, netflow, price_change
-        """
+        """Score based on Nansen Smart Money screener result. Max 30 pts."""
         pts = 0
         notes = []
 
-        # nof_traders = number of Smart Money wallets trading this token
-        sm_count   = token.get("nof_traders", 0) or 0
-        buy_vol    = token.get("buy_volume", 0) or 0
-        netflow    = token.get("netflow", 0) or 0
-        price_chg  = token.get("price_change", 0) or 0
+        # Number of distinct Smart Money wallets buying
+        sm_count   = token.get("smart_money_count", token.get("nof_smart_money_traders", 0)) or 0
+        volume_usd = token.get("volume_usd", token.get("volume", 0)) or 0
+        price_chg  = token.get("price_change", token.get("price_change_percentage", 0)) or 0
 
-        # Smart Money trader count
-        if sm_count >= 10:
-            pts += 15
-            notes.append(f"✅ [Nansen] {sm_count} SM wallets trading — High conviction")
+        if sm_count >= 20:
+            pts += 20
+            notes.append(f"✅ [Nansen] {sm_count} Smart Money wallets buying — VERY HIGH conviction")
+        elif sm_count >= 10:
+            pts += 14
+            notes.append(f"✅ [Nansen] {sm_count} Smart Money wallets buying — High conviction")
         elif sm_count >= 5:
-            pts += 10
-            notes.append(f"✅ [Nansen] {sm_count} SM wallets trading — Good conviction")
+            pts += 8
+            notes.append(f"🔶 [Nansen] {sm_count} Smart Money wallets buying — Moderate")
         elif sm_count >= 2:
-            pts += 6
-            notes.append(f"🔶 [Nansen] {sm_count} SM wallets trading — Moderate")
-        elif sm_count >= 1:
-            pts += 3
-            notes.append(f"📊 [Nansen] {sm_count} SM wallet active")
+            pts += 4
+            notes.append(f"📊 [Nansen] {sm_count} Smart Money wallets — Watch")
 
-        # Netflow — positive means Smart Money is net buying
-        if netflow > 500_000:
-            pts += 15
-            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Strong SM buying")
-        elif netflow > 100_000:
+        # Volume amongst Smart Money wallets
+        if volume_usd > 1_000_000:
             pts += 10
-            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Clear SM buying")
-        elif netflow > 10_000:
+            notes.append(f"✅ [Nansen] SM volume: ${volume_usd:,.0f} — Institutional-scale activity")
+        elif volume_usd > 100_000:
             pts += 6
-            notes.append(f"🔶 [Nansen] Net inflow: +${netflow:,.0f} — Mild SM buying")
-        elif netflow > 0:
+            notes.append(f"🔶 [Nansen] SM volume: ${volume_usd:,.0f}")
+        elif volume_usd > 10_000:
             pts += 3
-            notes.append(f"📊 [Nansen] Net inflow: +${netflow:,.0f} — Slight buying")
-        elif netflow < 0:
-            pts = max(0, pts - 5)
-            notes.append(f"⚠️  [Nansen] Net OUTFLOW: ${netflow:,.0f} — SM selling")
+            notes.append(f"📊 [Nansen] SM volume: ${volume_usd:,.0f}")
 
         return min(pts, 30), notes
 
@@ -1111,13 +1101,12 @@ class CryptoSignalScannerV2:
         self.cg       = CoinGeckoLayer()
         self.telegram = TelegramAlerter()
         self.scan_no  = 0
-        # MAX_RAW = sum of points from layers that are actually connected.
-        # This ensures scoring is fair when some layers have no keys.
-        nansen_max    = 30 + 20  # screener + netflow
+        # Dynamic MAX_RAW — only count layers that have active keys
+        nansen_max    = 50   # Layer 1 (30) + Layer 2 (20) — always Nansen
         etherscan_max = 20 if self._etherscan_rot.has_keys() else 10
         cc_max        = 15 if CRYPTOCOMPARE_API_KEY else 0
-        fg_max        = 10  # always available
-        cg_max        = 5   # always available
+        fg_max        = 10   # Fear & Greed — always free
+        cg_max        = 5    # CoinGecko — always free
         self.MAX_RAW  = nansen_max + etherscan_max + cc_max + fg_max + cg_max
 
     CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb"]
@@ -1138,8 +1127,17 @@ class CryptoSignalScannerV2:
         """Write signals to templates/signals.json so dashboard.html can read them."""
         try:
             data = {
-                "scan_count": self.scan_no,
-                "last_scan": datetime.utcnow().isoformat() + "Z",
+                "scan_count":    self.scan_no,
+                "last_scan":     datetime.utcnow().isoformat() + "Z",
+                "threshold":     SIGNAL_THRESHOLD,
+                "max_raw":       self.MAX_RAW,
+                "layer_status": {
+                    "nansen":        self._nansen_rot.has_keys(),
+                    "etherscan":     self._etherscan_rot.has_keys(),
+                    "cryptocompare": bool(CRYPTOCOMPARE_API_KEY),
+                    "fear_greed":    True,
+                    "coingecko":     True,
+                },
                 "signals": []
             }
             for sig in candidates[:20]:
@@ -1162,11 +1160,13 @@ class CryptoSignalScannerV2:
                     "coingecko_url":   sig.coingecko_url,
                     "explorer_url":    sig.explorer_url,
                     "layers":          [l for l in [
-                                            "nansen" if sig.smart_money_buyers > 0 else None,
-                                            "arkham" if sig.arkham_entity_count > 0 else None,
+                                            "nansen"    if sig.smart_money_buyers > 0 else None,
+                                            "etherscan" if sig.arkham_entity_count >= 0 else None,
                                             "cg",
                                         ] if l],
-                    "breakdown":       [{"t": n, "cls": "ok" if "✅" in n else "med" if "🔶" in n else "neu"} for n in sig.breakdown],
+                    "breakdown":       [{"t": n, "cls": "ok" if "✅" in n else "med" if "🔶" in n else "bad" if "🚨" in n or "OUTFLOW" in n else "neu"} for n in sig.breakdown],
+                    "nansen_traders":  sig.smart_money_buyers,
+                    "nansen_netflow":  sig.sm_netflow_usd,
                     "timestamp":       datetime.utcnow().isoformat() + "Z",
                 })
             SIGNALS_JSON.parent.mkdir(parents=True, exist_ok=True)
@@ -1213,9 +1213,9 @@ class CryptoSignalScannerV2:
 
             log.info(f"   Nansen SM tokens: {len(sm_tokens)} | CG coins: {len(cg_markets)} | Trending: {len(trending)}")
 
-            # If no Nansen key, fall back to CoinGecko high-volume coins
+            # ── If no Nansen key, fall back to CoinGecko high-volume coins ──
             if not sm_tokens and not self._nansen_rot.has_keys():
-                log.warning("   No Nansen key - scanning CoinGecko volume anomalies as fallback")
+                log.warning("   ⚠️  No Nansen key — scanning CoinGecko volume anomalies as fallback")
                 # Build a list of high vol/mcap ratio coins as candidates
                 sm_tokens = [
                     {"symbol": sym, "name": d.get("name", sym),
@@ -1229,20 +1229,17 @@ class CryptoSignalScannerV2:
             credits_used = 0
 
             for token in sm_tokens:
-                sym       = (token.get("token_symbol", token.get("symbol", "")) or "").upper()
-                name      = token.get("token_name", token.get("name", sym))
+
+                sym       = (token.get("symbol") or "").upper()
+                name      = token.get("name", sym)
                 chain     = token.get("chain", "ethereum")
                 tok_addr  = token.get("token_address", token.get("address", ""))
-                price_raw = token.get("price_usd", token.get("price", 0)) or 0
+                price_raw = token.get("price", token.get("price_usd", 0)) or 0
 
                 # Fill price from CoinGecko if Nansen didn't return it
                 cg_coin  = cg_markets.get(sym, {})
                 price    = price_raw or (cg_coin.get("current_price") or 0)
                 if price <= 0:
-                    # Use price_usd directly from Nansen as last resort
-                    price = token.get("price_usd", 0) or 0
-                if price <= 0:
-                    log.debug(f"   Skipping {sym} — no price available")
                     continue
 
                 # ── Score Layer 1: Nansen screener ───────────────────
@@ -1284,8 +1281,6 @@ class CryptoSignalScannerV2:
                 # ── Combine ───────────────────────────────────────────
                 raw_total = nm_s_pts + nm_nf_pts + ark_pts + lc_pts + san_pts + cg_pts
                 norm = int((raw_total / self.MAX_RAW) * 100)
-
-                log.info(f"   {sym}: nm_s={nm_s_pts} nm_nf={nm_nf_pts} ark={ark_pts} lc={lc_pts} san={san_pts} cg={cg_pts} raw={raw_total} MAX={self.MAX_RAW} norm={norm}")
 
                 if norm < SIGNAL_THRESHOLD:
                     continue

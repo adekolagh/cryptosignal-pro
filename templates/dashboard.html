@@ -2,893 +2,899 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>CryptoSignal Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-:root {
-  --bg:       #080b10;
-  --surface:  #0d1219;
-  --panel:    #111720;
-  --border:   #1c2535;
-  --border2:  #263044;
-  --accent:   #00d4aa;
-  --accent2:  #0099ff;
-  --green:    #00e87a;
-  --red:      #ff3b5c;
-  --amber:    #f5a623;
-  --purple:   #8b5cf6;
-  --text:     #e8edf5;
-  --text2:    #8a9ab5;
-  --text3:    #445570;
-  --mono:     'DM Mono', monospace;
-  --display:  'Syne', sans-serif;
+:root{
+  --bg:#050810;
+  --bg2:#080c14;
+  --card:#0d1320;
+  --card2:#111826;
+  --border:#1a2540;
+  --border2:#243356;
+  --accent:#00c9a7;
+  --accent2:#3b82f6;
+  --green:#22c55e;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --purple:#a855f7;
+  --text:#f0f4ff;
+  --text2:#8899bb;
+  --text3:#445577;
+  --sans:'Space Grotesk',sans-serif;
+  --mono:'Space Mono',monospace;
+  --r:8px;
 }
 
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; overflow-x: hidden; }
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
 
-/* ── HEADER ── */
-.header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 56px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100;
+/* ─── HEADER ─── */
+.hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:52px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:200;
 }
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-icon {
-  width: 32px; height: 32px; border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--display); font-weight: 800; font-size: 14px; color: #000;
+.hd-logo{display:flex;align-items:center;gap:8px}
+.hd-icon{
+  width:30px;height:30px;border-radius:7px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;color:#000;
 }
-.logo-name { font-family: var(--display); font-weight: 800; font-size: 16px; letter-spacing: -0.3px; }
-.logo-name span { color: var(--accent); }
-.header-right { display: flex; align-items: center; gap: 20px; }
-.status-pill {
-  display: flex; align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 20px;
-  background: rgba(0,232,122,0.08); border: 1px solid rgba(0,232,122,0.2);
-  font-size: 11px; color: var(--green);
+.hd-name{font-weight:700;font-size:15px;letter-spacing:-.3px}
+.hd-name em{color:var(--accent);font-style:normal}
+.hd-right{display:flex;align-items:center;gap:10px}
+.status-dot{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;
+  background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green);
 }
-.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s ease infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-.clock { font-size: 12px; color: var(--accent); letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.utc{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.5px}
 
-/* ── STATS BAR ── */
-.statsbar {
-  display: grid; grid-template-columns: repeat(6, 1fr);
-  border-bottom: 1px solid var(--border);
+/* ─── STATS ─── */
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-bottom:1px solid var(--border);
 }
-.stat {
-  padding: 14px 20px; border-right: 1px solid var(--border);
+@media(min-width:768px){.stats{grid-template-columns:repeat(6,1fr)}}
+.stat{padding:12px 14px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-l{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);margin-bottom:4px;font-family:var(--mono)}
+.stat-v{font-size:20px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
+.stat-s{font-size:10px;color:var(--text3);margin-top:2px}
+@media(max-width:767px){
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .stat:nth-child(3){border-right:none}
+  .stat:nth-child(4){border-top:1px solid var(--border)}
+  .stat:nth-child(5){border-top:1px solid var(--border)}
+  .stat:nth-child(6){border-top:1px solid var(--border);border-right:none}
 }
-.stat:last-child { border-right: none; }
-.stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); margin-bottom: 6px; }
-.stat-value { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-.stat-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
 
-/* ── LAYOUT ── */
-.layout { display: grid; grid-template-columns: 260px 1fr 240px; min-height: calc(100vh - 56px - 49px); }
-.col { border-right: 1px solid var(--border); overflow-y: auto; }
-.col:last-child { border-right: none; }
+/* ─── MAIN LAYOUT ─── */
+.layout{display:flex;flex-direction:column}
+@media(min-width:1024px){.layout{flex-direction:row;min-height:calc(100vh - 52px - 57px)}}
 
-/* ── SECTION ── */
-.section { padding: 16px; border-bottom: 1px solid var(--border); }
-.section-title { font-size: 9px; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text3); margin-bottom: 12px; }
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:100%;padding:16px;
+  border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;gap:16px;
+}
+@media(min-width:1024px){.sidebar{width:260px;border-bottom:none;border-right:1px solid var(--border);overflow-y:auto}}
 
-/* ── LAYER LIST ── */
-.layer-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px; border-radius: 6px; margin-bottom: 4px;
-  background: var(--panel); border: 1px solid var(--border);
-}
-.layer-num { font-size: 10px; color: var(--text3); width: 14px; flex-shrink: 0; }
-.layer-info { flex: 1; }
-.layer-name { font-size: 11px; font-weight: 500; color: var(--text); }
-.layer-src { font-size: 10px; color: var(--text3); }
-.layer-pts { font-size: 11px; color: var(--accent); font-weight: 500; margin-right: 6px; }
-.badge {
-  font-size: 9px; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: .5px; font-weight: 500;
-}
-.badge-live   { background: rgba(0,232,122,.12); color: var(--green); }
-.badge-setup  { background: rgba(245,166,35,.12); color: var(--amber); }
-.badge-free   { background: rgba(0,153,255,.12); color: var(--accent2); }
+/* ─── SECTION TITLE ─── */
+.stitle{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)}
 
-/* ── THRESHOLD ── */
-.threshold-box { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
-.threshold-num { font-family: var(--display); font-size: 32px; font-weight: 800; color: var(--amber); }
-.threshold-desc { font-size: 10px; color: var(--text3); margin-top: 2px; }
-input[type=range] {
-  width: 100%; margin-top: 12px; -webkit-appearance: none;
-  height: 3px; background: var(--border2); border-radius: 2px; outline: none; cursor: pointer;
+/* ─── LAYER LIST ─── */
+.layers{display:flex;flex-direction:column;gap:4px}
+@media(max-width:1023px){.layers{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}}
+.layer{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
 }
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 14px; height: 14px;
-  border-radius: 50%; background: var(--amber); cursor: pointer;
-}
-.range-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--text3); margin-top: 4px; }
+.lnum{font-size:10px;color:var(--text3);font-family:var(--mono);width:12px;flex-shrink:0}
+.linfo{flex:1;min-width:0}
+.lname{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsrc{font-size:10px;color:var(--text3)}
+.lpts{font-size:11px;color:var(--accent);font-weight:700;margin-right:4px;flex-shrink:0}
+.badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0}
+.b-live{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.b-setup{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.b-free{background:rgba(59,130,246,.12);color:var(--accent2);border:1px solid rgba(59,130,246,.2)}
 
-/* ── MANUAL SCAN ── */
-.scan-box { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
-.scan-input {
-  width: 100%; background: var(--bg); border: 1px solid var(--border2);
-  color: var(--text); font-family: var(--mono); font-size: 12px;
-  padding: 8px 10px; border-radius: 4px; outline: none; margin-bottom: 8px;
-  text-transform: uppercase;
+/* ─── THRESHOLD ─── */
+.thresh-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.thresh-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.thresh-num{font-size:36px;font-weight:700;color:var(--amber);font-variant-numeric:tabular-nums;line-height:1}
+.thresh-desc{font-size:11px;color:var(--text3);margin-top:3px}
+.thresh-tag{text-align:right;font-size:10px;color:var(--text3)}
+input[type=range]{
+  width:100%;-webkit-appearance:none;height:3px;
+  background:var(--border2);border-radius:2px;outline:none;cursor:pointer;
 }
-.scan-input::placeholder { color: var(--text3); text-transform: none; }
-.scan-input:focus { border-color: var(--accent); }
-.scan-btn {
-  width: 100%; padding: 8px; background: rgba(0,212,170,.1);
-  border: 1px solid rgba(0,212,170,.3); color: var(--accent);
-  font-family: var(--mono); font-size: 11px; border-radius: 4px;
-  cursor: pointer; letter-spacing: 1px; transition: all .15s;
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--amber);cursor:pointer;
+  box-shadow:0 0 6px rgba(245,158,11,.4);
 }
-.scan-btn:hover { background: rgba(0,212,170,.2); }
-.scan-btn:disabled { opacity: .4; cursor: not-allowed; }
-.scan-result { margin-top: 10px; font-size: 11px; color: var(--text2); min-height: 20px; }
+.range-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:5px;font-family:var(--mono)}
 
-/* ── FEED ── */
-.feed-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px; border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; background: var(--surface); z-index: 10;
+/* ─── MANUAL SCAN ─── */
+.scan-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+.scan-in{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  color:var(--text);font-family:var(--mono);font-size:12px;
+  padding:9px 11px;border-radius:5px;outline:none;margin-bottom:8px;
+  text-transform:uppercase;font-weight:700;letter-spacing:1px;
 }
-.feed-title { font-family: var(--display); font-size: 13px; font-weight: 700; }
-.filter-row { display: flex; gap: 4px; }
-.filter-btn {
-  font-family: var(--mono); font-size: 9px; padding: 4px 8px;
-  background: none; border: 1px solid var(--border); color: var(--text3);
-  border-radius: 3px; cursor: pointer; letter-spacing: .5px; text-transform: uppercase;
-  transition: all .12s;
+.scan-in::placeholder{text-transform:none;font-weight:400;letter-spacing:0;color:var(--text3)}
+.scan-in:focus{border-color:var(--accent)}
+.scan-btn{
+  width:100%;padding:9px;background:rgba(0,201,167,.1);
+  border:1px solid rgba(0,201,167,.3);color:var(--accent);
+  font-family:var(--mono);font-size:11px;border-radius:5px;
+  cursor:pointer;letter-spacing:1px;font-weight:700;transition:all .15s;
 }
-.filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,.06); }
+.scan-btn:hover{background:rgba(0,201,167,.2)}
+.scan-btn:disabled{opacity:.4;cursor:not-allowed}
+.scan-res{margin-top:8px;font-size:11px;color:var(--text2);min-height:16px;line-height:1.5}
 
-.feed-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+/* ─── FEED ─── */
+.feed{flex:1}
+.feed-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  position:sticky;top:52px;background:var(--bg2);z-index:100;
+}
+.feed-title{font-size:14px;font-weight:700}
+.filters{display:flex;gap:4px}
+.fb{
+  font-size:10px;padding:4px 10px;background:none;
+  border:1px solid var(--border);color:var(--text3);
+  border-radius:4px;cursor:pointer;letter-spacing:.5px;
+  text-transform:uppercase;font-family:var(--mono);transition:all .12s;
+}
+.fb:hover,.fb.on{border-color:var(--accent);color:var(--accent);background:rgba(0,201,167,.06)}
 
-/* ── EMPTY STATE ── */
-.empty {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 60px 20px; text-align: center;
-}
-.empty-icon { font-size: 32px; margin-bottom: 12px; opacity: .4; }
-.empty-title { font-family: var(--display); font-size: 14px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
-.empty-sub { font-size: 11px; color: var(--text3); line-height: 1.6; }
+.feed-body{padding:12px;display:flex;flex-direction:column;gap:10px}
 
-/* ── SIGNAL CARD ── */
-.card {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 8px; overflow: hidden;
-  transition: border-color .15s, transform .15s;
-  cursor: pointer;
-  border-left: 3px solid transparent;
+/* ─── EMPTY STATE ─── */
+.empty{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;
 }
-.card:hover { border-color: var(--border2); transform: translateX(2px); }
-.card.score-high   { border-left-color: var(--red); }
-.card.score-med    { border-left-color: var(--amber); }
-.card.score-low    { border-left-color: var(--accent); }
-.card.new-in { animation: newcard .8s ease-out; }
-@keyframes newcard { 0%{ border-color: var(--accent); box-shadow: 0 0 20px rgba(0,212,170,.3); } 100%{ border-color: var(--border); box-shadow: none; } }
+.empty.show{display:flex}
+.empty-ico{font-size:40px;margin-bottom:14px;opacity:.3}
+.empty-t{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:8px}
+.empty-s{font-size:12px;color:var(--text3);line-height:1.7}
 
-.card-top { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 14px 8px; }
-.coin-row { display: flex; align-items: center; gap: 10px; }
-.coin-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent2), var(--purple));
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--display); font-weight: 800; font-size: 11px; color: #fff;
-  flex-shrink: 0;
+/* ─── SIGNAL CARD ─── */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;border-left:3px solid transparent;transition:border-color .15s;
 }
-.coin-sym { font-family: var(--display); font-size: 15px; font-weight: 800; }
-.coin-chain {
-  font-size: 9px; padding: 2px 5px; border-radius: 3px; text-transform: uppercase; letter-spacing: .5px;
-  background: rgba(139,92,246,.12); color: var(--purple); border: 1px solid rgba(139,92,246,.2);
-  margin-left: 4px;
-}
-.coin-name { font-size: 10px; color: var(--text3); margin-top: 1px; }
-.score-badge {
-  text-align: right;
-}
-.score-num { font-family: var(--display); font-size: 28px; font-weight: 800; line-height: 1; }
-.score-num.high { color: var(--red); }
-.score-num.med  { color: var(--amber); }
-.score-num.low  { color: var(--accent); }
-.score-denom { font-size: 10px; color: var(--text3); }
+.card:hover{border-color:var(--border2)}
+.card.sc-h{border-left-color:var(--red)}
+.card.sc-m{border-left-color:var(--amber)}
+.card.sc-l{border-left-color:var(--accent)}
+.card.new{animation:flash .8s ease-out}
+@keyframes flash{0%{box-shadow:0 0 20px rgba(0,201,167,.35)}100%{box-shadow:none}}
 
-.score-bar { height: 2px; background: var(--border); margin: 4px 14px 0; border-radius: 1px; overflow: hidden; }
-.score-fill { height: 100%; border-radius: 1px; transition: width .6s ease; }
-.fill-high { background: linear-gradient(90deg, var(--amber), var(--red)); }
-.fill-med  { background: linear-gradient(90deg, var(--accent), var(--amber)); }
-.fill-low  { background: var(--accent); }
+/* card header */
+.ch{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px}
+.coin-grp{display:flex;align-items:center;gap:10px}
+.avatar{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent2),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#fff;letter-spacing:-.5px;
+}
+.coin-sym{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.chain-tag{
+  font-size:9px;padding:2px 6px;border-radius:3px;
+  text-transform:uppercase;letter-spacing:.5px;font-weight:600;
+  background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.2);
+  margin-left:4px;vertical-align:middle;
+}
+.coin-name{font-size:11px;color:var(--text3);margin-top:2px;font-weight:500}
+.score-grp{text-align:right;flex-shrink:0}
+.score-n{font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.score-n.sh{color:var(--red)}
+.score-n.sm{color:var(--amber)}
+.score-n.sl{color:var(--accent)}
+.score-d{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.conf-label{font-size:10px;font-weight:600;margin-top:2px}
 
-.card-metrics {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  margin-top: 8px;
-}
-.metric { padding: 8px 10px; text-align: center; border-right: 1px solid var(--border); }
-.metric:last-child { border-right: none; }
-.metric-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
-.metric-val { font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.green { color: var(--green); }
-.red   { color: var(--red); }
-.blue  { color: var(--accent2); }
+/* score bar */
+.sbar{height:3px;background:var(--border);margin:0 14px 0;border-radius:2px;overflow:hidden}
+.sfill{height:100%;border-radius:2px;transition:width .5s ease}
+.sfh{background:linear-gradient(90deg,var(--amber),var(--red))}
+.sfm{background:linear-gradient(90deg,var(--accent),var(--amber))}
+.sfl{background:var(--accent)}
 
-.card-identity { padding: 8px 14px; border-bottom: 1px solid var(--border); }
-.contract-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-.contract-label { font-size: 9px; color: var(--text3); flex-shrink: 0; }
-.contract-addr { font-size: 10px; color: var(--accent); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.copy-btn {
-  font-size: 9px; padding: 2px 6px; background: var(--bg);
-  border: 1px solid var(--border2); color: var(--text2); border-radius: 3px;
-  cursor: pointer; flex-shrink: 0; transition: all .12s; font-family: var(--mono);
+/* price row */
+.price-row{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  margin-top:8px;
 }
-.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-.copy-btn.ok { color: var(--green); border-color: var(--green); }
-.ext-links { display: flex; gap: 6px; flex-wrap: wrap; }
-.ext-link {
-  font-size: 10px; padding: 3px 8px; border-radius: 3px;
-  text-decoration: none; border: 1px solid var(--border2);
-  transition: all .12s; font-family: var(--mono);
-}
-.cg-link  { color: #8dc647; border-color: rgba(141,198,71,.25); }
-.cg-link:hover  { background: rgba(141,198,71,.08); border-color: #8dc647; }
-.exp-link { color: var(--accent2); border-color: rgba(0,153,255,.2); }
-.exp-link:hover { background: rgba(0,153,255,.06); border-color: var(--accent2); }
+.pr-cell{padding:8px 10px;text-align:center;border-right:1px solid var(--border)}
+.pr-cell:last-child{border-right:none}
+.pr-l{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:4px;font-family:var(--mono)}
+.pr-v{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.gn{color:var(--green)}
+.rd{color:var(--red)}
+.bl{color:var(--accent2)}
 
-.card-bottom { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; }
-.sm-data { display: flex; gap: 12px; }
-.sm-item { font-size: 10px; }
-.sm-label { color: var(--text3); }
-.sm-val { color: var(--text); }
-.hold-tag {
-  font-size: 10px; padding: 3px 8px; border-radius: 3px;
-  background: rgba(0,212,170,.06); border: 1px solid rgba(0,212,170,.15); color: var(--accent);
+/* identity */
+.id-row{padding:10px 14px;border-bottom:1px solid var(--border)}
+.ct-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.ct-label{font-size:10px;color:var(--text3);flex-shrink:0;font-family:var(--mono)}
+.ct-addr{
+  font-family:var(--mono);font-size:10px;color:var(--accent);
+  flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;
 }
-.card-time { font-size: 9px; color: var(--text3); }
+.cp-btn{
+  font-size:9px;padding:3px 8px;background:var(--bg);
+  border:1px solid var(--border2);color:var(--text2);border-radius:3px;
+  cursor:pointer;flex-shrink:0;font-family:var(--mono);font-weight:700;transition:all .12s;
+}
+.cp-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cp-btn.ok{color:var(--green);border-color:var(--green)}
+.links{display:flex;gap:6px;flex-wrap:wrap}
+.lnk{
+  font-size:11px;padding:4px 10px;border-radius:4px;text-decoration:none;
+  border:1px solid var(--border2);font-weight:600;transition:all .12s;
+}
+.lnk-cg{color:#86efac;border-color:rgba(134,239,172,.25)}
+.lnk-cg:hover{background:rgba(134,239,172,.08);border-color:#86efac}
+.lnk-ex{color:var(--accent2);border-color:rgba(59,130,246,.25)}
+.lnk-ex:hover{background:rgba(59,130,246,.08);border-color:var(--accent2)}
 
-/* ── BREAKDOWN ── */
-.breakdown { padding: 0 14px 10px; }
-.bd-item {
-  padding: 5px 8px; margin-bottom: 3px; border-radius: 3px;
-  font-size: 10px; line-height: 1.5; border-left: 2px solid transparent;
-  background: var(--bg);
+/* smart money row */
+.sm-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;
 }
-.bd-ok  { border-color: var(--green); }
-.bd-med { border-color: var(--amber); }
-.bd-neu { border-color: var(--border2); }
-.bd-bad { border-color: var(--red); }
+.sm-items{display:flex;gap:14px;flex-wrap:wrap}
+.sm-it{font-size:11px;font-weight:600}
+.sm-lbl{color:var(--text3);font-weight:400}
+.hold-tag{font-size:10px;padding:3px 9px;border-radius:4px;background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.18);color:var(--accent);font-weight:700;font-family:var(--mono)}
+.card-time{font-size:10px;color:var(--text3);font-family:var(--mono)}
 
-/* ── WATCHLIST ── */
-.watch-item {
-  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
-  background: var(--panel); border: 1px solid var(--border); border-radius: 5px; margin-bottom: 4px;
-}
-.watch-sym { font-family: var(--display); font-weight: 700; font-size: 12px; width: 45px; }
-.watch-price { flex: 1; text-align: right; font-size: 11px; color: var(--text2); font-variant-numeric: tabular-nums; }
-.watch-chg { font-size: 11px; font-weight: 500; width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
-.spark { display: flex; align-items: flex-end; gap: 2px; height: 18px; }
-.spark-bar { width: 3px; border-radius: 1px; background: var(--border2); }
+/* breakdown */
+.bdwn{padding:0 14px 12px;display:flex;flex-direction:column;gap:3px}
+.bd{padding:5px 9px;border-radius:4px;font-size:11px;line-height:1.5;border-left:2px solid transparent;background:var(--bg)}
+.bd.ok{border-color:var(--green)}
+.bd.med{border-color:var(--amber)}
+.bd.bad{border-color:var(--red)}
+.bd.neu{border-color:var(--border2);color:var(--text2)}
 
-/* ── LOG ── */
-.log-list { font-size: 10px; line-height: 1.8; max-height: 240px; overflow-y: auto; }
-.log-line { color: var(--text3); border-bottom: 1px solid var(--border); padding: 3px 0; }
-.log-line.ok    { color: var(--green); }
-.log-line.alert { color: var(--accent); }
-.log-line.warn  { color: var(--amber); }
+/* ─── RIGHT PANEL ─── */
+.rpanel{width:100%;border-top:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:16px}
+@media(min-width:1024px){.rpanel{width:250px;border-top:none;border-left:1px solid var(--border);overflow-y:auto}}
 
-/* ── FOOTER ── */
-.footer {
-  display: flex; align-items: center; gap: 16px;
-  padding: 10px 20px; border-top: 1px solid var(--border);
-  background: var(--surface); font-size: 10px; color: var(--text3);
-  overflow: hidden;
+/* watchlist */
+.wl-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:4px;
 }
-.footer-label { flex-shrink: 0; letter-spacing: 1px; text-transform: uppercase; font-size: 9px; }
-.ticker-wrap { flex: 1; overflow: hidden; }
-.ticker { display: flex; gap: 24px; animation: ticker 25s linear infinite; white-space: nowrap; }
-@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-.tick-item { color: var(--text3); }
-.tick-item span { color: var(--text2); }
-.tick-item .ok { color: var(--green); }
-.tick-item .er { color: var(--red); }
+.wl-sym{font-size:13px;font-weight:700;width:40px;flex-shrink:0}
+.wl-price{flex:1;text-align:right;font-size:12px;color:var(--text2);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wl-chg{font-size:12px;font-weight:700;width:54px;text-align:right;font-family:var(--mono)}
+.spark{display:flex;align-items:flex-end;gap:2px;height:20px;width:36px;flex-shrink:0}
+.sb{width:4px;border-radius:1px;background:var(--border2)}
 
-/* ── MODAL ── */
-.modal-bg {
-  display: none; position: fixed; inset: 0;
-  background: rgba(8,11,16,.88); backdrop-filter: blur(4px);
-  z-index: 500; align-items: center; justify-content: center;
-}
-.modal-bg.open { display: flex; }
-.modal {
-  background: var(--panel); border: 1px solid var(--border2);
-  border-radius: 10px; width: 560px; max-height: 80vh; overflow-y: auto;
-  box-shadow: 0 0 40px rgba(0,212,170,.08);
-}
-.modal-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; background: var(--panel);
-}
-.modal-title { font-family: var(--display); font-size: 15px; font-weight: 800; }
-.modal-close { background: none; border: none; color: var(--text3); font-size: 18px; cursor: pointer; }
-.modal-body { padding: 16px 20px; }
+/* log */
+.log-wrap{max-height:220px;overflow-y:auto}
+.log-line{font-size:10px;font-family:var(--mono);line-height:1.9;color:var(--text3);border-bottom:1px solid var(--border);padding:1px 0}
+.log-line.ok{color:var(--green)}
+.log-line.warn{color:var(--amber)}
+.log-line.alert{color:var(--accent)}
 
-/* ── scrollbar ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+/* ─── MODAL ─── */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(5,8,16,.9);backdrop-filter:blur(6px);
+  z-index:500;align-items:center;justify-content:center;padding:16px;
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--card2);border:1px solid var(--border2);border-radius:10px;
+  width:100%;max-width:560px;max-height:90vh;overflow-y:auto;
+}
+.mhd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--card2);
+}
+.mhd-title{font-size:16px;font-weight:700}
+.m-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1}
+.mbody{padding:16px 20px}
+.m3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.mbox{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center}
+.mbox-l{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)}
+.mbox-v{font-size:20px;font-weight:700}
+.warn-box{margin-top:14px;padding:10px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:6px;font-size:11px;color:var(--text3);line-height:1.6}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">
-    <div class="logo-icon">C</div>
-    <div>
-      <div class="logo-name">Crypto<span>Signal</span> Pro</div>
-    </div>
+<!-- HEADER -->
+<header class="hd">
+  <div class="hd-logo">
+    <div class="hd-icon">C</div>
+    <div class="hd-name">Crypto<em>Signal</em> Pro</div>
   </div>
-  <div class="header-right">
-    <div class="status-pill"><div class="pulse"></div><span id="hStatus">Loading…</span></div>
-    <div class="clock" id="clock">--:--:-- UTC</div>
+  <div class="hd-right">
+    <div class="status-dot"><div class="dot"></div><span id="hStatus">Loading</span></div>
+    <div class="utc" id="clock">--:--:-- UTC</div>
   </div>
 </header>
 
-<div class="statsbar">
-  <div class="stat">
-    <div class="stat-label">Live Signals</div>
-    <div class="stat-value" id="sSignals">—</div>
-    <div class="stat-sub">above threshold</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Scans Run</div>
-    <div class="stat-value" id="sScans">—</div>
-    <div class="stat-sub">every 5 min</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Best Score</div>
-    <div class="stat-value" id="sBest" style="color:var(--amber)">—</div>
-    <div class="stat-sub" id="sBestSym">—</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Last Scan</div>
-    <div class="stat-value" id="sLast" style="font-size:16px;color:var(--green)">—</div>
-    <div class="stat-sub">UTC time</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Next Refresh</div>
-    <div class="stat-value" id="sNext" style="color:var(--accent2)">15s</div>
-    <div class="stat-sub">auto-refresh</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Threshold</div>
-    <div class="stat-value" id="sThresh" style="color:var(--amber)">30</div>
-    <div class="stat-sub">min score</div>
-  </div>
+<!-- STATS BAR -->
+<div class="stats">
+  <div class="stat"><div class="stat-l">Signals</div><div class="stat-v" id="sSignals">—</div><div class="stat-s">above threshold</div></div>
+  <div class="stat"><div class="stat-l">Scans</div><div class="stat-v" id="sScans">—</div><div class="stat-s">every 5 min</div></div>
+  <div class="stat"><div class="stat-l">Best Score</div><div class="stat-v" id="sBest" style="color:var(--amber)">—</div><div class="stat-s" id="sBestSym">—</div></div>
+  <div class="stat"><div class="stat-l">Last Scan</div><div class="stat-v" id="sLast" style="font-size:16px;color:var(--green)">—</div><div class="stat-s">UTC</div></div>
+  <div class="stat"><div class="stat-l">Refresh In</div><div class="stat-v" id="sNext" style="color:var(--accent2)">15s</div><div class="stat-s">auto-refresh</div></div>
+  <div class="stat"><div class="stat-l">Threshold</div><div class="stat-v" id="sThresh" style="color:var(--amber)">30</div><div class="stat-s" id="sThreshDesc">min score</div></div>
 </div>
 
+<!-- MAIN -->
 <div class="layout">
 
-  <!-- LEFT PANEL -->
-  <div class="col">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
 
-    <div class="section">
-      <div class="section-title">Signal Layers</div>
-      <div class="layer-item"><div class="layer-num">1</div><div class="layer-info"><div class="layer-name">SM Screener</div><div class="layer-src">Nansen API</div></div><div class="layer-pts">30pt</div><div class="badge badge-live">Live</div></div>
-      <div class="layer-item"><div class="layer-num">2</div><div class="layer-info"><div class="layer-name">SM Netflow</div><div class="layer-src">Nansen API</div></div><div class="layer-pts">20pt</div><div class="badge badge-live">Live</div></div>
-      <div class="layer-item"><div class="layer-num">3</div><div class="layer-info"><div class="layer-name">Contract Safety</div><div class="layer-src">Etherscan</div></div><div class="layer-pts">20pt</div><div class="badge badge-setup" id="l3badge">Setup</div></div>
-      <div class="layer-item"><div class="layer-num">4</div><div class="layer-info"><div class="layer-name">Volume/Momentum</div><div class="layer-src">CryptoCompare</div></div><div class="layer-pts">15pt</div><div class="badge badge-setup" id="l4badge">Setup</div></div>
-      <div class="layer-item"><div class="layer-num">5</div><div class="layer-info"><div class="layer-name">Fear &amp; Greed</div><div class="layer-src">Alternative.me</div></div><div class="layer-pts">10pt</div><div class="badge badge-free">Free</div></div>
-      <div class="layer-item"><div class="layer-num">6</div><div class="layer-info"><div class="layer-name">Volume Confirm</div><div class="layer-src">CoinGecko</div></div><div class="layer-pts">5pt</div><div class="badge badge-free">Free</div></div>
+    <div>
+      <div class="stitle">Signal Layers</div>
+      <div class="layers" id="layerList">
+        <div class="layer"><div class="lnum">1</div><div class="linfo"><div class="lname">SM Screener</div><div class="lsrc">Nansen API</div></div><div class="lpts">30pt</div><div class="badge b-live" id="l1">Live</div></div>
+        <div class="layer"><div class="lnum">2</div><div class="linfo"><div class="lname">SM Netflow</div><div class="lsrc">Nansen API</div></div><div class="lpts">20pt</div><div class="badge b-live" id="l2">Live</div></div>
+        <div class="layer"><div class="lnum">3</div><div class="linfo"><div class="lname">Contract Safety</div><div class="lsrc">Etherscan</div></div><div class="lpts">20pt</div><div class="badge b-setup" id="l3">Setup</div></div>
+        <div class="layer"><div class="lnum">4</div><div class="linfo"><div class="lname">Vol + Momentum</div><div class="lsrc">CryptoCompare</div></div><div class="lpts">15pt</div><div class="badge b-setup" id="l4">Setup</div></div>
+        <div class="layer"><div class="lnum">5</div><div class="linfo"><div class="lname">Fear &amp; Greed</div><div class="lsrc">Alternative.me</div></div><div class="lpts">10pt</div><div class="badge b-free">Free</div></div>
+        <div class="layer"><div class="lnum">6</div><div class="linfo"><div class="lname">Volume Check</div><div class="lsrc">CoinGecko</div></div><div class="lpts">5pt</div><div class="badge b-free">Free</div></div>
+      </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Alert Threshold</div>
-      <div class="threshold-box">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div>
-            <div class="threshold-num" id="thVal">30</div>
-            <div class="threshold-desc" id="thDesc">Testing mode</div>
-          </div>
-          <div style="text-align:right;font-size:10px;color:var(--text3)" id="thFreq">Many signals/day</div>
+    <div>
+      <div class="stitle">Alert Threshold</div>
+      <div class="thresh-box">
+        <div class="thresh-top">
+          <div><div class="thresh-num" id="thNum">30</div><div class="thresh-desc" id="thDesc">Testing mode</div></div>
+          <div class="thresh-tag" id="thFreq">Many signals</div>
         </div>
         <input type="range" min="20" max="90" value="30" id="thSlider">
-        <div class="range-labels"><span>20</span><span>55</span><span>90</span></div>
+        <div class="range-labels"><span>20</span><span>Testing</span><span>Elite</span><span>90</span></div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Manual Token Scan</div>
+    <div>
+      <div class="stitle">Manual Token Scan</div>
       <div class="scan-box">
-        <input type="text" class="scan-input" id="scanInput" placeholder="Enter symbol e.g. AAVE" maxlength="20">
-        <button class="scan-btn" id="scanBtn" onclick="manualScan()">▶ SCAN TOKEN</button>
-        <div class="scan-result" id="scanResult"></div>
+        <input class="scan-in" id="scanIn" placeholder="Symbol e.g. AAVE or PEPE" maxlength="30">
+        <button class="scan-btn" id="scanBtn" onclick="manualScan()">▶ SEARCH IN CURRENT SCAN</button>
+        <div class="scan-res" id="scanRes"></div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Score Guide</div>
-      <div style="display:flex;flex-direction:column;gap:5px;">
-        <div style="display:flex;align-items:center;gap:8px;font-size:10px"><div style="width:10px;height:10px;background:var(--red);border-radius:2px;flex-shrink:0"></div><span style="color:var(--text2)">75–100 <span style="color:var(--text3)">Extreme conviction</span></span></div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:10px"><div style="width:10px;height:10px;background:var(--amber);border-radius:2px;flex-shrink:0"></div><span style="color:var(--text2)">55–74 <span style="color:var(--text3)">High conviction</span></span></div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:10px"><div style="width:10px;height:10px;background:var(--accent);border-radius:2px;flex-shrink:0"></div><span style="color:var(--text2)">30–54 <span style="color:var(--text3)">Moderate — tight SL</span></span></div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:10px"><div style="width:10px;height:10px;background:var(--border2);border-radius:2px;flex-shrink:0"></div><span style="color:var(--text3)">&lt;30 — filtered out</span></div>
+    <div>
+      <div class="stitle">Score Guide</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;background:var(--red);border-radius:2px;flex-shrink:0"></div><strong>75–100</strong> <span style="color:var(--text3)">Extreme — institutional</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;background:var(--amber);border-radius:2px;flex-shrink:0"></div><strong>55–74</strong> <span style="color:var(--text3)">High conviction</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;background:var(--accent);border-radius:2px;flex-shrink:0"></div><strong>30–54</strong> <span style="color:var(--text3)">Moderate — use tight SL</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:10px;height:10px;background:var(--border2);border-radius:2px;flex-shrink:0"></div><span style="color:var(--text3)">&lt;30 — filtered out</span></div>
       </div>
     </div>
 
-  </div>
+  </aside>
 
   <!-- CENTER FEED -->
-  <div class="col" style="border-right:none">
-    <div class="feed-header">
+  <main class="feed">
+    <div class="feed-hd">
       <div class="feed-title">Live Signal Feed</div>
-      <div class="filter-row">
-        <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
-        <button class="filter-btn" onclick="setFilter('high',this)">HIGH</button>
-        <button class="filter-btn" onclick="setFilter('med',this)">MED</button>
-        <button class="filter-btn" onclick="setFilter('low',this)">LOW</button>
+      <div class="filters">
+        <button class="fb on" onclick="setFilter('all',this)">ALL</button>
+        <button class="fb" onclick="setFilter('h',this)">HIGH</button>
+        <button class="fb" onclick="setFilter('m',this)">MED</button>
+        <button class="fb" onclick="setFilter('l',this)">LOW</button>
       </div>
     </div>
     <div class="feed-body" id="feed">
-      <div class="empty" id="emptyState">
-        <div class="empty-icon">◎</div>
-        <div class="empty-title">Loading signals…</div>
-        <div class="empty-sub">Fetching live data from scanner</div>
+      <div class="empty show" id="emptyEl">
+        <div class="empty-ico">◎</div>
+        <div class="empty-t">Loading signals…</div>
+        <div class="empty-s">Connecting to live scanner data</div>
       </div>
     </div>
-  </div>
+  </main>
 
   <!-- RIGHT PANEL -->
-  <div class="col" style="border-left:1px solid var(--border)">
+  <aside class="rpanel">
 
-    <div class="section">
-      <div class="section-title">Market Watchlist</div>
-      <div id="watchlist"></div>
+    <div>
+      <div class="stitle">Market Watchlist</div>
+      <div id="wlEl"><div style="font-size:11px;color:var(--text3)">Loading prices…</div></div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Scanner Log</div>
-      <div class="log-list" id="logList"></div>
+    <div>
+      <div class="stitle">Scanner Log</div>
+      <div class="log-wrap"><div class="log-list" id="logEl"></div></div>
     </div>
 
-  </div>
+  </aside>
 
 </div>
-
-<footer class="footer">
-  <div class="footer-label">Live</div>
-  <div class="ticker-wrap">
-    <div class="ticker" id="ticker">
-      <div class="tick-item">Scanner <span class="ok">ACTIVE</span></div>
-      <div class="tick-item">Nansen <span class="ok">Connected</span></div>
-      <div class="tick-item">CoinGecko <span class="ok">Free</span></div>
-      <div class="tick-item">Fear&amp;Greed <span class="ok">Free</span></div>
-      <div class="tick-item">GitHub Actions <span class="ok">Running</span></div>
-      <div class="tick-item">Scanner <span class="ok">ACTIVE</span></div>
-      <div class="tick-item">Nansen <span class="ok">Connected</span></div>
-      <div class="tick-item">CoinGecko <span class="ok">Free</span></div>
-      <div class="tick-item">Fear&amp;Greed <span class="ok">Free</span></div>
-      <div class="tick-item">GitHub Actions <span class="ok">Running</span></div>
-    </div>
-  </div>
-</footer>
 
 <!-- MODAL -->
 <div class="modal-bg" id="modal" onclick="closeModal(event)">
   <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="modalTitle">Signal Detail</div>
-      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    <div class="mhd">
+      <div class="mhd-title" id="mTitle">Detail</div>
+      <button class="m-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
     </div>
-    <div class="modal-body" id="modalBody"></div>
+    <div class="mbody" id="mBody"></div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════════
-let allSignals  = [];
-let threshold   = 30;
-let activeFilter = 'all';
-let refreshCd   = 15;
-let scanCount   = 0;
-const SIGNALS_URL = './signals.json';
+// ═══════════════════════════════════════════════
+let signals = [];
+let layerStatus = {};
+let threshold = 30;
+let filter = 'all';
+let countdown = 15;
+let scanCount = 0;
+const URL = './signals.json';
 
-const WATCHLIST = [
-  {sym:'BTC', price:94250, chg:1.2,  spark:[4,3,4,5,4,5,6]},
-  {sym:'ETH', price:3480,  chg:2.1,  spark:[3,4,3,4,5,4,5]},
-  {sym:'SOL', price:142,   chg:3.4,  spark:[2,3,3,4,4,5,6]},
-  {sym:'BNB', price:618,   chg:-0.8, spark:[5,4,4,3,4,3,3]},
-  {sym:'INJ', price:28.4,  chg:5.2,  spark:[2,3,4,4,5,6,7]},
-  {sym:'ARB', price:0.892, chg:2.9,  spark:[3,3,4,3,4,5,5]},
-];
-
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // CLOCK
-// ═══════════════════════════════════════════════════════════
-function updateClock() {
+// ═══════════════════════════════════════════════
+function tick() {
   const n = new Date();
   const p = v => String(v).padStart(2,'0');
   document.getElementById('clock').textContent =
-    `${p(n.getUTCHours())}:${p(n.getUTCMinutes())}:${p(n.getUTCSeconds())} UTC`;
+    p(n.getUTCHours())+':'+p(n.getUTCMinutes())+':'+p(n.getUTCSeconds())+' UTC';
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(tick, 1000); tick();
 
-// ═══════════════════════════════════════════════════════════
-// COUNTDOWN
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// COUNTDOWN + AUTO-REFRESH
+// ═══════════════════════════════════════════════
 setInterval(() => {
-  refreshCd--;
-  if (refreshCd <= 0) { refreshCd = 15; loadSignals(); }
-  document.getElementById('sNext').textContent = refreshCd + 's';
+  countdown--;
+  if (countdown <= 0) { countdown = 15; fetchSignals(); }
+  document.getElementById('sNext').textContent = countdown + 's';
 }, 1000);
 
-// ═══════════════════════════════════════════════════════════
-// FETCH SIGNALS
-// ═══════════════════════════════════════════════════════════
-async function loadSignals() {
+// ═══════════════════════════════════════════════
+// FETCH SIGNALS — the only data source
+// ═══════════════════════════════════════════════
+async function fetchSignals() {
   try {
-    const r = await fetch(SIGNALS_URL + '?t=' + Date.now());
-    if (!r.ok) { addLog('signals.json not found', 'warn'); return; }
-    const data = await r.json();
+    const r = await fetch(URL + '?v=' + Date.now());
+    if (!r.ok) { log('signals.json not found — waiting for first scan', 'warn'); return; }
+    const d = await r.json();
 
-    scanCount = data.scan_count || scanCount;
+    // Update globals
+    scanCount = d.scan_count || 0;
+    layerStatus = d.layer_status || {};
+    if (d.signals) signals = d.signals.map(s => ({...s, ts: new Date(s.timestamp || d.last_scan)}));
+
+    // Update stats
     document.getElementById('sScans').textContent = scanCount;
-
-    if (data.last_scan) {
-      const t = new Date(data.last_scan);
+    if (d.last_scan) {
+      const t = new Date(d.last_scan);
       const p = v => String(v).padStart(2,'0');
-      document.getElementById('sLast').textContent =
-        p(t.getUTCHours()) + ':' + p(t.getUTCMinutes());
-      addLog('Scan #' + scanCount + ' @ ' + p(t.getUTCHours()) + ':' + p(t.getUTCMinutes()) + ' UTC', 'ok');
+      document.getElementById('sLast').textContent = p(t.getUTCHours())+':'+p(t.getUTCMinutes());
+      log('Scan #'+scanCount+' @ '+p(t.getUTCHours())+':'+p(t.getUTCMinutes())+' UTC', 'ok');
     }
 
-    if (data.signals) {
-      allSignals = data.signals.map(s => ({
-        ...s,
-        timestamp: new Date(s.timestamp || data.last_scan)
-      }));
-      renderFeed();
+    // Update threshold from scanner if signals.json has it
+    if (d.threshold && d.threshold !== threshold) {
+      // Don't override user setting, just log it
     }
 
+    // Update layer badges
+    updateLayers();
+
+    // Render
+    renderFeed();
+    fetchWatchlist();
     document.getElementById('hStatus').textContent = 'Scanner Active';
+
   } catch(e) {
-    addLog('Fetch error: ' + e.message, 'warn');
+    log('Fetch error: ' + e.message, 'warn');
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// RENDER FEED
-// ═══════════════════════════════════════════════════════════
-function scoreClass(s) {
-  return s >= 65 ? 'high' : s >= 45 ? 'med' : 'low';
+// ═══════════════════════════════════════════════
+// UPDATE LAYER BADGES
+// ═══════════════════════════════════════════════
+function updateLayers() {
+  const set = (id, active, label) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = label;
+    el.className = 'badge ' + (active ? 'b-live' : 'b-setup');
+  };
+  set('l1', layerStatus.nansen, layerStatus.nansen ? 'Live' : 'No Key');
+  set('l2', layerStatus.nansen, layerStatus.nansen ? 'Live' : 'No Key');
+  set('l3', layerStatus.etherscan, layerStatus.etherscan ? 'Live' : 'Setup');
+  set('l4', layerStatus.cryptocompare, layerStatus.cryptocompare ? 'Live' : 'Setup');
 }
 
+// ═══════════════════════════════════════════════
+// RENDER FEED
+// ═══════════════════════════════════════════════
+function scClass(s) { return s >= 65 ? 'h' : s >= 45 ? 'm' : 'l'; }
+
 function renderFeed() {
-  const visible = allSignals.filter(s => {
+  const vis = signals.filter(s => {
     if (s.score < threshold) return false;
-    if (activeFilter === 'all') return true;
-    return scoreClass(s.score) === activeFilter;
+    if (filter === 'all') return true;
+    return scClass(s.score) === filter;
   });
 
-  // Update stats
-  document.getElementById('sSignals').textContent = visible.length;
-  if (visible.length > 0) {
-    document.getElementById('sBest').textContent = visible[0].score;
-    document.getElementById('sBestSym').textContent = '$' + visible[0].symbol;
+  // Stats
+  const above = signals.filter(s => s.score >= threshold);
+  document.getElementById('sSignals').textContent = above.length;
+  const best = signals.length > 0 ? signals[0] : null;
+  if (best) {
+    document.getElementById('sBest').textContent = best.score;
+    document.getElementById('sBestSym').textContent = '$' + best.symbol;
   } else {
-    document.getElementById('sBest').textContent = allSignals.length > 0 ? allSignals[0].score : '—';
-    document.getElementById('sBestSym').textContent = allSignals.length > 0 ? '$' + allSignals[0].symbol : '—';
+    document.getElementById('sBest').textContent = '—';
+    document.getElementById('sBestSym').textContent = 'no signals';
   }
 
   const feed = document.getElementById('feed');
-  const empty = document.getElementById('emptyState');
+  const empty = document.getElementById('emptyEl');
 
-  if (visible.length === 0) {
-    empty.style.display = 'flex';
-    empty.querySelector('.empty-title').textContent = allSignals.length > 0
-      ? 'No signals above threshold ' + threshold
-      : 'No signals this scan';
-    empty.querySelector('.empty-sub').textContent = allSignals.length > 0
-      ? 'Lower the threshold slider to see ' + allSignals.length + ' available signal(s)'
-      : 'Scanner runs every 5 minutes. Best score: ' + (allSignals[0]?.score || 0);
-    // Remove old cards
-    feed.querySelectorAll('.card').forEach(c => c.remove());
+  // Clear old cards
+  feed.querySelectorAll('.card').forEach(c => c.remove());
+
+  if (vis.length === 0) {
+    empty.className = 'empty show';
+    if (signals.length > 0) {
+      empty.querySelector('.empty-t').textContent = 'No signals above ' + threshold;
+      empty.querySelector('.empty-s').textContent =
+        signals.length + ' signal(s) found — lower the threshold slider to see them.\nBest score: ' + (signals[0]?.score || 0) + '/100';
+    } else {
+      empty.querySelector('.empty-t').textContent = 'No signals this scan';
+      empty.querySelector('.empty-s').textContent = 'Smart Money not moving right now.\nScanner checks every 5 minutes automatically.';
+    }
     return;
   }
 
-  empty.style.display = 'none';
-  // Rebuild cards
-  feed.querySelectorAll('.card').forEach(c => c.remove());
-  visible.forEach((sig, i) => {
-    const el = buildCard(sig);
-    feed.appendChild(el);
-  });
+  empty.className = 'empty';
+  vis.forEach(s => feed.appendChild(buildCard(s)));
+}
+
+// ═══════════════════════════════════════════════
+// BUILD CARD
+// ═══════════════════════════════════════════════
+function fmt(v) {
+  if (!v && v !== 0) return '—';
+  const n = Number(v);
+  if (n === 0) return '$0';
+  if (n >= 1000) return '$' + n.toLocaleString('en', {maximumFractionDigits: 0});
+  if (n >= 1)    return '$' + n.toFixed(2);
+  if (n >= 0.01) return '$' + n.toFixed(4);
+  return '$' + n.toFixed(6);
+}
+
+function ago(d) {
+  if (!d) return '';
+  const s = Math.floor((Date.now() - new Date(d)) / 1000);
+  if (s < 60)   return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  return Math.floor(s/3600) + 'h ago';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function buildCard(sig) {
-  const sc = scoreClass(sig.score);
-  const fill = sc === 'high' ? 'fill-high' : sc === 'med' ? 'fill-med' : 'fill-low';
-  const initials = sig.symbol.replace(/[^A-Z0-9]/gi,'').slice(0,3).toUpperCase() || '?';
-  const ago = timeAgo(sig.timestamp);
-
-  const pf = (v, decimals) => {
-    if (!v) return '—';
-    const n = Number(v);
-    if (n >= 1000) return '$' + n.toLocaleString('en', {maximumFractionDigits: 0});
-    if (n >= 1)    return '$' + n.toFixed(2);
-    return '$' + n.toFixed(6);
-  };
+  const sc = scClass(sig.score);
+  const fillCls = sc === 'h' ? 'sfh' : sc === 'm' ? 'sfm' : 'sfl';
+  const scoreCls = sc === 'h' ? 'sh' : sc === 'm' ? 'sm' : 'sl';
+  const init = esc(sig.symbol||'').replace(/[^A-Z0-9]/gi,'').slice(0,3).toUpperCase() || '?';
+  const confLabel = sig.score >= 75 ? 'EXTREME' : sig.score >= 55 ? 'HIGH' : sig.score >= 40 ? 'MODERATE' : 'LOW';
+  const confColor = sig.score >= 75 ? 'var(--red)' : sig.score >= 55 ? 'var(--amber)' : sig.score >= 40 ? 'var(--accent)' : 'var(--text3)';
 
   const breakdown = (sig.breakdown || []).map(b =>
-    `<div class="bd-item bd-${b.cls || 'neu'}">${escHtml(b.t)}</div>`
+    `<div class="bd ${b.cls||'neu'}">${esc(b.t)}</div>`
   ).join('');
 
   const div = document.createElement('div');
-  div.className = 'card score-' + sc;
-  div.dataset.idx = allSignals.indexOf(sig);
+  div.className = 'card sc-' + sc;
   div.innerHTML = `
-    <div class="card-top">
-      <div class="coin-row">
-        <div class="coin-avatar">${initials}</div>
+    <div class="ch" style="cursor:pointer" onclick="openModal(${signals.indexOf(sig)})">
+      <div class="coin-grp">
+        <div class="avatar">${init}</div>
         <div>
-          <div><span class="coin-sym">${escHtml(sig.symbol)}</span><span class="coin-chain">${escHtml(sig.chain)}</span></div>
-          <div class="coin-name">${escHtml(sig.name)} · ${pf(sig.price)}</div>
+          <div>
+            <span class="coin-sym">${esc(sig.symbol)}</span>
+            <span class="chain-tag">${esc(sig.chain||'')}</span>
+          </div>
+          <div class="coin-name">${esc(sig.name||sig.symbol)} · ${fmt(sig.price)}</div>
         </div>
       </div>
-      <div class="score-badge">
-        <div class="score-num ${sc}">${sig.score}</div>
-        <div class="score-denom">/100</div>
+      <div class="score-grp">
+        <div class="score-n ${scoreCls}">${sig.score}</div>
+        <div class="score-d">/100</div>
+        <div class="conf-label" style="color:${confColor}">${confLabel}</div>
       </div>
     </div>
-    <div class="score-bar"><div class="score-fill ${fill}" style="width:${sig.score}%"></div></div>
+    <div class="sbar"><div class="sfill ${fillCls}" style="width:${sig.score}%"></div></div>
 
-    <div class="card-metrics">
-      <div class="metric"><div class="metric-label">Entry</div><div class="metric-val blue">${pf(sig.entry)}</div></div>
-      <div class="metric"><div class="metric-label">Target 1</div><div class="metric-val green">${pf(sig.target1)}</div></div>
-      <div class="metric"><div class="metric-label">Target 2</div><div class="metric-val green">${pf(sig.target2)}</div></div>
-      <div class="metric"><div class="metric-label">Stop Loss</div><div class="metric-val red">${pf(sig.sl)}</div></div>
+    <div class="price-row">
+      <div class="pr-cell"><div class="pr-l">Entry</div><div class="pr-v bl">${fmt(sig.entry)}</div></div>
+      <div class="pr-cell"><div class="pr-l">Target 1</div><div class="pr-v gn">${fmt(sig.target1)} <small style="color:var(--text3);font-size:9px">+5%</small></div></div>
+      <div class="pr-cell"><div class="pr-l">Target 2</div><div class="pr-v gn">${fmt(sig.target2)} <small style="color:var(--text3);font-size:9px">+10%</small></div></div>
+      <div class="pr-cell"><div class="pr-l">Stop Loss</div><div class="pr-v rd">${fmt(sig.sl)} <small style="color:var(--text3);font-size:9px">-3%</small></div></div>
     </div>
 
-    <div class="card-identity">
+    <div class="id-row">
       ${sig.token_address
-        ? `<div class="contract-row">
-            <span class="contract-label">📋</span>
-            <span class="contract-addr" title="${escHtml(sig.token_address)}">${sig.token_address.slice(0,10)}...${sig.token_address.slice(-6)}</span>
-            <button class="copy-btn" onclick="copyAddr('${escHtml(sig.token_address)}',this)">Copy</button>
+        ? `<div class="ct-row">
+            <span class="ct-label">📋 CONTRACT</span>
+            <span class="ct-addr" title="${esc(sig.token_address)}">${sig.token_address.slice(0,10)}…${sig.token_address.slice(-6)}</span>
+            <button class="cp-btn" onclick="event.stopPropagation();copyAddr('${esc(sig.token_address)}',this)">Copy</button>
            </div>`
-        : `<div style="font-size:10px;color:var(--text3);margin-bottom:6px">📋 Native token — no contract address</div>`}
-      <div class="ext-links">
+        : `<div style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono)">📋 Native token — no contract address</div>`}
+      <div class="links">
         ${sig.coingecko_url
-          ? `<a href="${sig.coingecko_url}" target="_blank" class="ext-link cg-link">🦎 CoinGecko</a>`
-          : `<a href="https://www.coingecko.com/en/search?query=${encodeURIComponent(sig.symbol)}" target="_blank" class="ext-link cg-link">🦎 Search</a>`}
+          ? `<a href="${esc(sig.coingecko_url)}" target="_blank" class="lnk lnk-cg">🦎 CoinGecko</a>`
+          : `<a href="https://www.coingecko.com/en/search?query=${encodeURIComponent(sig.symbol)}" target="_blank" class="lnk lnk-cg">🦎 Search CG</a>`}
         ${sig.explorer_url
-          ? `<a href="${sig.explorer_url}" target="_blank" class="ext-link exp-link">🔍 Explorer</a>`
+          ? `<a href="${esc(sig.explorer_url)}" target="_blank" class="lnk lnk-ex">🔍 Explorer</a>`
           : ''}
       </div>
     </div>
 
-    <div class="card-bottom">
-      <div class="sm-data">
-        ${sig.sm_buyers > 0 ? `<div class="sm-item"><span class="sm-label">SM Wallets: </span><span class="sm-val green">${sig.sm_buyers}</span></div>` : ''}
-        ${sig.sm_netflow > 0 ? `<div class="sm-item"><span class="sm-label">Flow: </span><span class="sm-val green">+$${(sig.sm_netflow/1000).toFixed(1)}k</span></div>` : ''}
+    <div class="sm-row">
+      <div class="sm-items">
+        ${(sig.sm_buyers||sig.nansen_traders||0) > 0
+          ? `<div class="sm-it"><span class="sm-lbl">SM Wallets: </span>${sig.sm_buyers||sig.nansen_traders}</div>`
+          : ''}
+        ${(sig.sm_netflow||sig.nansen_netflow||0) > 100
+          ? `<div class="sm-it"><span class="sm-lbl">Inflow: </span><span class="gn">+$${((sig.sm_netflow||sig.nansen_netflow)/1000).toFixed(1)}k</span></div>`
+          : ''}
+        <div class="sm-it"><span class="sm-lbl">Risk: </span><span style="color:${sig.risk==='LOW'?'var(--green)':sig.risk==='MEDIUM'?'var(--amber)':'var(--red)'}">${sig.risk||'—'}</span></div>
       </div>
-      <div class="hold-tag">⏱ ${escHtml(sig.timeframe)}</div>
-      <div class="card-time">${ago}</div>
+      <div class="hold-tag">⏱ ${esc(sig.timeframe||'—')}</div>
     </div>
 
-    <div class="breakdown">${breakdown}</div>
+    <div class="bdwn">${breakdown}</div>
+    <div style="padding:0 14px 8px;font-size:9px;color:var(--text3);font-family:var(--mono);text-align:right">${ago(sig.ts)}</div>
   `;
-
-  div.querySelector('.card-top').addEventListener('click', () => openModal(sig));
   return div;
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // MANUAL SCAN
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 async function manualScan() {
-  const input = document.getElementById('scanInput');
-  const result = document.getElementById('scanResult');
+  const input = document.getElementById('scanIn');
+  const res = document.getElementById('scanRes');
   const btn = document.getElementById('scanBtn');
-  const sym = input.value.trim().toUpperCase();
+  const sym = (input.value||'').trim().toUpperCase();
+  if (!sym) { res.textContent = 'Enter a symbol first'; return; }
 
-  if (!sym) { result.textContent = 'Enter a token symbol first'; return; }
+  btn.disabled = true; btn.textContent = '⏳ Searching…';
+  res.textContent = 'Searching current scan data for ' + sym + '…';
 
-  btn.disabled = true;
-  btn.textContent = '⏳ Scanning…';
-  result.textContent = 'Looking up ' + sym + ' in current scan data…';
-
-  // Check if the symbol exists in current signals
-  await loadSignals();
-  const found = allSignals.filter(s => s.symbol.toUpperCase() === sym);
+  await fetchSignals();
+  const found = signals.filter(s => (s.symbol||'').toUpperCase() === sym);
 
   if (found.length > 0) {
-    result.innerHTML = `<span style="color:var(--green)">✅ ${sym} found — score ${found[0].score}/100</span>`;
-    // Lower threshold temporarily to show it
-    threshold = Math.min(threshold, found[0].score);
-    document.getElementById('thSlider').value = threshold;
-    updateThreshold(threshold);
+    const s = found[0];
+    res.innerHTML = `<span style="color:var(--green)">✅ ${sym} found — Score ${s.score}/100 (${s.risk} risk)</span>`;
+    if (s.score < threshold) {
+      threshold = Math.max(20, s.score - 5);
+      document.getElementById('thSlider').value = threshold;
+      updateThreshold(threshold);
+    }
     renderFeed();
   } else {
-    // Search CoinGecko for token info
     try {
-      const r = await fetch(`https://api.coingecko.com/api/v3/search?query=${sym}`);
+      const r = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(sym));
       const d = await r.json();
       const coin = d.coins?.[0];
       if (coin) {
-        result.innerHTML = `<span style="color:var(--amber)">⚠️ ${sym} not in current SM signals</span><br><a href="https://www.coingecko.com/en/coins/${coin.id}" target="_blank" style="color:var(--accent2);font-size:10px">View ${coin.name} on CoinGecko →</a>`;
+        res.innerHTML = `<span style="color:var(--amber)">⚠️ ${sym} not in current Smart Money scan</span><br><a href="https://www.coingecko.com/en/coins/${coin.id}" target="_blank" style="color:var(--accent2);font-size:10px">View ${coin.name} on CoinGecko →</a>`;
       } else {
-        result.innerHTML = `<span style="color:var(--text3)">No data found for ${sym}</span>`;
+        res.innerHTML = `<span style="color:var(--text3)">${sym} — not found anywhere</span>`;
       }
     } catch(e) {
-      result.innerHTML = `<span style="color:var(--text3)">${sym} not in current scan</span>`;
+      res.innerHTML = `<span style="color:var(--text3)">${sym} — not in current scan</span>`;
     }
   }
-
-  btn.disabled = false;
-  btn.textContent = '▶ SCAN TOKEN';
+  btn.disabled = false; btn.textContent = '▶ SEARCH IN CURRENT SCAN';
 }
+document.getElementById('scanIn').addEventListener('keydown', e => { if (e.key === 'Enter') manualScan(); });
 
-document.getElementById('scanInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') manualScan();
-});
-
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // THRESHOLD SLIDER
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function updateThreshold(v) {
   threshold = parseInt(v);
-  document.getElementById('thVal').textContent = threshold;
+  document.getElementById('thNum').textContent = threshold;
   document.getElementById('sThresh').textContent = threshold;
-
-  const descs = [
-    [20,'Testing mode','Many signals/day'],
-    [40,'Active','10–25/day'],
-    [55,'Balanced','5–12/day'],
-    [70,'Conservative','2–6/day'],
-    [80,'Strict','0–3/day'],
-  ];
-  const d = [...descs].reverse().find(x => threshold >= x[0]) || descs[0];
-  document.getElementById('thDesc').textContent = d[1];
-  document.getElementById('thFreq').textContent = d[2];
+  const info = threshold >= 80 ? ['Elite signals','0–2/day']
+             : threshold >= 65 ? ['Conservative','2–5/day']
+             : threshold >= 50 ? ['Balanced','5–12/day']
+             : threshold >= 35 ? ['Active','10–25/day']
+             :                   ['Testing','Many/day'];
+  document.getElementById('thDesc').textContent = info[0];
+  document.getElementById('thFreq').textContent = info[1];
+  document.getElementById('sThreshDesc').textContent = info[0];
   renderFeed();
 }
+document.getElementById('thSlider').addEventListener('input', function(){ updateThreshold(this.value); });
 
-document.getElementById('thSlider').addEventListener('input', function() {
-  updateThreshold(this.value);
-});
-
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // FILTER
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function setFilter(f, btn) {
-  activeFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  filter = f;
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
   renderFeed();
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // MODAL
-// ═══════════════════════════════════════════════════════════
-function openModal(sig) {
-  document.getElementById('modalTitle').textContent = '$' + sig.symbol + ' — Score ' + sig.score + '/100';
-  const pf = v => v ? '$' + Number(v).toFixed(v >= 1 ? 2 : 6) : '—';
-  document.getElementById('modalBody').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center">
-        <div class="section-title">SM Wallets</div>
-        <div style="font-family:var(--display);font-size:24px;font-weight:800;color:var(--green)">${sig.sm_buyers || '—'}</div>
-      </div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center">
-        <div class="section-title">Net Inflow</div>
-        <div style="font-family:var(--display);font-size:18px;font-weight:800;color:var(--accent)">${sig.sm_netflow > 0 ? '+$' + sig.sm_netflow.toFixed(0) : '—'}</div>
-      </div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center">
-        <div class="section-title">Hold Time</div>
-        <div style="font-family:var(--display);font-size:14px;font-weight:800;color:var(--amber)">${sig.timeframe}</div>
-      </div>
+// ═══════════════════════════════════════════════
+function openModal(idx) {
+  const sig = signals[idx];
+  if (!sig) return;
+  const confLabel = sig.score >= 75 ? 'EXTREME CONVICTION' : sig.score >= 55 ? 'HIGH CONVICTION' : sig.score >= 40 ? 'MODERATE' : 'LOW';
+  document.getElementById('mTitle').textContent = '$' + sig.symbol + ' — ' + sig.score + '/100 · ' + confLabel;
+  document.getElementById('mBody').innerHTML = `
+    <div class="m3">
+      <div class="mbox"><div class="mbox-l">SM Wallets</div><div class="mbox-v" style="color:var(--green)">${sig.sm_buyers||sig.nansen_traders||'—'}</div></div>
+      <div class="mbox"><div class="mbox-l">Net Inflow</div><div class="mbox-v" style="color:var(--accent)">${(sig.sm_netflow||sig.nansen_netflow||0)>0?'+$'+Number(sig.sm_netflow||sig.nansen_netflow).toFixed(0):'—'}</div></div>
+      <div class="mbox"><div class="mbox-l">Hold Time</div><div class="mbox-v" style="font-size:13px;color:var(--amber)">${sig.timeframe||'—'}</div></div>
     </div>
     ${sig.token_address ? `
-    <div style="margin-bottom:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">
-      <div class="section-title" style="margin-bottom:6px">Contract Address</div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--accent);word-break:break-all">${escHtml(sig.token_address)}</div>
-      <div style="margin-top:8px;display:flex;gap:6px">
-        ${sig.coingecko_url ? `<a href="${sig.coingecko_url}" target="_blank" class="ext-link cg-link">🦎 CoinGecko</a>` : ''}
-        ${sig.explorer_url ? `<a href="${sig.explorer_url}" target="_blank" class="ext-link exp-link">🔍 Explorer</a>` : ''}
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px">
+      <div class="stitle" style="margin-bottom:8px">Contract Address</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--accent);word-break:break-all;font-weight:700;line-height:1.6">${esc(sig.token_address)}</div>
+      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+        <button class="cp-btn" style="padding:5px 12px;font-size:11px" onclick="copyAddr('${esc(sig.token_address)}',this)">📋 Copy Full Address</button>
+        ${sig.coingecko_url?`<a href="${esc(sig.coingecko_url)}" target="_blank" class="lnk lnk-cg">🦎 CoinGecko</a>`:''}
+        ${sig.explorer_url?`<a href="${esc(sig.explorer_url)}" target="_blank" class="lnk lnk-ex">🔍 Explorer</a>`:''}
       </div>
     </div>` : ''}
-    <div class="section-title" style="margin-bottom:8px">Signal Breakdown</div>
-    ${(sig.breakdown || []).map(b => `<div class="bd-item bd-${b.cls || 'neu'}">${escHtml(b.t)}</div>`).join('')}
-    <div style="margin-top:12px;padding:10px;background:rgba(255,59,92,.05);border:1px solid rgba(255,59,92,.15);border-radius:6px;font-size:10px;color:var(--text3)">
-      ⚠️ AI signal only. Always verify contract. Never risk more than you can afford.
+    <div class="stitle" style="margin-bottom:8px">Full Signal Breakdown</div>
+    ${(sig.breakdown||[]).map(b=>`<div class="bd ${b.cls||'neu'}">${esc(b.t)}</div>`).join('')}
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px">
+      <div class="mbox"><div class="mbox-l">Entry</div><div class="mbox-v" style="font-size:14px;color:var(--accent2)">${fmt(sig.entry)}</div></div>
+      <div class="mbox"><div class="mbox-l">Stop Loss</div><div class="mbox-v" style="font-size:14px;color:var(--red)">${fmt(sig.sl)}</div></div>
+      <div class="mbox"><div class="mbox-l">Target 1 (+5%)</div><div class="mbox-v" style="font-size:14px;color:var(--green)">${fmt(sig.target1)}</div></div>
+      <div class="mbox"><div class="mbox-l">Target 2 (+10%)</div><div class="mbox-v" style="font-size:14px;color:var(--green)">${fmt(sig.target2)}</div></div>
     </div>
+    <div class="warn-box">⚠️ This is an AI-generated signal based on on-chain data. Always verify the contract address before trading. Never invest more than you can afford to lose. DYOR.</div>
   `;
   document.getElementById('modal').classList.add('open');
 }
+function closeModal(e) { if(e.target.id==='modal') document.getElementById('modal').classList.remove('open'); }
 
-function closeModal(e) {
-  if (e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
-}
-
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // COPY
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function copyAddr(addr, btn) {
-  const copy = () => { btn.textContent = 'Copied!'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000); };
-  if (navigator.clipboard) { navigator.clipboard.writeText(addr).then(copy).catch(() => fallbackCopy(addr, copy)); }
-  else fallbackCopy(addr, copy);
+  const done = () => { btn.textContent='Copied!'; btn.classList.add('ok'); setTimeout(()=>{btn.textContent=btn.dataset.orig||'Copy';btn.classList.remove('ok')},2000); };
+  btn.dataset.orig = btn.textContent;
+  if (navigator.clipboard) { navigator.clipboard.writeText(addr).then(done).catch(()=>fbCopy(addr,done)); }
+  else fbCopy(addr,done);
 }
-function fallbackCopy(text, cb) {
-  const el = document.createElement('textarea');
-  el.value = text; document.body.appendChild(el); el.select();
-  try { document.execCommand('copy'); cb(); } catch(e) {}
-  document.body.removeChild(el);
+function fbCopy(t,cb){const e=document.createElement('textarea');e.value=t;document.body.appendChild(e);e.select();try{document.execCommand('copy');cb();}catch(x){}document.body.removeChild(e);}
+
+// ═══════════════════════════════════════════════
+// WATCHLIST — live from CoinGecko
+// ═══════════════════════════════════════════════
+const WL_SYMS = ['BTC','ETH','SOL','BNB','INJ','ARB'];
+const WL_IDS  = 'bitcoin,ethereum,solana,binancecoin,injective-protocol,arbitrum';
+let wlData = {};
+
+async function fetchWatchlist() {
+  try {
+    const r = await fetch(
+      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+WL_IDS+
+      '&order=market_cap_desc&sparkline=true&price_change_percentage=24h'
+    );
+    if (!r.ok) return;
+    const d = await r.json();
+    d.forEach(c => {
+      // Map CG id back to our symbol
+      const sym = {
+        'bitcoin':'BTC','ethereum':'ETH','solana':'SOL',
+        'binancecoin':'BNB','injective-protocol':'INJ','arbitrum':'ARB'
+      }[c.id] || c.symbol.toUpperCase();
+      wlData[sym] = c;
+    });
+    renderWatchlist();
+  } catch(e) {
+    // silent fail — watchlist is secondary
+  }
 }
 
-// ═══════════════════════════════════════════════════════════
-// WATCHLIST
-// ═══════════════════════════════════════════════════════════
 function renderWatchlist() {
-  document.getElementById('watchlist').innerHTML = WATCHLIST.map(c => {
-    const up = c.chg >= 0;
-    const bars = c.spark.map((h, i) => {
-      const prev = i > 0 ? c.spark[i-1] : h;
-      const col = h >= prev ? 'var(--green)' : 'var(--red)';
-      return `<div class="spark-bar" style="height:${h*2.5}px;background:${col}"></div>`;
+  const el = document.getElementById('wlEl');
+  if (!el) return;
+  if (Object.keys(wlData).length === 0) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--text3)">Loading live prices…</div>';
+    return;
+  }
+  el.innerHTML = WL_SYMS.map(sym => {
+    const c = wlData[sym];
+    if (!c) return '';
+    const chg = (c.price_change_percentage_24h || 0).toFixed(1);
+    const up  = parseFloat(chg) >= 0;
+    const price = c.current_price >= 1
+      ? '$' + c.current_price.toLocaleString('en',{maximumFractionDigits:2})
+      : '$' + c.current_price.toFixed(4);
+
+    // Sparkline from last 7 points of 24h data
+    const sp = (c.sparkline_in_7d?.price||[]).slice(-7);
+    const mn = Math.min(...sp), mx = Math.max(...sp);
+    const bars = sp.map((v,i) => {
+      const h = Math.max(2, Math.round(((v-mn)/(mx-mn||1))*16)+2);
+      const prev = i>0 ? sp[i-1] : v;
+      const col = v >= prev ? 'var(--green)' : 'var(--red)';
+      return `<div class="sb" style="height:${h}px;background:${col}"></div>`;
     }).join('');
-    const p = c.price >= 1 ? '$' + c.price.toLocaleString() : '$' + c.price.toFixed(4);
-    return `<div class="watch-item">
-      <div class="watch-sym">${c.sym}</div>
+
+    return `<div class="wl-item">
+      <div class="wl-sym">${sym}</div>
       <div class="spark">${bars}</div>
-      <div class="watch-price">${p}</div>
-      <div class="watch-chg ${up ? 'green' : 'red'}">${up ? '+' : ''}${c.chg}%</div>
+      <div class="wl-price">${price}</div>
+      <div class="wl-chg" style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${chg}%</div>
     </div>`;
   }).join('');
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // LOG
-// ═══════════════════════════════════════════════════════════
-function addLog(msg, type) {
-  const log = document.getElementById('logList');
-  const div = document.createElement('div');
-  div.className = 'log-line' + (type ? ' ' + type : '');
-  div.textContent = msg;
-  log.insertBefore(div, log.firstChild);
-  while (log.children.length > 25) log.removeChild(log.lastChild);
+// ═══════════════════════════════════════════════
+function log(msg, type) {
+  const el = document.getElementById('logEl');
+  if (!el) return;
+  const d = document.createElement('div');
+  d.className = 'log-line' + (type?' '+type:'');
+  d.textContent = msg;
+  el.insertBefore(d, el.firstChild);
+  while(el.children.length > 30) el.removeChild(el.lastChild);
 }
 
-// ═══════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════
-function timeAgo(date) {
-  if (!date) return '';
-  const diff = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (diff < 60) return diff + 's ago';
-  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-  return Math.floor(diff/3600) + 'h ago';
-}
-
-function escHtml(s) {
-  if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════════
-renderWatchlist();
-addLog('Dashboard initialized', 'ok');
-addLog('Fetching live signals…', '');
-loadSignals();
+// ═══════════════════════════════════════════════
+log('Dashboard ready — fetching live data…', 'ok');
+fetchSignals();
+fetchWatchlist();
 </script>
 </body>
 </html>
