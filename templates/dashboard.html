@@ -1070,7 +1070,8 @@ function updateCountdown() {
   const s = countdown % 60;
   const txt = `${m}:${String(s).padStart(2,'0')}`;
   document.getElementById('statNext').textContent = txt;
-  document.getElementById('emptyCountdown').textContent = txt;
+  const ec = document.getElementById('emptyCountdown');
+  if (ec) ec.textContent = txt;
 }
 setInterval(updateCountdown, 1000);
 
