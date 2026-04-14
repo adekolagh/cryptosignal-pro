@@ -1,0 +1,44 @@
+name: CryptoSignal Scanner
+
+on:
+  schedule:
+    # Runs every 5 minutes, 24/7, completely free
+    - cron: '*/5 * * * *'
+  workflow_dispatch:  # also lets you trigger manually from GitHub
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit signals.json back to repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scanner (single scan)
+        env:
+          # These come from GitHub Secrets — never stored in code
+          NANSEN_API_KEY:       ${{ secrets.NANSEN_API_KEY }}
+          TELEGRAM_BOT_TOKEN:   ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:     ${{ secrets.TELEGRAM_CHAT_ID }}
+          LUNARCRUSH_API_KEY:   ${{ secrets.LUNARCRUSH_API_KEY }}
+          SANTIMENT_API_KEY:    ${{ secrets.SANTIMENT_API_KEY }}
+          ARKHAM_API_KEY:       ${{ secrets.ARKHAM_API_KEY }}
+        run: python scan_once.py
+
+      - name: Save signals to repo (for dashboard)
+        run: |
+          git config user.name  "CryptoSignal Bot"
+          git config user.email "bot@cryptosignal"
+          git add templates/signals.json
+          git diff --staged --quiet || git commit -m "signals update $(date -u '+%H:%M UTC')"
+          git push
