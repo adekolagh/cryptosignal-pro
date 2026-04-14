@@ -24,14 +24,13 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run scanner
-        env:
+       env:
+          NANSEN_API_KEYS:          ${{ secrets.NANSEN_API_KEYS }}
           NANSEN_API_KEY:           ${{ secrets.NANSEN_API_KEY }}
+          ETHERSCAN_API_KEYS:       ${{ secrets.ETHERSCAN_API_KEYS }}
           TELEGRAM_BOT_TOKEN:       ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:         ${{ secrets.TELEGRAM_CHAT_ID }}
           CRYPTOCOMPARE_API_KEY:    ${{ secrets.CRYPTOCOMPARE_API_KEY }}
-          LUNARCRUSH_API_KEY:       ${{ secrets.LUNARCRUSH_API_KEY }}
-          SANTIMENT_API_KEY:        ${{ secrets.SANTIMENT_API_KEY }}
-          ARKHAM_API_KEY:           ${{ secrets.ARKHAM_API_KEY }}
         run: python scan_once.py
 
       - name: Save signals to repo

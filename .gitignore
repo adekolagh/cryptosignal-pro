@@ -1,0 +1,8 @@
+.env
+.DS_Store
+env
+dashboard.html
+scanner.yml
+__pycache__/
+*.pyc
+templates/signals.json
