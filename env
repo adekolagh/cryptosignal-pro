@@ -1,19 +1,58 @@
-# ─── CryptoSignal Pro — API Keys ─────────────────────────────────────
-# Place this file inside your arkhsen/ folder as: arkhsen/.env
+# ═══════════════════════════════════════════════════════════════════
+# CryptoSignal Pro — API Keys
+# ───────────────────────────────────────────────────────────────────
+# This file lives on your Mac only.
+# It is blocked from GitHub by .gitignore — never uploaded.
+# For GitHub Actions add each key in:
+#   Repo → Settings → Secrets → Actions
+# ═══════════════════════════════════════════════════════════════════
 
-# REQUIRED: Telegram bot (free — search @BotFather in Telegram)
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_CHAT_ID=
+# ── TELEGRAM (required for alerts) ─────────────────────────────────
+TELEGRAM_BOT_TOKEN=8783595688:AAGc_hz27fp14cM33yL6JaWKH8FSlAQpEeM
+TELEGRAM_CHAT_ID=6984434604
 
-# FREE instant key — cryptocompare.com → My Account → API Keys
+# ── NANSEN (Layers 1+2 — Smart Money) ──────────────────────────────
+# Up to 10 keys comma-separated, no spaces between them
+# When key 1 exhausts credits → key 2 activates automatically
+# Get keys at: nansen.ai → Account → API Keys
+NANSEN_API_KEYS=mlo3mKTLpXol0yq0TQ5jDVwVwrD2MtWp,fQZxqYzHl0CQbOtJPKL2hlPEUQBxpfWy,
+SxUzIDPRtOsDLEfyyTGTDPgZUC8LKK7F,
+0MrSsDgVpx6R7dGXCvJ0DWRblJSOC3bU,
+gEhbDpjbSSm5Y3X0036EOzR1oc3ZgyXk,
+VfVynTpj8mGGdrvypyUgPhp9M0FEoyO8,
+54rN92TCHqU2RAS2MZMYdBeYqbFxFk2u,
+9n9y6ND1tnhRetLkdDDm3ejyqiAqu8Dy,
+FJeBs76mpKuoiQj4ijI6lrVipEPMW9qV,
+kDIDDDLDunlsQM1cEi5fpaQ23KHti6DU
+# ── ETHERSCAN (Layer 3 — Contract Safety) ──────────────────────────
+# Up to 10 keys comma-separated, no spaces between them
+# When a key hits rate limit → next key activates automatically
+# Get free keys at: etherscan.io/register → My Account → API Keys
+ETHERSCAN_API_KEYS=83NBEPAN5GN1JI5ES9YQKP5XNW7VTD2YT2,
+C8TZM7PWEESTRTB788XFZZPUGE18J8TC97,
+7ITWYTZ3CAKP8A51441H3PHPXM4MCGGKYI,
+5KMQM5PK451CGN3JUAZYNI14YBQDRWTZRQ,
+MC46YCNHC3WV1394YJ3JEU86NME9XQ88BS,
+W9GX1JGYQDPTZY3E2CRUAT4XIBYDKMUMK8,
+81M2JH3G4WGUNG6HNVGHH36IDPM4D3I37S,
+C4TTJP98UYTHHI9IJ5NQVJQBVYI5QEMIUP,
+Y5Y3HQBCU2EZ7Q6Q2R4I7SEHXK55IFB9PT,
+K4JGNXDIRNXXSUZZCVEBH6RG6VJ7UDQ6BD,
+I4I2I5ISGS3WDTGBVDV95I7C83XBIMGZZT,
+UMHPS39XNUWJN8BG75DKTZX7UG788WA4VJ,
+NUAN4Y4CRZ9URCR2RB7TP4MXF11ST4HAWX,
+5VJHCQNH2R9SKVXKIFVGBU5XWQRYV61D63,
+PWBYEEYQKNUMP867KDF3DUQD4QP1UEMGGM,
+G4GHZS4KHGTZBTRWGR5M8MD4E943S4UBIP
+
+# ── CRYPTOCOMPARE (Layer 4 — Price/Volume) ─────────────────────────
+# Single key (high rate limits, no rotation needed)
+# Get free at: cryptocompare.com → My Account → API Keys
 CRYPTOCOMPARE_API_KEY=
 
-# OLD (no longer needed — kept for compatibility)
+# ── DEPRECATED (kept so nothing breaks if present) ─────────────────
+NANSEN_API_KEY=
+ETHERSCAN_API_KEY=
 LUNARCRUSH_API_KEY=
 SANTIMENT_API_KEY=
-
-# CONNECTED ✅ — Nansen Pro
-NANSEN_API_KEY=CcvTh2mHGp3LFFLqvRjsYqZAZzPmX6IN
-
-# PAID — Apply at: https://intel.arkm.com/api
 ARKHAM_API_KEY=
