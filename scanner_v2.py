@@ -1,40 +1,21 @@
 #!/usr/bin/env python3
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║        CryptoSignal Pro v2 — Real Nansen + Arkham Edition        ║
+║           CryptoSignal Pro — Multi-Layer Smart Money Scanner     ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  What changed from v1:                                           ║
-║  ✅ Nansen Token Screener  — REAL Smart Money API (5 credits/call)║
-║  ✅ Nansen Smart Money Flow — REAL inflow/outflow data           ║
-║  ✅ Arkham Intelligence    — REAL entity wallet monitoring        ║
-║  ❌ Removed: fake "pump detector" based on simple % math         ║
-║  ❌ Removed: inflated scores with no real on-chain backing       ║
+║  Layer 1 ▸ Nansen SM Screener   — wallet activity    (30 pts)   ║
+║  Layer 2 ▸ Nansen SM Netflow    — inflow/outflow      (20 pts)   ║
+║  Layer 3 ▸ Etherscan Safety     — contract verified   (20 pts)   ║
+║  Layer 4 ▸ CryptoCompare        — volume + momentum   (15 pts)   ║
+║  Layer 5 ▸ Fear & Greed Index   — market sentiment    (10 pts)   ║
+║  Layer 6 ▸ CoinGecko            — volume confirmation  (5 pts)   ║
+║                                                        ───────   ║
+║  MAX SCORE                                             100 pts   ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  Signal Architecture (7 real layers → 100 pts → Telegram):      ║
-║                                                                  ║
-║  Layer 1 ▸ Nansen Smart Money Screener  — real wallets  (30 pts) ║
-║  Layer 2 ▸ Nansen Smart Money Netflow   — real flows    (20 pts) ║
-║  Layer 3 ▸ Arkham Entity Transactions   — real entities (20 pts) ║
-║  Layer 4 ▸ LunarCrush Social Signal     — real hype     (15 pts) ║
-║  Layer 5 ▸ Santiment On-chain Spike     — real on-chain (10 pts) ║
-║  Layer 6 ▸ CoinGecko Volume Anomaly     — real volume   (5 pts)  ║ 
-║                                                         ──────── ║
-║  TOTAL                                                  100 pts  ║
+║  Keys: NANSEN_API_KEYS, ETHERSCAN_API_KEYS,                      ║
+║        CRYPTOCOMPARE_API_KEY, TELEGRAM_BOT_TOKEN,                ║
+║        TELEGRAM_CHAT_ID  — all stored in .env / GitHub Secrets   ║
 ╚══════════════════════════════════════════════════════════════════╝
-
-SIGNAL CONFIDENCE LEVELS:
-  90–100 : EXTREME — multiple institutional confirmations
-  75–89  : HIGH    — Smart Money + social confirmation
-  65–74  : MODERATE — good signal, use tighter stop loss
-  < 65   : IGNORED — not enough confirmation
-
-COST NOTE:
-  Nansen Token Screener = 5 credits per call (Pro: 1000 credits/month included)
-  Nansen Netflow        = 5 credits per call
-  Arkham API            = Apply for key at intel.arkm.com/api (paid)
-  LunarCrush            = Free key at lunarcrush.com/developers
-  Santiment             = Free key at santiment.net
-  CoinGecko             = 100% free, no key
 """
 
 import asyncio
@@ -65,7 +46,7 @@ TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
 SCAN_INTERVAL_SEC   = 300   # 5 minutes
-SIGNAL_THRESHOLD    = 65    # Out of 100
+SIGNAL_THRESHOLD    = 30    # 30 = testing, raise to 50 when scoring stabilises
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
 
@@ -629,7 +610,7 @@ class CryptoCompareSocialLayer:
 
 
 # ─────────────────────────────────────────────────────────────────
-# LAYER 5 — FEAR & GREED INDEX  (replaces Santiment — NO KEY NEEDED)
+# LAYER 5 — FEAR & GREED INDEX  (free, no key needed — alternative.me)
 # Source: alternative.me — 100% free, no signup, no approval
 # URL: https://api.alternative.me/fng/
 # ─────────────────────────────────────────────────────────────────
@@ -667,171 +648,6 @@ class FearGreedLayer:
         if val <= 55:   return 6,  [f"🔶 [Fear&Greed] Neutral {val}/100 {trend} — balanced market"]
         if val <= 75:   return 3,  [f"📊 [Fear&Greed] Greed {val}/100 {trend} — use tighter stop loss"]
         return 0, [f"⚠️  [Fear&Greed] EXTREME GREED {val}/100 {trend} — market overheated, caution"]
-
-
-# ─────────────────────────────────────────────────────────────────────
-# LAYER 4 — LUNARCRUSH  (Social Sentiment)
-# Real API: https://lunarcrush.com/api4
-# Free key at: lunarcrush.com/developers
-# ─────────────────────────────────────────────────────────────────────
-class LunarCrushLayer:
-    # Real v2 endpoint — updated every few seconds (v1 is cached 1h)
-    # Docs: https://lunarcrush.com/developers/api/public/coins/list/v1
-    URL = "https://lunarcrush.com/api4/public/coins/list/v2"
-
-    async def fetch(self, session: aiohttp.ClientSession) -> dict:
-        if not LUNARCRUSH_API_KEY:
-            return {}
-        # Real auth: Bearer token in Authorization header
-        headers = {"Authorization": f"Bearer {LUNARCRUSH_API_KEY}"}
-        params = {"sort": "galaxy_score", "desc": "1", "limit": "200"}
-        try:
-            async with session.get(self.URL, headers=headers, params=params, timeout=15) as r:
-                if r.status == 200:
-                    data = await r.json()
-                    # Real field is "symbol" not "s"
-                    return {c["symbol"].upper(): c for c in data.get("data", []) if c.get("symbol")}
-                elif r.status == 401:
-                    log.warning("   LunarCrush: Invalid API key — check lunarcrush.com/developers")
-                else:
-                    log.warning(f"   LunarCrush HTTP {r.status}")
-        except Exception as e:
-            log.warning(f"   LunarCrush error: {e}")
-        return {}
-
-    def score(self, symbol: str, data: dict) -> tuple[int, list]:
-        """
-        Score using real LunarCrush v4 field names:
-          galaxy_score          — 0-100 composite health score
-          galaxy_score_previous — score 24h ago (rising = bullish)
-          alt_rank              — lower is better (<15 = top momentum)
-          alt_rank_previous     — rank 24h ago
-          interactions_24h      — total social interactions
-          social_volume_24h     — total posts with interactions
-        Max 15 pts.
-        """
-        if not data:
-            return 0, ["⚪ [LunarCrush] No data — get free key at lunarcrush.com/developers"]
-
-        pts = 0
-        notes = []
-
-        # Real field names from v4 API docs
-        gs      = data.get("galaxy_score", 0) or 0
-        gs_prev = data.get("galaxy_score_previous", gs) or gs
-        acr     = data.get("alt_rank", 9999) or 9999
-        acr_prev= data.get("alt_rank_previous", acr) or acr
-        interact= data.get("interactions_24h", 0) or 0
-        soc_vol = data.get("social_volume_24h", 0) or 0
-
-        # Galaxy Score — with rising bonus
-        if gs >= 75:
-            pts += 7
-            trend = " ↑ rising" if gs > gs_prev else ""
-            notes.append(f"✅ [LunarCrush] Galaxy Score {gs}/100{trend} — Excellent")
-        elif gs >= 60:
-            pts += 4
-            notes.append(f"🔶 [LunarCrush] Galaxy Score {gs}/100 — Good")
-        elif gs >= 45:
-            pts += 2
-            notes.append(f"📊 [LunarCrush] Galaxy Score {gs}/100 — Average")
-
-        # AltRank — lower = better, improving = bullish
-        if acr <= 15:
-            improving = " ↑ improving" if acr < acr_prev else ""
-            pts += 5; notes.append(f"✅ [LunarCrush] AltRank #{acr}{improving} — Top 15 social momentum")
-        elif acr <= 50:
-            pts += 3; notes.append(f"🔶 [LunarCrush] AltRank #{acr} — Top 50")
-        elif acr <= 100:
-            pts += 1; notes.append(f"📊 [LunarCrush] AltRank #{acr} — Top 100")
-
-        # Social interactions surge (> 1M = significant)
-        if interact > 5_000_000:
-            pts += 3; notes.append(f"✅ [LunarCrush] Interactions: {interact/1e6:.1f}M/24h — VIRAL")
-        elif interact > 1_000_000:
-            pts += 2; notes.append(f"🔶 [LunarCrush] Interactions: {interact/1e6:.1f}M/24h — High")
-
-        return min(pts, 15), notes
-
-
-# ─────────────────────────────────────────────────────────────────────
-# LAYER 5 — SANTIMENT  (On-chain Social Spike)
-# Real API: https://api.santiment.net/graphql
-# Free key at: santiment.net
-# ─────────────────────────────────────────────────────────────────────
-class SantimentLayer:
-    API_URL  = "https://api.santiment.net/graphql"
-    SLUG_MAP = {
-        "BTC":"bitcoin","ETH":"ethereum","SOL":"solana","BNB":"binance-coin",
-        "XRP":"ripple","ADA":"cardano","AVAX":"avalanche","DOT":"polkadot",
-        "MATIC":"matic-network","LINK":"chainlink","UNI":"uniswap","ATOM":"cosmos",
-        "LTC":"litecoin","DOGE":"dogecoin","SHIB":"shiba-inu","ARB":"arbitrum",
-        "OP":"optimism","INJ":"injective-protocol","SUI":"sui","APT":"aptos",
-        "TIA":"celestia","SEI":"sei-network","JUP":"jupiter-exchange-solana",
-        "FET":"fetch-ai","RENDER":"render-token","WLD":"worldcoin",
-        "NEAR":"near-protocol","FTM":"fantom","PEPE":"pepe","WIF":"dogwifcoin",
-    }
-
-    async def get_spike_ratio(self, session: aiohttp.ClientSession, slug: str) -> Optional[float]:
-        """
-        Real Santiment GraphQL API.
-        Docs: https://academy.santiment.net/for-developers/
-        Endpoint: POST https://api.santiment.net/graphql
-        Auth: Authorization: Apikey <key>
-        Metric: social_volume_total (total posts mentioning the asset)
-        Field: value (not mentionsCount)
-        """
-        if not SANTIMENT_API_KEY:
-            return None
-        # Correct GraphQL query using getMetric — the real Santiment API pattern
-        query = """
-        {
-          getMetric(metric: "social_volume_total") {
-            timeseriesData(
-              selector: { slug: "%s" }
-              from: "utc_now-12h"
-              to: "utc_now"
-              interval: "1h"
-            ) {
-              datetime
-              value
-            }
-          }
-        }
-        """ % slug
-        try:
-            async with session.post(
-                self.API_URL,
-                json={"query": query},
-                headers={"Authorization": f"Apikey {SANTIMENT_API_KEY}"},
-                timeout=12
-            ) as r:
-                if r.status == 200:
-                    resp = await r.json()
-                    # Real field path: data.getMetric.timeseriesData[].value
-                    entries = resp.get("data", {}).get("getMetric", {}).get("timeseriesData", [])
-                    if len(entries) >= 4:
-                        recent = entries[-1].get("value", 0) or 0
-                        past   = [e.get("value", 0) or 0 for e in entries[:-2]]
-                        avg    = sum(past) / max(len(past), 1)
-                        return recent / avg if avg > 0 else 1.0
-                elif r.status == 403:
-                    log.warning("   Santiment: API key invalid or plan limit reached")
-        except Exception as e:
-            log.debug(f"   Santiment error for {slug}: {e}")
-        return None
-
-    def score(self, ratio: Optional[float]) -> tuple[int, list]:
-        """Max 10 pts."""
-        if ratio is None:
-            return 0, ["⚪ [Santiment] No data — add free key at santiment.net"]
-        if ratio >= 3.5:
-            return 10, [f"✅ [Santiment] {ratio:.1f}x social spike — pre-pump signal"]
-        if ratio >= 2.0:
-            return 7,  [f"✅ [Santiment] {ratio:.1f}x above avg — elevated interest"]
-        if ratio >= 1.5:
-            return 4,  [f"🔶 [Santiment] {ratio:.1f}x avg — slightly elevated"]
-        return 1, [f"📊 [Santiment] Normal social activity ({ratio:.1f}x)"]
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -1096,7 +912,6 @@ class CryptoSignalScannerV2:
         self.nansen   = NansenLayer(self._nansen_rot)
         self.arkham   = EtherscanLayer(self._etherscan_rot)
         self.lc       = CryptoCompareSocialLayer()
-        self.san      = SantimentLayer()
         self.san_fg   = FearGreedLayer()
         self.cg       = CoinGeckoLayer()
         self.telegram = TelegramAlerter()
