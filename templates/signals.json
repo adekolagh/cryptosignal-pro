@@ -1,106 +1,14 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-14T21:10:43.017000Z",
-  "signals": [
-    {
-      "symbol": "LOBSTAR",
-      "name": "LOBSTAR",
-      "chain": "solana",
-      "price": 0.002802968791370795,
-      "score": 30,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.002802968791370795,
-      "target1": 0.003083265670507875,
-      "target2": 0.003363562549644954,
-      "sl": 0.002662820351802255,
-      "sm_buyers": 1,
-      "sm_netflow": 0.0,
-      "arkham_entities": 0,
-      "token_address": "AVF9F4C4j8b1Kh4BmNHqybDaHgnZpJ7W7yLvL7hUpump",
-      "coingecko_url": "",
-      "explorer_url": "https://solscan.io/token/AVF9F4C4j8b1Kh4BmNHqybDaHgnZpJ7W7yLvL7hUpump",
-      "layers": [
-        "nansen",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\ud83d\udcca [Nansen] 1 SM wallet active",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [Nansen] Net inflow: +$8,606 \u2014 Slight buying",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26aa [Nansen] Netflow: No data",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2191 \u2014 ideal SM buy zone",
-          "cls": "ok"
-        }
-      ],
-      "timestamp": "2026-04-14T21:10:43.017026Z"
-    },
-    {
-      "symbol": "\ud83c\udf31 RUDI",
-      "name": "\ud83c\udf31 RUDI",
-      "chain": "solana",
-      "price": 0.00022181988847804653,
-      "score": 30,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.00022181988847804653,
-      "target1": 0.0002440018773258512,
-      "target2": 0.0002661838661736558,
-      "sl": 0.0002107288940541442,
-      "sm_buyers": 1,
-      "sm_netflow": 0.0,
-      "arkham_entities": 0,
-      "token_address": "Hc2CZzfiuBuSjTg6mpUByHVryy5e4yu8L7L4vtppump",
-      "coingecko_url": "",
-      "explorer_url": "https://solscan.io/token/Hc2CZzfiuBuSjTg6mpUByHVryy5e4yu8L7L4vtppump",
-      "layers": [
-        "nansen",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\ud83d\udcca [Nansen] 1 SM wallet active",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [Nansen] Net inflow: +$2,387 \u2014 Slight buying",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26aa [Nansen] Netflow: No data",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2191 \u2014 ideal SM buy zone",
-          "cls": "ok"
-        }
-      ],
-      "timestamp": "2026-04-14T21:10:43.017042Z"
-    }
-  ]
+  "last_scan": "2026-04-14T21:21:35.467052Z",
+  "threshold": 65,
+  "max_raw": 85,
+  "layer_status": {
+    "nansen": true,
+    "etherscan": true,
+    "cryptocompare": false,
+    "fear_greed": true,
+    "coingecko": true
+  },
+  "signals": []
 }
