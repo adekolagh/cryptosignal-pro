@@ -1285,6 +1285,8 @@ class CryptoSignalScannerV2:
                 raw_total = nm_s_pts + nm_nf_pts + ark_pts + lc_pts + san_pts + cg_pts
                 norm = int((raw_total / self.MAX_RAW) * 100)
 
+                log.info(f"   {sym}: nm_s={nm_s_pts} nm_nf={nm_nf_pts} ark={ark_pts} lc={lc_pts} san={san_pts} cg={cg_pts} raw={raw_total} MAX={self.MAX_RAW} norm={norm}")
+
                 if norm < SIGNAL_THRESHOLD:
                     continue
 
