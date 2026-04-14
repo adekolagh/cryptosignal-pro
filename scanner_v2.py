@@ -245,9 +245,8 @@ class NansenLayer:
             "pagination": {"page": 1, "per_page": 50},
             "filters": {
                 "only_smart_money": True,
-                "market_cap_usd":   {"min": 500_000, "max": 5_000_000_000},
-                "liquidity":        {"min": 100_000},
-                "nof_traders":      {"min": 20},
+                "market_cap_usd":   {"min": 100_000, "max": 10_000_000_000},
+                "liquidity":        {"min": 10_000},
             },
             "order_by": [{"field": "volume", "direction": "DESC"}]
         }
@@ -349,8 +348,8 @@ class NansenLayer:
         notes = []
 
         # Number of distinct Smart Money wallets buying
-        sm_count   = token.get("smart_money_count", token.get("nof_smart_money_traders", 0)) or 0
-        volume_usd = token.get("volume_usd", token.get("volume", 0)) or 0
+        sm_count   = token.get("nof_traders", token.get("smart_money_count", token.get("nof_smart_money_traders", 0))) or 0
+        volume_usd = token.get("buy_volume", token.get("volume_usd", token.get("volume", 0))) or 0
         price_chg  = token.get("price_change", token.get("price_change_percentage", 0)) or 0
 
         if sm_count >= 20:
@@ -1212,8 +1211,8 @@ class CryptoSignalScannerV2:
             credits_used = 0
 
             for token in sm_tokens:
-                sym       = (token.get("symbol") or "").upper()
-                name      = token.get("name", sym)
+                sym       = (token.get("token_symbol", token.get("symbol", "")) or "").upper()
+                name      = token.get("token_name", token.get("name", sym))
                 chain     = token.get("chain", "ethereum")
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price", token.get("price_usd", 0)) or 0
@@ -1267,7 +1266,7 @@ class CryptoSignalScannerV2:
                 if norm < SIGNAL_THRESHOLD:
                     continue
 
-                sm_count = token.get("smart_money_count", token.get("nof_smart_money_traders", 0)) or 0
+                sm_count = token.get("nof_traders", token.get("smart_money_count", token.get("nof_smart_money_traders", 0))) or 0
                 risk, tf = self._risk_and_timeframe(norm, sm_count, net_flow)
                 t1, t2, sl = self._trade_levels(price, risk)
 
