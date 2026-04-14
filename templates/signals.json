@@ -1,19 +1,19 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-14T20:16:28.613755Z",
+  "last_scan": "2026-04-14T21:10:43.017000Z",
   "signals": [
     {
       "symbol": "LOBSTAR",
       "name": "LOBSTAR",
       "chain": "solana",
-      "price": 0.002722541371132206,
+      "price": 0.002802968791370795,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.002722541371132206,
-      "target1": 0.002994795508245427,
-      "target2": 0.003267049645358647,
-      "sl": 0.0025864143025755956,
+      "entry": 0.002802968791370795,
+      "target1": 0.003083265670507875,
+      "target2": 0.003363562549644954,
+      "sl": 0.002662820351802255,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -50,20 +50,20 @@
           "cls": "ok"
         }
       ],
-      "timestamp": "2026-04-14T20:16:28.613777Z"
+      "timestamp": "2026-04-14T21:10:43.017026Z"
     },
     {
       "symbol": "\ud83c\udf31 RUDI",
       "name": "\ud83c\udf31 RUDI",
       "chain": "solana",
-      "price": 0.00024527083993422966,
+      "price": 0.00022181988847804653,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.00024527083993422966,
-      "target1": 0.00026979792392765265,
-      "target2": 0.0002943250079210756,
-      "sl": 0.00023300729793751816,
+      "entry": 0.00022181988847804653,
+      "target1": 0.0002440018773258512,
+      "target2": 0.0002661838661736558,
+      "sl": 0.0002107288940541442,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -80,7 +80,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [Nansen] Net inflow: +$2,393 \u2014 Slight buying",
+          "t": "\ud83d\udcca [Nansen] Net inflow: +$2,387 \u2014 Slight buying",
           "cls": "neu"
         },
         {
@@ -100,57 +100,7 @@
           "cls": "ok"
         }
       ],
-      "timestamp": "2026-04-14T20:16:28.613787Z"
-    },
-    {
-      "symbol": "\ud83c\udf31 PVE",
-      "name": "\ud83c\udf31 PVE",
-      "chain": "solana",
-      "price": 0.0005611571817516988,
-      "score": 30,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.0005611571817516988,
-      "target1": 0.0006172728999268688,
-      "target2": 0.0006733886181020385,
-      "sl": 0.0005330993226641138,
-      "sm_buyers": 1,
-      "sm_netflow": 0.0,
-      "arkham_entities": 0,
-      "token_address": "J5tUvJp3CH5dtyQSAsuRqXDLb2cdWDwerDj83w1gbrrr",
-      "coingecko_url": "",
-      "explorer_url": "https://solscan.io/token/J5tUvJp3CH5dtyQSAsuRqXDLb2cdWDwerDj83w1gbrrr",
-      "layers": [
-        "nansen",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\ud83d\udcca [Nansen] 1 SM wallet active",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [Nansen] Net inflow: +$2,052 \u2014 Slight buying",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26aa [Nansen] Netflow: No data",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2191 \u2014 ideal SM buy zone",
-          "cls": "ok"
-        }
-      ],
-      "timestamp": "2026-04-14T20:16:28.613794Z"
+      "timestamp": "2026-04-14T21:10:43.017042Z"
     }
   ]
 }
