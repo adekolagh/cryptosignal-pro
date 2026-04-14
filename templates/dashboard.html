@@ -751,7 +751,10 @@ function updateThreshold(v) {
   document.getElementById('sThreshDesc').textContent = info[0];
   renderFeed();
 }
-document.getElementById('thSlider').addEventListener('input', function(){ updateThreshold(this.value); });
+document.getElementById('thSlider').addEventListener('input', function(){
+  updateThreshold(this.value);
+  localStorage.setItem('csp_threshold', this.value);
+});
 
 // ═══════════════════════════════════════════════
 // FILTER
@@ -892,6 +895,14 @@ function log(msg, type) {
 // ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
+// Restore saved threshold from last session
+const saved = localStorage.getItem('csp_threshold');
+if (saved) {
+  threshold = parseInt(saved);
+  document.getElementById('thSlider').value = threshold;
+  updateThreshold(threshold);
+}
+
 log('Dashboard ready — fetching live data…', 'ok');
 fetchSignals();
 fetchWatchlist();
