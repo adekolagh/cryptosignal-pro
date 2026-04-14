@@ -65,7 +65,7 @@ TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
 SCAN_INTERVAL_SEC   = 300   # 5 minutes
-SIGNAL_THRESHOLD    = 65    # Out of 100
+SIGNAL_THRESHOLD    = 30    # Lowered for testing — raise back to 65 when live
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
 
