@@ -24,7 +24,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run scanner
-       env:
+        env:
           NANSEN_API_KEYS:          ${{ secrets.NANSEN_API_KEYS }}
           NANSEN_API_KEY:           ${{ secrets.NANSEN_API_KEY }}
           ETHERSCAN_API_KEYS:       ${{ secrets.ETHERSCAN_API_KEYS }}
