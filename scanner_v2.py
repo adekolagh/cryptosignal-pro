@@ -60,25 +60,124 @@ SIGNALS_JSON = BASE_DIR / "templates" / "signals.json"
 # ─────────────────────────────────────────────────────────────────────
 # CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────
-TELEGRAM_BOT_TOKEN  = os.getenv("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID    = os.getenv("TELEGRAM_CHAT_ID", "")
-NANSEN_API_KEY      = os.getenv("NANSEN_API_KEY", "")       # Pro plan $49/mo → nansen.ai
-ARKHAM_API_KEY      = os.getenv("ARKHAM_API_KEY", "")       # Apply at intel.arkm.com/api
-LUNARCRUSH_API_KEY    = os.getenv("LUNARCRUSH_API_KEY", "")
-SANTIMENT_API_KEY     = os.getenv("SANTIMENT_API_KEY", "")
-CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")  # Free instant key: cryptocompare.com
+TELEGRAM_BOT_TOKEN    = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
+CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
-SCAN_INTERVAL_SEC   = 300    # 5 minutes
-SIGNAL_THRESHOLD    = 65     # Out of 100 — raise to 80 for institutional-grade only
-COOLDOWN_HOURS      = 4      # Hours before re-alerting same token
-MAX_ALERTS_PER_SCAN = 2      # Keep it tight — quality over quantity
-
-# Nansen credit budget per scan (Token Screener = 5 credits, Netflow = 5 credits)
-# With 1000 credits/month on Pro: budget ~30 per scan at 5min intervals = fine
-NANSEN_CREDIT_BUDGET_PER_SCAN = 50
+SCAN_INTERVAL_SEC   = 300   # 5 minutes
+SIGNAL_THRESHOLD    = 65    # Out of 100
+COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
+MAX_ALERTS_PER_SCAN = 2
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger("CSP-v2")
+
+
+def _load_keys(plural_var: str, singular_var: str = "") -> list:
+    """
+    Load a pool of API keys from .env.
+    - First checks the plural variable  e.g. NANSEN_API_KEYS=key1,key2,key3
+    - Falls back to the singular         e.g. NANSEN_API_KEY=key1
+    Keys live in .env only. Never committed to GitHub.
+    """
+    raw = os.getenv(plural_var, "").strip()
+    if raw:
+        keys = [k.strip() for k in raw.split(",") if k.strip()]
+        if keys:
+            return keys
+    single = os.getenv(singular_var, "").strip()
+    return [single] if single else []
+
+
+# ─────────────────────────────────────────────────────────────────────
+# KEY ROTATOR
+# Shared by Nansen and Etherscan layers.
+# When a key hits its rate limit or credit limit the rotator silently
+# moves to the next key in the pool. All keys live in .env only.
+# ─────────────────────────────────────────────────────────────────────
+class KeyRotator:
+    """
+    Manages a pool of API keys for one provider.
+    Thread-safe for async use (single event loop, no shared state issues).
+
+    Usage:
+        rotator = KeyRotator("Nansen", keys=["key1", "key2", "key3"])
+        key = rotator.current()          # get active key
+        rotator.rotate("402 credits")    # mark exhausted, move to next
+        rotator.reset()                  # call at start of each scan
+    """
+
+    def __init__(self, name: str, keys: list):
+        self.name       = name
+        self._keys      = keys       # full list from .env
+        self._index     = 0          # which key is active
+        self._exhausted = set()      # keys marked as used up this scan
+
+    def has_keys(self) -> bool:
+        return bool(self._available())
+
+    def current(self) -> str:
+        """Active key, or empty string if none left."""
+        available = self._available()
+        if not available:
+            return ""
+        # Ensure index points to a valid available key
+        if self._index >= len(self._keys) or self._keys[self._index] in self._exhausted:
+            self._index = self._keys.index(available[0])
+        return self._keys[self._index]
+
+    def rotate(self, reason: str = "limit") -> bool:
+        """
+        Mark current key as exhausted, move to next.
+        Returns True  = new key is now active.
+        Returns False = ALL keys exhausted, layer disabled.
+        """
+        current = self.current()
+        if current:
+            self._exhausted.add(current)
+            log.warning(
+                f"   [{self.name}] Key #{self._index + 1}/{len(self._keys)} "
+                f"exhausted ({reason})"
+            )
+
+        available = self._available()
+        if not available:
+            log.warning(
+                f"   [{self.name}] All {len(self._keys)} "
+                f"key(s) exhausted — layer disabled this scan"
+            )
+            return False
+
+        for i, key in enumerate(self._keys):
+            if key not in self._exhausted:
+                self._index = i
+                break
+
+        log.info(
+            f"   [{self.name}] Switched to key "
+            f"#{self._index + 1}/{len(self._keys)}"
+        )
+        return True
+
+    def reset(self):
+        """
+        Call at the start of every scan to allow rate-limited keys
+        to recover. Credit-exhausted keys stay in the pool — Nansen
+        Pro resets monthly, Etherscan resets per second.
+        """
+        self._exhausted.clear()
+        self._index = 0
+
+    def status(self) -> str:
+        total = len(self._keys)
+        if total == 0:
+            return "⚠️  No keys — add to .env"
+        if total == 1:
+            return "✅ 1 key loaded"
+        return f"✅ {total} keys loaded — rotation active"
+
+    def _available(self) -> list:
+        return [k for k in self._keys if k not in self._exhausted]
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -118,19 +217,22 @@ class TokenSignal:
 class NansenLayer:
     BASE = "https://api.nansen.ai"
 
+    def __init__(self, rotator: KeyRotator):
+        self.rotator = rotator
+
     def _headers(self) -> dict:
-        return {"apiKey": NANSEN_API_KEY, "Content-Type": "application/json"}
+        return {"apiKey": self.rotator.current(), "Content-Type": "application/json"}
 
     async def screen_smart_money_tokens(
-        self, session: aiohttp.ClientSession, chains: list[str]
-    ) -> list[dict]:
+        self, session: aiohttp.ClientSession, chains: list
+    ) -> list:
         """
-        Layer 1: Call Nansen Token Screener with only_smart_money=True.
+        Layer 1: Nansen Token Screener — only_smart_money=True.
         Returns tokens where Smart Money wallets are actively buying.
-        Cost: 5 credits per call.
-        Docs: https://docs.nansen.ai/api/token-god-mode/token-screener
+        Credit cost: 5 per call.
+        On 402 (credits out) or 401 (bad key) → rotates to next key automatically.
         """
-        if not NANSEN_API_KEY:
+        if not self.rotator.has_keys():
             return []
 
         now_utc = datetime.now(timezone.utc)
@@ -149,38 +251,55 @@ class NansenLayer:
             },
             "order_by": [{"field": "volume", "direction": "DESC"}]
         }
-        try:
-            async with session.post(
-                f"{self.BASE}/api/v1/token-screener",
-                headers=self._headers(),
-                json=payload,
-                timeout=15
-            ) as r:
-                if r.status == 200:
-                    data = await r.json()
-                    tokens = data.get("tokens", data.get("data", []))
-                    log.info(f"   Nansen screener: {len(tokens)} Smart Money tokens found")
-                    return tokens
-                elif r.status == 402:
-                    log.warning("   Nansen: Out of credits for this cycle")
-                elif r.status == 401:
-                    log.error("   Nansen: Invalid API key")
-                else:
-                    log.warning(f"   Nansen screener HTTP {r.status}: {await r.text()}")
-        except Exception as e:
-            log.warning(f"   Nansen screener error: {e}")
+
+        # Try with current key, rotate on failure, try once more
+        for attempt in range(len(self.rotator._keys) + 1):
+            key = self.rotator.current()
+            if not key:
+                break
+            try:
+                async with session.post(
+                    f"{self.BASE}/api/v1/token-screener",
+                    headers=self._headers(),
+                    json=payload,
+                    timeout=15
+                ) as r:
+                    if r.status == 200:
+                        data   = await r.json()
+                        tokens = data.get("tokens", data.get("data", []))
+                        log.info(
+                            f"   Nansen screener: {len(tokens)} SM tokens "
+                            f"(key #{self.rotator._index + 1}/{len(self.rotator._keys)})"
+                        )
+                        return tokens
+                    elif r.status == 402:
+                        if not self.rotator.rotate("credits exhausted"):
+                            break
+                    elif r.status == 401:
+                        if not self.rotator.rotate("invalid key"):
+                            break
+                    elif r.status == 429:
+                        if not self.rotator.rotate("rate limited"):
+                            break
+                    else:
+                        log.warning(f"   Nansen screener HTTP {r.status}")
+                        break
+            except Exception as e:
+                log.warning(f"   Nansen screener error: {e}")
+                break
+
         return []
 
     async def get_smart_money_netflow(
         self, session: aiohttp.ClientSession, token_address: str, chain: str
     ) -> dict:
         """
-        Layer 2: Get Smart Money net inflow/outflow for a specific token.
-        Positive netflow = Smart Money buying. Negative = Smart Money exiting.
-        Cost: 5 credits per call.
-        Docs: https://docs.nansen.ai/api/smart-money
+        Layer 2: Smart Money net inflow/outflow for a token.
+        Positive netflow = buying. Negative = selling.
+        Credit cost: 5 per call.
+        Rotates key automatically on credit/rate errors.
         """
-        if not NANSEN_API_KEY or not token_address:
+        if not self.rotator.has_keys() or not token_address:
             return {}
 
         now_utc = datetime.now(timezone.utc)
@@ -197,18 +316,31 @@ class NansenLayer:
             },
             "pagination": {"page": 1, "per_page": 20}
         }
-        try:
-            async with session.post(
-                f"{self.BASE}/api/v1/smart-money/netflow",
-                headers=self._headers(),
-                json=payload,
-                timeout=15
-            ) as r:
-                if r.status == 200:
-                    return await r.json()
-                log.debug(f"   Nansen netflow HTTP {r.status} for {token_address[:10]}...")
-        except Exception as e:
-            log.debug(f"   Nansen netflow error: {e}")
+
+        for attempt in range(len(self.rotator._keys) + 1):
+            key = self.rotator.current()
+            if not key:
+                break
+            try:
+                async with session.post(
+                    f"{self.BASE}/api/v1/smart-money/netflow",
+                    headers=self._headers(),
+                    json=payload,
+                    timeout=15
+                ) as r:
+                    if r.status == 200:
+                        return await r.json()
+                    elif r.status in (401, 402, 429):
+                        reason = {401: "invalid key", 402: "credits exhausted", 429: "rate limited"}[r.status]
+                        if not self.rotator.rotate(reason):
+                            break
+                    else:
+                        log.debug(f"   Nansen netflow HTTP {r.status}")
+                        break
+            except Exception as e:
+                log.debug(f"   Nansen netflow error: {e}")
+                break
+
         return {}
 
     def score_screener(self, token: dict) -> tuple[int, list]:
@@ -279,156 +411,156 @@ class NansenLayer:
 
 
 # ─────────────────────────────────────────────────────────────────────
-# LAYER 3 — ARKHAM INTELLIGENCE  (Entity Transaction Monitoring)
-# Real API: https://api.arkhamintelligence.com
-# Requires: API key (apply at intel.arkm.com/api)
-# Purpose: Detects coordinated wallet clusters buying a token,
-#          flagging potential pump coordination OR confirming
-#          legitimate fund accumulation
+# LAYER 3 — ETHERSCAN  (Contract Verification + Token Safety Check)
+# Replaces Arkham (no API response received).
+# Free instant key: etherscan.io/register → My Account → API Keys
+# What it checks:
+#   1. Is the contract source code verified on Etherscan?
+#      Unverified contract = serious red flag — could be a scam.
+#   2. How old is the token? Very new tokens (< 30 days) = higher risk.
+#   3. How many holders? Very few holders = easy manipulation.
+# Note: Only works for Ethereum-based tokens (ERC-20).
+#       Solana tokens get a neutral score.
 # ─────────────────────────────────────────────────────────────────────
-class ArkhamLayer:
-    BASE = "https://api.arkhamintelligence.com"
+class EtherscanLayer:
+    BASE = "https://api.etherscan.io/api"
 
-    # Known high-value entity types that signal legitimacy (not pump groups)
-    LEGIT_ENTITY_TYPES = {
-        "fund", "exchange", "institution", "market_maker",
-        "dao", "protocol", "venture_capital"
-    }
+    def __init__(self, rotator: KeyRotator):
+        self.rotator = rotator
 
-    # Entity types that suggest manipulation risk
-    SUSPICIOUS_TYPES = {
-        "unknown_cluster", "mixer", "suspicious"
-    }
-
-    def _headers(self) -> dict:
-        return {"API-Key": ARKHAM_API_KEY, "Content-Type": "application/json"}
-
-    async def get_token_transfers(
+    async def _get(
         self,
         session: aiohttp.ClientSession,
-        token_address: str,
-        chain: str = "ethereum"
-    ) -> list:
+        params: dict,
+    ) -> Optional[dict]:
         """
-        Get recent large transfers for a token to detect:
-        - Legitimate fund accumulation (bullish)
-        - Coordinated unknown wallet cluster activity (pump warning)
-        Docs: https://codex.arkm.com/arkham-api
+        Make one Etherscan API call with the current key.
+        On 429 (rate limit) rotate and retry once with the next key.
+        Returns parsed JSON or None on failure.
         """
-        if not ARKHAM_API_KEY or not token_address:
-            return []
+        for attempt in range(len(self.rotator._keys) + 1):
+            key = self.rotator.current()
+            if not key:
+                return None
+            try:
+                call_params = {**params, "apikey": key}
+                async with session.get(
+                    self.BASE, params=call_params, timeout=10
+                ) as r:
+                    if r.status == 200:
+                        data = await r.json()
+                        # Etherscan returns rate-limit errors inside JSON body
+                        if isinstance(data, dict):
+                            msg = str(data.get("result", "")).lower()
+                            if "rate limit" in msg or "max rate" in msg:
+                                if not self.rotator.rotate("rate limited"):
+                                    return None
+                                continue
+                        return data
+                    elif r.status == 429:
+                        if not self.rotator.rotate("HTTP 429 rate limit"):
+                            return None
+                    else:
+                        log.debug(f"   Etherscan HTTP {r.status}")
+                        return None
+            except Exception as e:
+                log.debug(f"   Etherscan call error: {e}")
+                return None
+        return None
 
-        # Query last 2 hours of transfers above $10k
-        params = {
-            "base": token_address,
-            "chain": chain,
-            "usdGte": "10000",
-            "limit": "30",
-            "sortKey": "time",
-            "sortDir": "desc",
-        }
-        try:
-            async with session.get(
-                f"{self.BASE}/transfers",
-                headers=self._headers(),
-                params=params,
-                timeout=15
-            ) as r:
-                if r.status == 200:
-                    data = await r.json()
-                    return data.get("transfers", [])
-                elif r.status == 401:
-                    log.error("   Arkham: Invalid API key")
-                elif r.status == 429:
-                    log.warning("   Arkham: Rate limited")
-                else:
-                    log.debug(f"   Arkham HTTP {r.status}")
-        except Exception as e:
-            log.debug(f"   Arkham error: {e}")
-        return []
-
-    async def check_entity(
-        self, session: aiohttp.ClientSession, address: str
+    async def fetch_token_info(
+        self,
+        session: aiohttp.ClientSession,
+        contract_address: str,
+        chain: str,
     ) -> dict:
         """
-        Look up who is behind a wallet address.
-        This is what makes Arkham unique — entity deanonymization.
+        Check contract safety for Ethereum tokens.
+        Call 1: Is the source code verified? (unverified = scam risk)
+        Call 2: Does it have active holders? (no holders = likely rug)
+        Only runs for Ethereum chain. Other chains get a neutral score.
         """
-        if not ARKHAM_API_KEY:
+        if not self.rotator.has_keys():
             return {}
-        try:
-            async with session.get(
-                f"{self.BASE}/intelligence/address/{address}/all",
-                headers=self._headers(),
-                timeout=10
-            ) as r:
-                if r.status == 200:
-                    return await r.json()
-        except:
-            pass
-        return {}
+        if chain.lower() not in ("ethereum", "eth") or not contract_address:
+            return {}
 
-    def score_transfers(self, transfers: list) -> tuple[int, list, bool, int]:
-        """
-        Analyze transfer patterns.
-        Returns: (score, notes, is_suspicious, legit_entity_count)
-        Max 20 pts.
-        """
-        if not transfers:
-            return 0, ["⚪ [Arkham] No transfer data (add API key at intel.arkm.com/api)"], False, 0
+        result = {}
 
-        pts = 0
+        # Call 1 — Source code verification
+        data = await self._get(session, {
+            "module":  "contract",
+            "action":  "getsourcecode",
+            "address": contract_address,
+        })
+        if data:
+            items = data.get("result", [])
+            if items and isinstance(items, list):
+                source = items[0].get("SourceCode", "")
+                result["is_verified"] = bool(source and source.strip() != "")
+                result["contract_name"] = items[0].get("ContractName", "")
+
+        # Call 2 — Holder activity
+        data2 = await self._get(session, {
+            "module":          "token",
+            "action":          "tokenholderlist",
+            "contractaddress": contract_address,
+            "page":            "1",
+            "offset":          "1",
+        })
+        if data2:
+            result["has_holders"] = data2.get("status") == "1"
+
+        return result
+
+    def score(
+        self, info: dict, chain: str, contract_address: str
+    ) -> tuple[int, list, bool]:
+        """
+        Score based on contract safety checks.
+        Returns: (score, notes, is_suspicious)
+        Max 20 pts. Unverified contract kills signal (is_suspicious = True).
+        """
+        # Solana and other non-EVM chains — neutral, no check
+        if chain.lower() not in ("ethereum", "eth"):
+            return 10, [f"📊 [Safety] {chain.upper()} token — contract check not available (non-EVM)"], False
+
+        # No contract address (native coin like ETH itself)
+        if not contract_address:
+            return 10, ["📊 [Safety] Native coin — no contract to verify"], False
+
+        # No Etherscan key — neutral score, note it
+        if not info:
+            return 8, ["⚪ [Safety] Add ETHERSCAN_API_KEY (free at etherscan.io) for contract verification"], False
+
+        pts   = 0
         notes = []
         is_suspicious = False
 
-        legit_entity_count  = 0
-        unknown_count       = 0
-        total_inflow_usd    = 0.0
-        buying_entities     = set()
-
-        for tx in transfers:
-            from_entity = tx.get("fromEntity", {}) or {}
-            to_entity   = tx.get("toEntity", {})   or {}
-            usd_val     = float(tx.get("unitValue", tx.get("usdValue", 0)) or 0)
-            tx_type     = tx.get("type", "")
-
-            # Is the receiver a known legitimate entity?
-            to_type = (to_entity.get("type") or "").lower()
-            to_name = to_entity.get("name", "")
-
-            if to_type in self.LEGIT_ENTITY_TYPES and to_name:
-                legit_entity_count += 1
-                buying_entities.add(to_name)
-                total_inflow_usd += usd_val
-            elif to_type in self.SUSPICIOUS_TYPES:
-                unknown_count += 1
-
-        # Score based on what Arkham found
-        if legit_entity_count >= 5:
-            pts = 20
-            entities_str = ", ".join(list(buying_entities)[:3])
-            notes.append(f"✅ [Arkham] {legit_entity_count} KNOWN entities accumulating: {entities_str}…")
-        elif legit_entity_count >= 3:
-            pts = 14
-            entities_str = ", ".join(list(buying_entities)[:3])
-            notes.append(f"✅ [Arkham] {legit_entity_count} known entities buying: {entities_str}")
-        elif legit_entity_count >= 1:
-            pts = 8
-            notes.append(f"🔶 [Arkham] {legit_entity_count} known entity involved: {list(buying_entities)[0]}")
-        else:
-            pts = 3
-            notes.append(f"📊 [Arkham] {len(transfers)} transfers detected, entities unknown")
-
-        # Suspicious cluster warning (kills the signal)
-        if unknown_count > legit_entity_count * 2 and unknown_count > 5:
+        # Contract verification — most important check
+        is_verified = info.get("is_verified", None)
+        if is_verified is True:
+            pts += 15
+            notes.append("✅ [Safety] Contract source code VERIFIED on Etherscan")
+        elif is_verified is False:
             is_suspicious = True
-            notes.append(f"🚨 [Arkham] FRAUD ALERT: {unknown_count} unknown/cluster wallets — possible coordinated pump")
-            pts = 0  # Zero out Arkham contribution — don't trade this
+            pts = 0
+            notes.append("🚨 [Safety] Contract NOT VERIFIED — source code hidden — HIGH SCAM RISK")
+            return pts, notes, is_suspicious
+        else:
+            pts += 8
+            notes.append("🔶 [Safety] Contract verification status unknown")
 
-        if total_inflow_usd > 0:
-            notes.append(f"   [Arkham] Total tracked inflow: ${total_inflow_usd:,.0f}")
+        # Holders check
+        has_holders = info.get("has_holders", None)
+        if has_holders is True:
+            pts += 5
+            notes.append("✅ [Safety] Token has active holders on Etherscan")
+        elif has_holders is False:
+            pts -= 3
+            notes.append("⚠️  [Safety] No holder data found — token may be very new or illiquid")
 
-        return min(pts, 20), notes, is_suspicious, legit_entity_count
+        return min(pts, 20), notes, is_suspicious
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -735,6 +867,80 @@ class CoinGeckoLayer:
             pass
         return set()
 
+    async def fetch_coin_detail(
+        self, session: aiohttp.ClientSession, coin_id: str
+    ) -> dict:
+        """
+        Fetch /coins/{id} to get contract addresses across all chains.
+        The 'platforms' field is a dict: { chain_name: contract_address }
+        Example:
+          {
+            "ethereum":             "0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+            "binance-smart-chain":  "0xa2b726b1145a4773f68593cf171187d8ebe4d495"
+          }
+        We call this ONLY for tokens that passed the signal threshold,
+        so it is a small number of calls per scan — not 200.
+        Rate limit: free tier = 30 calls/min, so this is safe.
+        """
+        if not coin_id:
+            return {}
+        try:
+            async with session.get(
+                f"{self.URL}/coins/{coin_id}",
+                params={
+                    "localization":    "false",
+                    "tickers":         "false",
+                    "market_data":     "false",
+                    "community_data":  "false",
+                    "developer_data":  "false",
+                    "sparkline":       "false",
+                },
+                timeout=12
+            ) as r:
+                if r.status == 200:
+                    data = await r.json()
+                    # platforms = { "ethereum": "0x...", "solana": "So1...", ... }
+                    return data.get("platforms", {})
+                elif r.status == 429:
+                    log.warning("   CoinGecko: Rate limited on coin detail call")
+        except Exception as e:
+            log.debug(f"   CoinGecko detail error for {coin_id}: {e}")
+        return {}
+
+    def pick_contract(self, platforms: dict, chain: str) -> str:
+        """
+        Pick the right contract address for the token's chain.
+        CoinGecko chain names differ slightly from Nansen — map them.
+        Returns empty string for native coins (BTC, ETH, SOL) which have no contract.
+        """
+        if not platforms:
+            return ""
+
+        # Map Nansen chain names → CoinGecko platform names
+        chain_map = {
+            "ethereum":  ["ethereum"],
+            "solana":    ["solana"],
+            "base":      ["base"],
+            "arbitrum":  ["arbitrum-one", "arbitrum"],
+            "bnb":       ["binance-smart-chain", "bnb"],
+            "polygon":   ["polygon-pos", "polygon"],
+            "optimism":  ["optimistic-ethereum", "optimism"],
+            "avalanche": ["avalanche"],
+        }
+
+        candidates = chain_map.get(chain.lower(), [chain.lower()])
+        for c in candidates:
+            addr = platforms.get(c, "")
+            if addr:
+                return addr
+
+        # Fallback: return first non-empty address found
+        for addr in platforms.values():
+            if addr:
+                return addr
+
+        return ""
+
     def score(self, coin: Optional[dict], is_trending: bool) -> tuple[int, list]:
         """Volume confirmation layer. Max 5 pts (supporting role only)."""
         if not coin:
@@ -876,15 +1082,25 @@ _⚠️ AI signal only. DYOR. Never risk more than you can afford._"""
 class CryptoSignalScannerV2:
 
     def __init__(self):
-        self.nansen   = NansenLayer()
-        self.arkham   = ArkhamLayer()
-        self.lc       = CryptoCompareSocialLayer()  # replaces LunarCrush
-        self.san      = SantimentLayer()              # stub (kept for compat)
-        self.san_fg   = FearGreedLayer()               # replaces Santiment
+        # ── Build key pools from .env ─────────────────────────────────
+        # Keys are comma-separated in .env: NANSEN_API_KEYS=key1,key2,key3
+        # Falls back to singular NANSEN_API_KEY for backward compatibility
+        nansen_keys    = _load_keys("NANSEN_API_KEYS",    "NANSEN_API_KEY")
+        etherscan_keys = _load_keys("ETHERSCAN_API_KEYS", "ETHERSCAN_API_KEY")
+
+        # ── Create rotators ────────────────────────────────────────────
+        self._nansen_rot    = KeyRotator("Nansen",    nansen_keys)
+        self._etherscan_rot = KeyRotator("Etherscan", etherscan_keys)
+
+        # ── Inject rotators into layers ────────────────────────────────
+        self.nansen   = NansenLayer(self._nansen_rot)
+        self.arkham   = EtherscanLayer(self._etherscan_rot)
+        self.lc       = CryptoCompareSocialLayer()
+        self.san      = SantimentLayer()
+        self.san_fg   = FearGreedLayer()
         self.cg       = CoinGeckoLayer()
         self.telegram = TelegramAlerter()
         self.scan_no  = 0
-        # Layer weights should sum to 100
         self.MAX_RAW  = 30 + 20 + 20 + 15 + 10 + 5  # = 100
 
     CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb"]
@@ -958,6 +1174,9 @@ class CryptoSignalScannerV2:
 
     async def run_scan(self):
         self.scan_no += 1
+        # Reset rotators so previously rate-limited keys can be retried
+        self._nansen_rot.reset()
+        self._etherscan_rot.reset()
         log.info(f"── Scan #{self.scan_no} ─────────────────────────────────────────────")
 
         ssl_ctx = ssl.create_default_context(cafile=certifi.where())
@@ -1019,15 +1238,21 @@ class CryptoSignalScannerV2:
                     nm_nf_pts, nm_nf_notes, net_flow = self.nansen.score_netflow(nf_data)
                     credits_used += 5  # Netflow = 5 credits
 
-                # ── Score Layer 3: Arkham entity analysis ────────────
-                ark_pts, ark_notes, is_suspicious, entity_count = 0, [], False, 0
-                if tok_addr and ARKHAM_API_KEY:
-                    transfers = await self.arkham.get_token_transfers(session, tok_addr, chain)
-                    ark_pts, ark_notes, is_suspicious, entity_count = self.arkham.score_transfers(transfers)
+                # ── Score Layer 3: Etherscan contract safety check ────
+                # Get contract address from CoinGecko if Nansen didn't provide one
+                cg_id = (cg_coin.get("id", "") or "").lower() if cg_coin else ""
+                if not tok_addr and cg_id:
+                    platforms = await self.cg.fetch_coin_detail(session, cg_id)
+                    tok_addr  = self.cg.pick_contract(platforms, chain)
 
-                # CRITICAL: If Arkham flags this as suspicious pump — skip entirely
+                # Run Etherscan safety check
+                etherscan_info = await self.arkham.fetch_token_info(session, tok_addr, chain)
+                ark_pts, ark_notes, is_suspicious = self.arkham.score(etherscan_info, chain, tok_addr)
+                entity_count = 0
+
+                # CRITICAL: Unverified contract = skip signal entirely
                 if is_suspicious:
-                    log.warning(f"   🚨 {sym} SKIPPED — Arkham flagged suspicious wallet cluster")
+                    log.warning(f"   🚨 {sym} SKIPPED — unverified contract on Etherscan")
                     continue
 
                 # ── Score Layer 4: LunarCrush social ─────────────────
@@ -1106,14 +1331,13 @@ async def main():
     print("╚" + "═"*63 + "╝")
     print(f"  Threshold : {SIGNAL_THRESHOLD}/100")
     print(f"  Interval  : every {SCAN_INTERVAL_SEC//60} minutes")
-    print(f"  Nansen         : {'✅ Smart Money connected' if NANSEN_API_KEY else '⚠️  Not set — nansen.ai ($49/mo)'}")
-    print(f"  CryptoCompare  : {'✅ Social layer connected' if CRYPTOCOMPARE_API_KEY else '⚠️  Add free key at cryptocompare.com'}")
-    print(f"  Fear&Greed     : ✅ Free, no key (alternative.me)")
-    print(f"  Arkham    : {'✅ Entity intelligence connected' if ARKHAM_API_KEY else '⚠️  NOT connected — apply at intel.arkm.com/api'}")
-    print(f"  LunarCrush: {'✅' if LUNARCRUSH_API_KEY else '⚠️  No key (lunarcrush.com/developers — free)'}")
-    print(f"  Santiment : {'✅' if SANTIMENT_API_KEY else '⚠️  No key (santiment.net — free)'}")
-    print(f"  CoinGecko : ✅ Free (no key needed)")
-    print(f"  Telegram  : {'✅ Alerts enabled' if TELEGRAM_BOT_TOKEN else '⚠️  Not set — alerts go to console'}")
+    print(f"  Nansen        : {'✅ Smart Money connected' if NANSEN_API_KEY else '⚠️  Not set — nansen.ai ($49/mo)'}")
+    print(f"  Etherscan     : {'✅ Contract safety checks active' if ETHERSCAN_API_KEY else '⚠️  Add free key at etherscan.io/register'}")
+    print(f"  CryptoCompare : {'✅ Social layer connected' if CRYPTOCOMPARE_API_KEY else '⚠️  Add free key at cryptocompare.com'}")
+    print(f"  Fear&Greed    : ✅ Free, no key needed (alternative.me)")
+    print(f"  CoinGecko     : ✅ Free, no key needed")
+    print(f"  Telegram      : {'✅ Alerts enabled' if TELEGRAM_BOT_TOKEN else '⚠️  Not set — alerts go to console'}")
+    print(f"  Arkham        : ⚠️  No API response — replaced by Etherscan")
     print()
 
     if not NANSEN_API_KEY:
