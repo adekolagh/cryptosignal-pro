@@ -39,4 +39,4 @@ jobs:
           git config user.email "bot@cryptosignal"
           git add templates/signals.json
           git diff --staged --quiet || git commit -m "signals $(date -u '+%H:%M UTC')"
-          git push
+          git push --force
