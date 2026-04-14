@@ -1212,6 +1212,7 @@ class CryptoSignalScannerV2:
             credits_used = 0
 
             for token in sm_tokens:
+                    break
 
                 sym       = (token.get("symbol") or "").upper()
                 name      = token.get("name", sym)
@@ -1328,8 +1329,8 @@ async def main():
     print("╚" + "═"*63 + "╝")
     print(f"  Threshold : {SIGNAL_THRESHOLD}/100")
     print(f"  Interval  : every {SCAN_INTERVAL_SEC//60} minutes")
-    print(f"  Nansen        : {scanner._nansen_rot.status()}")
-    print(f"  Etherscan     : {scanner._etherscan_rot.status()}")
+    print(f"  Nansen        : {'✅ Smart Money connected' if NANSEN_API_KEY else '⚠️  Not set — nansen.ai ($49/mo)'}")
+    print(f"  Etherscan     : {'✅ Contract safety checks active' if ETHERSCAN_API_KEY else '⚠️  Add free key at etherscan.io/register'}")
     print(f"  CryptoCompare : {'✅ Social layer connected' if CRYPTOCOMPARE_API_KEY else '⚠️  Add free key at cryptocompare.com'}")
     print(f"  Fear&Greed    : ✅ Free, no key needed (alternative.me)")
     print(f"  CoinGecko     : ✅ Free, no key needed")
