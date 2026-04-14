@@ -1,19 +1,19 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-14T17:28:31.724389Z",
+  "last_scan": "2026-04-14T17:54:44.915589Z",
   "signals": [
     {
       "symbol": "WOJAK",
       "name": "WOJAK",
       "chain": "solana",
-      "price": 0.008547011871819832,
+      "price": 0.008592139912423729,
       "score": 34,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.008547011871819832,
-      "target1": 0.009401713059001816,
-      "target2": 0.010256414246183797,
-      "sl": 0.00811966127822884,
+      "entry": 0.008592139912423729,
+      "target1": 0.009451353903666103,
+      "target2": 0.010310567894908475,
+      "sl": 0.008162532916802542,
       "sm_buyers": 2,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -30,7 +30,7 @@
           "cls": "med"
         },
         {
-          "t": "\ud83d\udcca [Nansen] Net inflow: +$573 \u2014 Slight buying",
+          "t": "\ud83d\udcca [Nansen] Net inflow: +$570 \u2014 Slight buying",
           "cls": "neu"
         },
         {
@@ -50,20 +50,20 @@
           "cls": "ok"
         }
       ],
-      "timestamp": "2026-04-14T17:28:31.724413Z"
+      "timestamp": "2026-04-14T17:54:44.915612Z"
     },
     {
       "symbol": "\u5171\u5efa",
       "name": "\u5171\u5efa",
       "chain": "bnb",
-      "price": 0.00381067273725561,
+      "price": 0.00383101093288282,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.00381067273725561,
-      "target1": 0.004191740010981171,
-      "target2": 0.004572807284706732,
-      "sl": 0.0036201391003928295,
+      "entry": 0.00383101093288282,
+      "target1": 0.0042141120261711025,
+      "target2": 0.004597213119459384,
+      "sl": 0.003639460386238679,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -80,7 +80,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [Nansen] Net inflow: +$1,246 \u2014 Slight buying",
+          "t": "\ud83d\udcca [Nansen] Net inflow: +$1,240 \u2014 Slight buying",
           "cls": "neu"
         },
         {
@@ -100,20 +100,20 @@
           "cls": "ok"
         }
       ],
-      "timestamp": "2026-04-14T17:28:31.724428Z"
+      "timestamp": "2026-04-14T17:54:44.915625Z"
     },
     {
       "symbol": "BSC",
       "name": "BSC",
       "chain": "bnb",
-      "price": 0.00026527072468496944,
+      "price": 0.0002722185312233305,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.00026527072468496944,
-      "target1": 0.0002917977971534664,
-      "target2": 0.0003183248696219633,
-      "sl": 0.00025200718845072096,
+      "entry": 0.0002722185312233305,
+      "target1": 0.0002994403843456635,
+      "target2": 0.00032666223746799657,
+      "sl": 0.0002586076046621639,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -150,20 +150,20 @@
           "cls": "ok"
         }
       ],
-      "timestamp": "2026-04-14T17:28:31.724437Z"
+      "timestamp": "2026-04-14T17:54:44.915636Z"
     },
     {
       "symbol": "TRIPLET",
       "name": "TRIPLET",
       "chain": "solana",
-      "price": 0.004257031048033192,
+      "price": 0.004138586244906773,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.004257031048033192,
-      "target1": 0.004682734152836511,
-      "target2": 0.00510843725763983,
-      "sl": 0.004044179495631532,
+      "entry": 0.004138586244906773,
+      "target1": 0.004552444869397451,
+      "target2": 0.0049663034938881275,
+      "sl": 0.003931656932661435,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -200,7 +200,7 @@
           "cls": "ok"
         }
       ],
-      "timestamp": "2026-04-14T17:28:31.724443Z"
+      "timestamp": "2026-04-14T17:54:44.915646Z"
     }
   ]
 }
