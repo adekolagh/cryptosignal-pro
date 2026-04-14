@@ -1,5 +1,206 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-14T17:09:54.828103Z",
-  "signals": []
+  "last_scan": "2026-04-14T17:14:45.578649Z",
+  "signals": [
+    {
+      "symbol": "WOJAK",
+      "name": "WOJAK",
+      "chain": "solana",
+      "price": 0.008501770994081649,
+      "score": 34,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.008501770994081649,
+      "target1": 0.009351948093489815,
+      "target2": 0.010202125192897978,
+      "sl": 0.008076682444377566,
+      "sm_buyers": 2,
+      "sm_netflow": 0.0,
+      "arkham_entities": 0,
+      "token_address": "8J69rbLTzWWgUJziFY8jeu5tDwEPBwUz4pKBMr5rpump",
+      "coingecko_url": "",
+      "explorer_url": "https://solscan.io/token/8J69rbLTzWWgUJziFY8jeu5tDwEPBwUz4pKBMr5rpump",
+      "layers": [
+        "nansen",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\ud83d\udd36 [Nansen] 2 SM wallets trading \u2014 Moderate",
+          "cls": "med"
+        },
+        {
+          "t": "\ud83d\udcca [Nansen] Net inflow: +$573 \u2014 Slight buying",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Nansen] Netflow: No data",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2191 \u2014 ideal SM buy zone",
+          "cls": "ok"
+        }
+      ],
+      "timestamp": "2026-04-14T17:14:45.578668Z"
+    },
+    {
+      "symbol": "\u5171\u5efa",
+      "name": "\u5171\u5efa",
+      "chain": "bnb",
+      "price": 0.00380031713593401,
+      "score": 30,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.00380031713593401,
+      "target1": 0.0041803488495274115,
+      "target2": 0.004560380563120811,
+      "sl": 0.003610301279137309,
+      "sm_buyers": 1,
+      "sm_netflow": 0.0,
+      "arkham_entities": 0,
+      "token_address": "0xb2acf3ae051c7f0b0b8de90cbb4ed99312574444",
+      "coingecko_url": "",
+      "explorer_url": "https://bscscan.com/token/0xb2acf3ae051c7f0b0b8de90cbb4ed99312574444",
+      "layers": [
+        "nansen",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\ud83d\udcca [Nansen] 1 SM wallet active",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Nansen] Net inflow: +$1,246 \u2014 Slight buying",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Nansen] Netflow: No data",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] BNB token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2191 \u2014 ideal SM buy zone",
+          "cls": "ok"
+        }
+      ],
+      "timestamp": "2026-04-14T17:14:45.578681Z"
+    },
+    {
+      "symbol": "BSC",
+      "name": "BSC",
+      "chain": "bnb",
+      "price": 0.0002890683327432434,
+      "score": 30,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.0002890683327432434,
+      "target1": 0.00031797516601756777,
+      "target2": 0.0003468819992918921,
+      "sl": 0.0002746149161060812,
+      "sm_buyers": 1,
+      "sm_netflow": 0.0,
+      "arkham_entities": 0,
+      "token_address": "0x6331bf8d601f0d7f0d2101772af5137c418c4444",
+      "coingecko_url": "",
+      "explorer_url": "https://bscscan.com/token/0x6331bf8d601f0d7f0d2101772af5137c418c4444",
+      "layers": [
+        "nansen",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\ud83d\udcca [Nansen] 1 SM wallet active",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Nansen] Net inflow: +$106 \u2014 Slight buying",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Nansen] Netflow: No data",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] BNB token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2191 \u2014 ideal SM buy zone",
+          "cls": "ok"
+        }
+      ],
+      "timestamp": "2026-04-14T17:14:45.578693Z"
+    },
+    {
+      "symbol": "TRIPLET",
+      "name": "TRIPLET",
+      "chain": "solana",
+      "price": 0.004199684191819802,
+      "score": 30,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.004199684191819802,
+      "target1": 0.004619652611001782,
+      "target2": 0.005039621030183762,
+      "sl": 0.0039896999822288115,
+      "sm_buyers": 1,
+      "sm_netflow": 0.0,
+      "arkham_entities": 0,
+      "token_address": "J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump",
+      "coingecko_url": "",
+      "explorer_url": "https://solscan.io/token/J8PSdNP3QewKq2Z1JJJFDMaqF7KcaiJhR7gbr5KZpump",
+      "layers": [
+        "nansen",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\ud83d\udcca [Nansen] 1 SM wallet active",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Nansen] Net inflow: +$67 \u2014 Slight buying",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Nansen] Netflow: No data",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2191 \u2014 ideal SM buy zone",
+          "cls": "ok"
+        }
+      ],
+      "timestamp": "2026-04-14T17:14:45.578704Z"
+    }
+  ]
 }
