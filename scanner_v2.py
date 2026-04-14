@@ -1212,8 +1212,6 @@ class CryptoSignalScannerV2:
             credits_used = 0
 
             for token in sm_tokens:
-                    break
-
                 sym       = (token.get("symbol") or "").upper()
                 name      = token.get("name", sym)
                 chain     = token.get("chain", "ethereum")
