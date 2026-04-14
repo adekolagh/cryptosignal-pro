@@ -1111,7 +1111,14 @@ class CryptoSignalScannerV2:
         self.cg       = CoinGeckoLayer()
         self.telegram = TelegramAlerter()
         self.scan_no  = 0
-        self.MAX_RAW  = 30 + 20 + 20 + 15 + 10 + 5  # = 100
+        # MAX_RAW = sum of points from layers that are actually connected.
+        # This ensures scoring is fair when some layers have no keys.
+        nansen_max    = 30 + 20  # screener + netflow
+        etherscan_max = 20 if self._etherscan_rot.has_keys() else 10
+        cc_max        = 15 if CRYPTOCOMPARE_API_KEY else 0
+        fg_max        = 10  # always available
+        cg_max        = 5   # always available
+        self.MAX_RAW  = nansen_max + etherscan_max + cc_max + fg_max + cg_max
 
     CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb"]
 
@@ -1226,12 +1233,16 @@ class CryptoSignalScannerV2:
                 name      = token.get("token_name", token.get("name", sym))
                 chain     = token.get("chain", "ethereum")
                 tok_addr  = token.get("token_address", token.get("address", ""))
-                price_raw = token.get("price", token.get("price_usd", 0)) or 0
+                price_raw = token.get("price_usd", token.get("price", 0)) or 0
 
                 # Fill price from CoinGecko if Nansen didn't return it
                 cg_coin  = cg_markets.get(sym, {})
                 price    = price_raw or (cg_coin.get("current_price") or 0)
                 if price <= 0:
+                    # Use price_usd directly from Nansen as last resort
+                    price = token.get("price_usd", 0) or 0
+                if price <= 0:
+                    log.debug(f"   Skipping {sym} — no price available")
                     continue
 
                 # ── Score Layer 1: Nansen screener ───────────────────
