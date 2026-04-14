@@ -1196,9 +1196,9 @@ class CryptoSignalScannerV2:
 
             log.info(f"   Nansen SM tokens: {len(sm_tokens)} | CG coins: {len(cg_markets)} | Trending: {len(trending)}")
 
-            # ── If no Nansen key, fall back to CoinGecko high-volume coins ──
+            # If no Nansen key, fall back to CoinGecko high-volume coins
             if not sm_tokens and not self._nansen_rot.has_keys():
-                log.warning("   ⚠️  No Nansen key — scanning CoinGecko volume anomalies as fallback")
+                log.warning("   No Nansen key - scanning CoinGecko volume anomalies as fallback")
                 # Build a list of high vol/mcap ratio coins as candidates
                 sm_tokens = [
                     {"symbol": sym, "name": d.get("name", sym),
