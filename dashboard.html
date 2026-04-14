@@ -668,6 +668,59 @@ input[type="range"]::-webkit-slider-thumb {
 .log-item .ok  { color: var(--green); }
 .log-item .er  { color: var(--red); }
 
+.card-links {
+  padding: 8px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--border);
+}
+.contract-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.link-label { font-size: 10px; color: var(--text3); flex-shrink: 0; }
+.contract-addr {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.copy-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-size: 9px;
+  padding: 2px 7px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: 'Space Mono', monospace;
+  flex-shrink: 0;
+  transition: all .15s;
+  letter-spacing: .5px;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.copy-btn.copied { color: var(--green); border-color: var(--green); }
+.ext-links { display: flex; gap: 6px; flex-wrap: wrap; }
+.ext-link {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 3px;
+  text-decoration: none;
+  border: 1px solid var(--border2);
+  transition: all .15s;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: .3px;
+}
+.cg-link { color: #8dc647; border-color: rgba(141,198,71,.3); }
+.cg-link:hover { background: rgba(141,198,71,.08); border-color: #8dc647; }
+.ex-link { color: var(--accent); border-color: rgba(0,229,255,.2); }
+.ex-link:hover { background: rgba(0,229,255,.05); border-color: var(--accent); }
+
 /* scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -983,6 +1036,9 @@ const DEMO_SIGNALS = [
     score:83, risk:"LOW", timeframe:"2–8 hours",
     entry:28.42, target1:29.84, target2:31.26, sl:27.57,
     sm_buyers:14, sm_netflow:280000, arkham_entities:3,
+    token_address:"0xe28b3b32b6c345a34ff64674606124dd5aceca30",
+    coingecko_url:"https://www.coingecko.com/en/coins/injective-protocol",
+    explorer_url:"https://etherscan.io/token/0xe28b3b32b6c345a34ff64674606124dd5aceca30",
     layers:["nansen","arkham","lunar","santi","cg"],
     breakdown:[
       {t:"✅ [Nansen] 14 Smart Money wallets buying — High conviction", cls:"ok"},
@@ -999,6 +1055,9 @@ const DEMO_SIGNALS = [
     score:76, risk:"LOW", timeframe:"1–4 hours",
     entry:142.18, target1:152.13, target2:163.51, sl:137.91,
     sm_buyers:9, sm_netflow:150000, arkham_entities:2,
+    token_address:"",
+    coingecko_url:"https://www.coingecko.com/en/coins/solana",
+    explorer_url:"",
     layers:["nansen","lunar","santi","cg"],
     breakdown:[
       {t:"✅ [Nansen] 9 Smart Money wallets buying — High conviction", cls:"ok"},
@@ -1015,6 +1074,9 @@ const DEMO_SIGNALS = [
     score:68, risk:"MEDIUM", timeframe:"1–3 hours",
     entry:0.8921, target1:0.9547, target2:1.026, sl:0.8653,
     sm_buyers:5, sm_netflow:42000, arkham_entities:0,
+    token_address:"0x912ce59144191c1204e64559fe8253a0e49e6548",
+    coingecko_url:"https://www.coingecko.com/en/coins/arbitrum",
+    explorer_url:"https://arbiscan.io/token/0x912ce59144191c1204e64559fe8253a0e49e6548",
     layers:["nansen","santi","cg"],
     breakdown:[
       {t:"✅ [Nansen] 5 Smart Money wallets buying — Moderate", cls:"ok"},
@@ -1187,6 +1249,20 @@ function buildCard(sig, isNew=false) {
       <div class="hold-badge">⏱ ${sig.timeframe}</div>
       <div class="card-time">${formatTime(sig.timestamp)}</div>
     </div>
+    <div class="card-links">
+      ${sig.token_address ? `
+      <div class="contract-row" title="${sig.token_address}">
+        <span class="link-label">📋</span>
+        <span class="contract-addr">${sig.token_address.slice(0,8)}...${sig.token_address.slice(-6)}</span>
+        <button class="copy-btn" onclick="copyAddr('${sig.token_address}',this)">Copy</button>
+      </div>` : '<div style="font-size:10px;color:var(--text3)">📋 Native token — no contract</div>'}
+      <div class="ext-links">
+        ${sig.coingecko_url
+          ? `<a href="${sig.coingecko_url}" target="_blank" class="ext-link cg-link">🦎 CoinGecko</a>`
+          : `<a href="https://www.coingecko.com/en/search?query=${sig.symbol}" target="_blank" class="ext-link cg-link">🦎 Search</a>`}
+        ${sig.explorer_url ? `<a href="${sig.explorer_url}" target="_blank" class="ext-link ex-link">🔍 Contract</a>` : ''}
+      </div>
+    </div>
   </div>`;
 }
 
@@ -1351,6 +1427,26 @@ async function pollSignals() {
 // Poll every 15 seconds + run once immediately
 setInterval(pollSignals, 15000);
 setTimeout(pollSignals, 1000);
+
+// ─── COPY CONTRACT ADDRESS ────────────────────────────────────────────
+function copyAddr(addr, btn) {
+  const doCopy = () => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(addr).then(doCopy).catch(() => {
+      const el = Object.assign(document.createElement('textarea'), {value: addr});
+      document.body.appendChild(el); el.select();
+      document.execCommand('copy'); document.body.removeChild(el); doCopy();
+    });
+  } else {
+    const el = Object.assign(document.createElement('textarea'), {value: addr});
+    document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el); doCopy();
+  }
+}
 
 // ─── INIT ─────────────────────────────────────────────────────────────
 signals.forEach(s => s._demo = true);

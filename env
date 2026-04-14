@@ -1,0 +1,19 @@
+# ─── CryptoSignal Pro — API Keys ─────────────────────────────────────
+# Place this file inside your arkhsen/ folder as: arkhsen/.env
+
+# REQUIRED: Telegram bot (free — search @BotFather in Telegram)
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+
+# FREE instant key — cryptocompare.com → My Account → API Keys
+CRYPTOCOMPARE_API_KEY=
+
+# OLD (no longer needed — kept for compatibility)
+LUNARCRUSH_API_KEY=
+SANTIMENT_API_KEY=
+
+# CONNECTED ✅ — Nansen Pro
+NANSEN_API_KEY=CcvTh2mHGp3LFFLqvRjsYqZAZzPmX6IN
+
+# PAID — Apply at: https://intel.arkm.com/api
+ARKHAM_API_KEY=

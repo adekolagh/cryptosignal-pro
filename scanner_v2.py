@@ -64,8 +64,9 @@ TELEGRAM_BOT_TOKEN  = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID    = os.getenv("TELEGRAM_CHAT_ID", "")
 NANSEN_API_KEY      = os.getenv("NANSEN_API_KEY", "")       # Pro plan $49/mo → nansen.ai
 ARKHAM_API_KEY      = os.getenv("ARKHAM_API_KEY", "")       # Apply at intel.arkm.com/api
-LUNARCRUSH_API_KEY  = os.getenv("LUNARCRUSH_API_KEY", "")   # Free → lunarcrush.com/developers
-SANTIMENT_API_KEY   = os.getenv("SANTIMENT_API_KEY", "")    # Free → santiment.net
+LUNARCRUSH_API_KEY    = os.getenv("LUNARCRUSH_API_KEY", "")
+SANTIMENT_API_KEY     = os.getenv("SANTIMENT_API_KEY", "")
+CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")  # Free instant key: cryptocompare.com
 
 SCAN_INTERVAL_SEC   = 300    # 5 minutes
 SIGNAL_THRESHOLD    = 65     # Out of 100 — raise to 80 for institutional-grade only
@@ -89,7 +90,10 @@ class TokenSignal:
     name:           str
     chain:          str
     price:          float
-    token_address:  str = ""
+    token_address:  str = ""   # contract address (from Nansen or CoinGecko)
+    coingecko_id:   str = ""   # e.g. "ethereum", "solana" — for URL
+    coingecko_url:  str = ""   # https://www.coingecko.com/en/coins/{id}
+    explorer_url:   str = ""   # block explorer link for contract
     score:          int = 0
     confidence:     str = "MODERATE"
     breakdown:      list = field(default_factory=list)
@@ -100,7 +104,6 @@ class TokenSignal:
     target_2:       float = 0.0
     stop_loss:      float = 0.0
     risk:           str = "MEDIUM"
-    # Raw data carried through for signal building
     smart_money_buyers:  int = 0
     sm_netflow_usd:      float = 0.0
     arkham_flagged:      bool = False
@@ -428,6 +431,112 @@ class ArkhamLayer:
         return min(pts, 20), notes, is_suspicious, legit_entity_count
 
 
+# ─────────────────────────────────────────────────────────────────
+# LAYER 4 — CRYPTOCOMPARE  (replaces LunarCrush — free instant key)
+# Get key: cryptocompare.com → My Account → API Keys (email verify only)
+# Docs: https://min-api.cryptocompare.com/documentation
+# ─────────────────────────────────────────────────────────────────
+class CryptoCompareSocialLayer:
+    BASE = "https://min-api.cryptocompare.com/data"
+
+    async def fetch(self, session: aiohttp.ClientSession) -> dict:
+        if not CRYPTOCOMPARE_API_KEY:
+            return {}
+        try:
+            async with session.get(
+                f"{self.BASE}/top/totalvolfull",
+                params={"limit": "100", "tsym": "USD", "api_key": CRYPTOCOMPARE_API_KEY},
+                timeout=12
+            ) as r:
+                if r.status == 200:
+                    data = await r.json()
+                    result = {}
+                    for item in data.get("Data", []):
+                        raw  = item.get("RAW", {}).get("USD", {})
+                        info = item.get("CoinInfo", {})
+                        sym  = info.get("Name", "").upper()
+                        if sym:
+                            result[sym] = {
+                                "CHANGEPCT24HOUR": raw.get("CHANGEPCT24HOUR", 0),
+                                "VOLUME24HOURTO":  raw.get("VOLUME24HOURTO", 0),
+                                "MKTCAP":          raw.get("MKTCAP", 1),
+                            }
+                    log.info(f"   CryptoCompare: {len(result)} coins loaded")
+                    return result
+                log.warning(f"   CryptoCompare HTTP {r.status}")
+        except Exception as e:
+            log.warning(f"   CryptoCompare error: {e}")
+        return {}
+
+    def score(self, symbol: str, data: dict) -> tuple[int, list]:
+        """Max 15 pts — volume momentum + 24h price change."""
+        if not data:
+            return 0, ["⚪ [Social] No data — add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)"]
+        pts = 0
+        notes = []
+        chg = data.get("CHANGEPCT24HOUR", 0) or 0
+        vol = data.get("VOLUME24HOURTO", 0) or 0
+        mcp = data.get("MKTCAP", 1) or 1
+        vmr = vol / mcp if mcp > 0 else 0
+
+        if 3 <= chg <= 10:
+            pts += 7; notes.append(f"✅ [CryptoCompare] +{chg:.1f}% 24h — healthy momentum")
+        elif chg > 10:
+            pts += 4; notes.append(f"🔶 [CryptoCompare] +{chg:.1f}% 24h — strong move")
+        elif 1 <= chg < 3:
+            pts += 3; notes.append(f"📊 [CryptoCompare] +{chg:.1f}% 24h — early move")
+
+        if vmr > 0.5:
+            pts += 8; notes.append(f"✅ [CryptoCompare] Vol {vmr:.2f}x MCap — extreme buying")
+        elif vmr > 0.25:
+            pts += 5; notes.append(f"✅ [CryptoCompare] Vol {vmr:.2f}x MCap — high activity")
+        elif vmr > 0.10:
+            pts += 2; notes.append(f"🔶 [CryptoCompare] Vol {vmr:.2f}x MCap — above average")
+
+        return min(pts, 15), notes
+
+
+# ─────────────────────────────────────────────────────────────────
+# LAYER 5 — FEAR & GREED INDEX  (replaces Santiment — NO KEY NEEDED)
+# Source: alternative.me — 100% free, no signup, no approval
+# URL: https://api.alternative.me/fng/
+# ─────────────────────────────────────────────────────────────────
+class FearGreedLayer:
+    URL = "https://api.alternative.me/fng/?limit=2"
+
+    async def fetch(self, session: aiohttp.ClientSession) -> Optional[dict]:
+        try:
+            async with session.get(self.URL, timeout=10) as r:
+                if r.status == 200:
+                    entries = (await r.json()).get("data", [])
+                    if entries:
+                        return {
+                            "value":     int(entries[0].get("value", 50)),
+                            "label":     entries[0].get("value_classification", "Neutral"),
+                            "yesterday": int(entries[1].get("value", 50)) if len(entries) > 1 else 50,
+                        }
+        except Exception as e:
+            log.debug(f"   Fear&Greed error: {e}")
+        return None
+
+    def score(self, data: Optional[dict]) -> tuple[int, list]:
+        """
+        Max 10 pts. Smart Money buying during Fear = strongest contrarian signal.
+        Extreme Greed = overheated market = reduce confidence.
+        """
+        if not data:
+            return 5, ["📊 [Fear&Greed] Unavailable — neutral score applied"]
+        val  = data["value"]
+        lab  = data["label"]
+        yest = data["yesterday"]
+        trend = "↑" if val > yest else "↓" if val < yest else "→"
+        if val <= 25:   return 10, [f"✅ [Fear&Greed] EXTREME FEAR {val}/100 {trend} — ideal SM buy zone"]
+        if val <= 45:   return 8,  [f"✅ [Fear&Greed] Fear {val}/100 ({lab}) {trend} — good entry conditions"]
+        if val <= 55:   return 6,  [f"🔶 [Fear&Greed] Neutral {val}/100 {trend} — balanced market"]
+        if val <= 75:   return 3,  [f"📊 [Fear&Greed] Greed {val}/100 {trend} — use tighter stop loss"]
+        return 0, [f"⚠️  [Fear&Greed] EXTREME GREED {val}/100 {trend} — market overheated, caution"]
+
+
 # ─────────────────────────────────────────────────────────────────────
 # LAYER 4 — LUNARCRUSH  (Social Sentiment)
 # Real API: https://lunarcrush.com/api4
@@ -675,21 +784,48 @@ class TelegramAlerter:
         conf = self._confidence_label(sig.score)
         risk_e = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🔴"}.get(sig.risk, "🟡")
 
+        # ── Header ────────────────────────────────────────────────────
         msg  = f"🚨 *TRADE SIGNAL — BUY ${sig.symbol}* 🚨\n\n"
-        msg += f"🪙 *{sig.name}* | Chain: `{sig.chain.upper()}`\n"
+        msg += f"🪙 *{sig.name}* (`${sig.symbol}`) | Chain: `{sig.chain.upper()}`\n"
         msg += f"💲 Price: `${sig.price:,.6g}`\n"
         msg += f"📊 Score: `{bar}` *{sig.score}/100*\n"
         msg += f"🎯 Confidence: {conf}\n"
         msg += f"⏱ Hold: `{sig.timeframe}`\n"
         msg += f"{risk_e} Risk: `{sig.risk}`\n"
 
-        if sig.smart_money_buyers > 0:
-            msg += f"🐋 SM Wallets: `{sig.smart_money_buyers}` buying\n"
-        if sig.sm_netflow_usd > 0:
-            msg += f"💰 SM Netflow: `+${sig.sm_netflow_usd:,.0f}` inflow\n"
-        if sig.arkham_entity_count > 0:
-            msg += f"🏛 Arkham Entities: `{sig.arkham_entity_count}` known entities accumulating\n"
+        # ── Token Identity (contract + links) ─────────────────────────
+        msg += "\n━━ *TOKEN IDENTITY* ━━\n"
 
+        # Contract address — full for copy-paste, shortened for display
+        if sig.token_address:
+            addr = sig.token_address
+            short = addr[:6] + "..." + addr[-4:] if len(addr) > 12 else addr
+            msg += f"📋 Contract: `{addr}`\n"
+            msg += f"   _{short} — copy above to verify_\n"
+        else:
+            msg += f"📋 Contract: _Not available (large-cap native token)_\n"
+
+        # CoinGecko link for research
+        if sig.coingecko_url:
+            msg += f"🦎 CoinGecko: {sig.coingecko_url}\n"
+        else:
+            msg += f"🦎 CoinGecko: https://www.coingecko.com/en/search?query={sig.symbol}\n"
+
+        # Block explorer link
+        if sig.explorer_url:
+            msg += f"🔍 Explorer: {sig.explorer_url}\n"
+
+        # ── Smart Money data ──────────────────────────────────────────
+        if sig.smart_money_buyers > 0 or sig.sm_netflow_usd > 0:
+            msg += "\n━━ *SMART MONEY* ━━\n"
+            if sig.smart_money_buyers > 0:
+                msg += f"🐋 Wallets buying: `{sig.smart_money_buyers}`\n"
+            if sig.sm_netflow_usd > 0:
+                msg += f"💰 Net inflow: `+${sig.sm_netflow_usd:,.0f}`\n"
+            if sig.arkham_entity_count > 0:
+                msg += f"🏛 Known entities: `{sig.arkham_entity_count}` accumulating\n"
+
+        # ── Signal breakdown ──────────────────────────────────────────
         msg += "\n━━ *SIGNAL BREAKDOWN* ━━\n"
         for note in sig.breakdown:
             msg += f"{note}\n"
@@ -699,6 +835,7 @@ class TelegramAlerter:
             for w in sig.warnings:
                 msg += f"{w}\n"
 
+        # ── Trade levels ──────────────────────────────────────────────
         msg += f"""
 ━━ *TRADE LEVELS* ━━
 📥 Entry:     `${sig.entry:,.6g}`
@@ -706,9 +843,9 @@ class TelegramAlerter:
 🏆 Target 2:  `${sig.target_2:,.6g}` *(+10%)*
 🛑 Stop Loss: `${sig.stop_loss:,.6g}` *(-3%)*
 
-⚡ *Sources confirmed: Nansen Smart Money + Arkham + Social*
+_Always verify the contract address before trading._
 🕐 _{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}_
-_⚠️ AI signal — always DYOR. Risk only what you can lose._"""
+_⚠️ AI signal only. DYOR. Never risk more than you can afford._"""
 
         return msg
 
@@ -741,8 +878,9 @@ class CryptoSignalScannerV2:
     def __init__(self):
         self.nansen   = NansenLayer()
         self.arkham   = ArkhamLayer()
-        self.lc       = LunarCrushLayer()
-        self.san      = SantimentLayer()
+        self.lc       = CryptoCompareSocialLayer()  # replaces LunarCrush
+        self.san      = SantimentLayer()              # stub (kept for compat)
+        self.san_fg   = FearGreedLayer()               # replaces Santiment
         self.cg       = CoinGeckoLayer()
         self.telegram = TelegramAlerter()
         self.scan_no  = 0
@@ -750,6 +888,18 @@ class CryptoSignalScannerV2:
         self.MAX_RAW  = 30 + 20 + 20 + 15 + 10 + 5  # = 100
 
     CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb"]
+
+    # Block explorer URLs for contract address verification
+    EXPLORERS = {
+        "ethereum":  "https://etherscan.io/token/",
+        "solana":    "https://solscan.io/token/",
+        "base":      "https://basescan.org/token/",
+        "arbitrum":  "https://arbiscan.io/token/",
+        "bnb":       "https://bscscan.com/token/",
+        "polygon":   "https://polygonscan.com/token/",
+        "optimism":  "https://optimistic.etherscan.io/token/",
+        "avalanche": "https://snowtrace.io/token/",
+    }
 
     def _write_signals_json(self, candidates: list):
         """Write signals to templates/signals.json so dashboard.html can read them."""
@@ -761,27 +911,30 @@ class CryptoSignalScannerV2:
             }
             for sig in candidates[:20]:
                 data["signals"].append({
-                    "symbol":       sig.symbol,
-                    "name":         sig.name,
-                    "chain":        sig.chain,
-                    "price":        sig.price,
-                    "score":        sig.score,
-                    "risk":         sig.risk,
-                    "timeframe":    sig.timeframe,
-                    "entry":        sig.entry,
-                    "target1":      sig.target_1,
-                    "target2":      sig.target_2,
-                    "sl":           sig.stop_loss,
-                    "sm_buyers":    sig.smart_money_buyers,
-                    "sm_netflow":   sig.sm_netflow_usd,
+                    "symbol":          sig.symbol,
+                    "name":            sig.name,
+                    "chain":           sig.chain,
+                    "price":           sig.price,
+                    "score":           sig.score,
+                    "risk":            sig.risk,
+                    "timeframe":       sig.timeframe,
+                    "entry":           sig.entry,
+                    "target1":         sig.target_1,
+                    "target2":         sig.target_2,
+                    "sl":              sig.stop_loss,
+                    "sm_buyers":       sig.smart_money_buyers,
+                    "sm_netflow":      sig.sm_netflow_usd,
                     "arkham_entities": sig.arkham_entity_count,
-                    "layers":       [l for l in [
-                                        "nansen" if sig.smart_money_buyers > 0 else None,
-                                        "arkham" if sig.arkham_entity_count > 0 else None,
-                                        "cg",
-                                    ] if l],
-                    "breakdown":    [{"t": n, "cls": "ok" if "✅" in n else "med" if "🔶" in n else "neu"} for n in sig.breakdown],
-                    "timestamp":    sig.entry and datetime.utcnow().isoformat() + "Z",
+                    "token_address":   sig.token_address,
+                    "coingecko_url":   sig.coingecko_url,
+                    "explorer_url":    sig.explorer_url,
+                    "layers":          [l for l in [
+                                            "nansen" if sig.smart_money_buyers > 0 else None,
+                                            "arkham" if sig.arkham_entity_count > 0 else None,
+                                            "cg",
+                                        ] if l],
+                    "breakdown":       [{"t": n, "cls": "ok" if "✅" in n else "med" if "🔶" in n else "neu"} for n in sig.breakdown],
+                    "timestamp":       datetime.utcnow().isoformat() + "Z",
                 })
             SIGNALS_JSON.parent.mkdir(parents=True, exist_ok=True)
             SIGNALS_JSON.write_text(json.dumps(data, indent=2))
@@ -815,10 +968,11 @@ class CryptoSignalScannerV2:
             sm_tokens_task  = self.nansen.screen_smart_money_tokens(session, self.CHAINS)
             cg_markets_task = self.cg.fetch_markets(session)
             cg_trending_task= self.cg.fetch_trending(session)
-            lc_data_task    = self.lc.fetch(session)
+            cc_data_task    = self.lc.fetch(session)
+            fg_data_task    = self.san_fg.fetch(session)
 
-            sm_tokens, cg_markets, trending, lc_all = await asyncio.gather(
-                sm_tokens_task, cg_markets_task, cg_trending_task, lc_data_task
+            sm_tokens, cg_markets, trending, lc_all, fg_data = await asyncio.gather(
+                sm_tokens_task, cg_markets_task, cg_trending_task, cc_data_task, fg_data_task
             )
 
             log.info(f"   Nansen SM tokens: {len(sm_tokens)} | CG coins: {len(cg_markets)} | Trending: {len(trending)}")
@@ -879,12 +1033,8 @@ class CryptoSignalScannerV2:
                 # ── Score Layer 4: LunarCrush social ─────────────────
                 lc_pts, lc_notes = self.lc.score(sym, lc_all.get(sym, {}))
 
-                # ── Score Layer 5: Santiment on-chain spike ───────────
-                san_pts, san_notes = 0, []
-                slug = self.san.SLUG_MAP.get(sym)
-                if slug:
-                    ratio = await self.san.get_spike_ratio(session, slug)
-                    san_pts, san_notes = self.san.score(ratio)
+                # ── Score Layer 5: Fear & Greed (no key needed) ──────
+                san_pts, san_notes = self.san_fg.score(fg_data)
 
                 # ── Score Layer 6: CoinGecko volume confirmation ──────
                 cg_pts, cg_notes = self.cg.score(cg_coin if cg_coin else None, sym in trending)
@@ -902,9 +1052,19 @@ class CryptoSignalScannerV2:
 
                 all_notes = nm_s_notes + nm_nf_notes + ark_notes + lc_notes + san_notes + cg_notes
 
+                # ── Enrich with CoinGecko ID + explorer URL ───────────
+                cg_id  = cg_coin.get("id", "").lower() if cg_coin else ""
+                cg_url = f"https://www.coingecko.com/en/coins/{cg_id}" if cg_id else ""
+                exp_base = self.EXPLORERS.get(chain, "")
+                exp_url  = (exp_base + tok_addr) if (exp_base and tok_addr) else ""
+
                 candidates.append(TokenSignal(
                     symbol=sym, name=name, chain=chain, price=price,
-                    token_address=tok_addr, score=norm,
+                    token_address=tok_addr,
+                    coingecko_id=cg_id,
+                    coingecko_url=cg_url,
+                    explorer_url=exp_url,
+                    score=norm,
                     breakdown=all_notes, timeframe=tf,
                     entry=price, target_1=t1, target_2=t2, stop_loss=sl,
                     risk=risk, smart_money_buyers=sm_count,
@@ -946,7 +1106,9 @@ async def main():
     print("╚" + "═"*63 + "╝")
     print(f"  Threshold : {SIGNAL_THRESHOLD}/100")
     print(f"  Interval  : every {SCAN_INTERVAL_SEC//60} minutes")
-    print(f"  Nansen    : {'✅ Real Smart Money API connected' if NANSEN_API_KEY else '⚠️  NOT connected — get Pro plan at nansen.ai ($49/mo)'}")
+    print(f"  Nansen         : {'✅ Smart Money connected' if NANSEN_API_KEY else '⚠️  Not set — nansen.ai ($49/mo)'}")
+    print(f"  CryptoCompare  : {'✅ Social layer connected' if CRYPTOCOMPARE_API_KEY else '⚠️  Add free key at cryptocompare.com'}")
+    print(f"  Fear&Greed     : ✅ Free, no key (alternative.me)")
     print(f"  Arkham    : {'✅ Entity intelligence connected' if ARKHAM_API_KEY else '⚠️  NOT connected — apply at intel.arkm.com/api'}")
     print(f"  LunarCrush: {'✅' if LUNARCRUSH_API_KEY else '⚠️  No key (lunarcrush.com/developers — free)'}")
     print(f"  Santiment : {'✅' if SANTIMENT_API_KEY else '⚠️  No key (santiment.net — free)'}")
