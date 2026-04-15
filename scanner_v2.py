@@ -419,49 +419,82 @@ class NansenLayer:
         return min(pts, 30), notes
 
     def score_screener(self, token: dict) -> tuple[int, list]:
-        """Score based on Nansen Smart Money screener result. Max 30 pts."""
-        pts = 0
+        """
+        Layer 1 scoring — Smart Money activity from Nansen screener.
+        Uses real Nansen field names: nof_traders, netflow, liquidity,
+        token_age_days. Max 30 pts.
+
+        Three sub-scores:
+          A. SM wallet count      (0-15 pts)
+          B. Netflow magnitude    (0-10 pts)
+          C. Netflow/Liq ratio + Token age bonus  (0-5 pts)
+        """
+        pts   = 0
         notes = []
 
-        # nof_traders = number of Smart Money wallets trading this token
-        sm_count   = token.get("nof_traders", token.get("smart_money_count", token.get("nof_smart_money_traders", 0))) or 0
-        buy_vol    = token.get("buy_volume", token.get("volume_usd", token.get("volume", 0))) or 0
-        netflow    = token.get("netflow", 0) or 0
+        # Real Nansen field names
+        sm_count  = token.get("nof_traders", 0) or 0
+        netflow   = token.get("netflow", 0) or 0
+        liquidity = token.get("liquidity", 0) or 1    # avoid division by zero
+        age_days  = token.get("token_age_days", 0) or 0
 
+        # ── A. Smart Money wallet count (0-15 pts) ───────────────────
         if sm_count >= 10:
             pts += 15
-            notes.append(f"✅ [Nansen] {sm_count} SM wallets trading — High conviction")
+            notes.append(f"✅ [Nansen] {sm_count} SM wallets active — High conviction")
         elif sm_count >= 5:
             pts += 10
-            notes.append(f"✅ [Nansen] {sm_count} SM wallets trading — Good conviction")
+            notes.append(f"✅ [Nansen] {sm_count} SM wallets active — Good conviction")
         elif sm_count >= 2:
             pts += 6
-            notes.append(f"🔶 [Nansen] {sm_count} SM wallets trading — Moderate")
+            notes.append(f"🔶 [Nansen] {sm_count} SM wallets active — Moderate")
         elif sm_count >= 1:
             pts += 3
             notes.append(f"📊 [Nansen] {sm_count} SM wallet active")
 
-        if sm_count >= 2:
-            pts += 4  # dummy to keep alignment
-            notes.append(f"📊 [Nansen] {sm_count} Smart Money wallets — Watch")
-
-        # Volume amongst Smart Money wallets
-        # Netflow scoring
+        # ── B. Netflow magnitude (0-10 pts) ──────────────────────────
         if netflow > 500_000:
-            pts += 15
-            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Strong SM buying")
-        elif netflow > 100_000:
             pts += 10
-            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Clear SM buying")
+            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Institutional scale")
+        elif netflow > 100_000:
+            pts += 8
+            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Strong buying")
         elif netflow > 10_000:
-            pts += 6
-            notes.append(f"🔶 [Nansen] Net inflow: +${netflow:,.0f} — Mild SM buying")
+            pts += 5
+            notes.append(f"🔶 [Nansen] Net inflow: +${netflow:,.0f} — Mild buying")
         elif netflow > 0:
-            pts += 3
+            pts += 2
             notes.append(f"📊 [Nansen] Net inflow: +${netflow:,.0f} — Slight buying")
-        elif netflow < 0:
+        elif netflow < -100_000:
             pts = max(0, pts - 5)
             notes.append(f"⚠️  [Nansen] Net OUTFLOW: ${netflow:,.0f} — SM selling")
+
+        # ── C. Netflow/Liquidity ratio bonus (0-3 pts) ───────────────
+        # The bigger the netflow relative to available liquidity,
+        # the stronger the conviction — price MUST move
+        if liquidity > 0 and netflow > 0:
+            ratio = (netflow / liquidity) * 100
+            if ratio >= 20:
+                pts += 3
+                notes.append(f"✅ [Nansen] Netflow/Liquidity: {ratio:.1f}% — EXTREME conviction (price must move)")
+            elif ratio >= 10:
+                pts += 2
+                notes.append(f"✅ [Nansen] Netflow/Liquidity: {ratio:.1f}% — High conviction ratio")
+            elif ratio >= 5:
+                pts += 1
+                notes.append(f"🔶 [Nansen] Netflow/Liquidity: {ratio:.1f}% — Meaningful ratio")
+
+        # ── D. Token age bonus (0-2 pts) ─────────────────────────────
+        # Older tokens have survived market cycles — more trustworthy
+        if age_days >= 365:
+            pts += 2
+            notes.append(f"✅ [Nansen] Token age: {int(age_days)}d — Established project")
+        elif age_days >= 90:
+            pts += 1
+            notes.append(f"📊 [Nansen] Token age: {int(age_days)}d — Maturing project")
+        elif age_days < 30 and age_days > 0:
+            pts = max(0, pts - 2)
+            notes.append(f"⚠️  [Nansen] Token age: {int(age_days)}d — Very new token, higher risk")
 
         return min(pts, 30), notes
 
@@ -586,16 +619,50 @@ class EtherscanLayer:
                 result["is_verified"] = bool(source and source.strip() != "")
                 result["contract_name"] = items[0].get("ContractName", "")
 
-        # Call 2 — Holder activity
+        # Call 2 — Holder count (how many unique wallets hold this)
         data2 = await self._get(session, {
             "module":          "token",
             "action":          "tokenholderlist",
             "contractaddress": contract_address,
             "page":            "1",
-            "offset":          "1",
+            "offset":          "10",   # get top 10 holders
         })
-        if data2:
-            result["has_holders"] = data2.get("status") == "1"
+        if data2 and data2.get("status") == "1":
+            holders = data2.get("result", [])
+            result["has_holders"] = True
+            # Check concentration — if top holders own too much it is risky
+            if holders:
+                try:
+                    # Get total supply for concentration calc
+                    supplies = [float(h.get("TokenHolderQuantity", 0)) for h in holders]
+                    total    = sum(supplies)
+                    top3     = sum(sorted(supplies, reverse=True)[:3])
+                    result["top3_concentration"] = (top3 / total * 100) if total > 0 else 0
+                    result["holder_sample"] = len(holders)
+                except Exception:
+                    pass
+        else:
+            result["has_holders"] = False
+
+        # Call 3 — Token creation date from first transaction
+        data3 = await self._get(session, {
+            "module":     "account",
+            "action":     "tokentx",
+            "contractaddress": contract_address,
+            "startblock": "0",
+            "endblock":   "999999999",
+            "page":       "1",
+            "offset":     "1",
+            "sort":       "asc",
+        })
+        if data3 and data3.get("status") == "1":
+            txs = data3.get("result", [])
+            if txs:
+                import time
+                ts = int(txs[0].get("timeStamp", 0))
+                if ts > 0:
+                    age_days = (time.time() - ts) / 86400
+                    result["token_age_days"] = round(age_days, 1)
 
         return result
 
@@ -637,14 +704,42 @@ class EtherscanLayer:
             pts += 8
             notes.append("🔶 [Safety] Contract verification status unknown")
 
-        # Holders check
+        # ── Holder distribution check ────────────────────────────
         has_holders = info.get("has_holders", None)
+        top3_conc   = info.get("top3_concentration", None)
+
         if has_holders is True:
-            pts += 5
+            pts += 3
             notes.append("✅ [Safety] Token has active holders on Etherscan")
+            # Concentration check — top 3 holders owning too much = risk
+            if top3_conc is not None:
+                if top3_conc >= 80:
+                    pts -= 3
+                    notes.append(f"🚨 [Safety] Top 3 holders own {top3_conc:.0f}% — extreme concentration risk")
+                elif top3_conc >= 50:
+                    notes.append(f"⚠️  [Safety] Top 3 holders own {top3_conc:.0f}% — concentration risk")
+                else:
+                    pts += 2
+                    notes.append(f"✅ [Safety] Top 3 holders own {top3_conc:.0f}% — well distributed")
         elif has_holders is False:
-            pts -= 3
-            notes.append("⚠️  [Safety] No holder data found — token may be very new or illiquid")
+            pts -= 2
+            notes.append("⚠️  [Safety] No holder data — token may be very new or illiquid")
+
+        # ── Token age from Etherscan ──────────────────────────────
+        eth_age = info.get("token_age_days", None)
+        if eth_age is not None:
+            if eth_age >= 365:
+                pts += 2
+                notes.append(f"✅ [Safety] Token age: {eth_age:.0f} days — established on-chain")
+            elif eth_age >= 90:
+                pts += 1
+                notes.append(f"📊 [Safety] Token age: {eth_age:.0f} days — maturing")
+            elif eth_age < 14:
+                pts -= 3
+                notes.append(f"🚨 [Safety] Token age: {eth_age:.0f} days — brand new, extreme risk")
+            elif eth_age < 30:
+                pts -= 1
+                notes.append(f"⚠️  [Safety] Token age: {eth_age:.0f} days — very new token")
 
         return min(pts, 20), notes, is_suspicious
 
