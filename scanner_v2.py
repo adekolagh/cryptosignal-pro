@@ -423,34 +423,45 @@ class NansenLayer:
         pts = 0
         notes = []
 
-        # Number of distinct Smart Money wallets buying
-        sm_count   = token.get("smart_money_count", token.get("nof_smart_money_traders", 0)) or 0
-        volume_usd = token.get("volume_usd", token.get("volume", 0)) or 0
-        price_chg  = token.get("price_change", token.get("price_change_percentage", 0)) or 0
+        # nof_traders = number of Smart Money wallets trading this token
+        sm_count   = token.get("nof_traders", token.get("smart_money_count", token.get("nof_smart_money_traders", 0))) or 0
+        buy_vol    = token.get("buy_volume", token.get("volume_usd", token.get("volume", 0))) or 0
+        netflow    = token.get("netflow", 0) or 0
 
-        if sm_count >= 20:
-            pts += 20
-            notes.append(f"✅ [Nansen] {sm_count} Smart Money wallets buying — VERY HIGH conviction")
-        elif sm_count >= 10:
-            pts += 14
-            notes.append(f"✅ [Nansen] {sm_count} Smart Money wallets buying — High conviction")
+        if sm_count >= 10:
+            pts += 15
+            notes.append(f"✅ [Nansen] {sm_count} SM wallets trading — High conviction")
         elif sm_count >= 5:
-            pts += 8
-            notes.append(f"🔶 [Nansen] {sm_count} Smart Money wallets buying — Moderate")
+            pts += 10
+            notes.append(f"✅ [Nansen] {sm_count} SM wallets trading — Good conviction")
         elif sm_count >= 2:
-            pts += 4
+            pts += 6
+            notes.append(f"🔶 [Nansen] {sm_count} SM wallets trading — Moderate")
+        elif sm_count >= 1:
+            pts += 3
+            notes.append(f"📊 [Nansen] {sm_count} SM wallet active")
+
+        if sm_count >= 2:
+            pts += 4  # dummy to keep alignment
             notes.append(f"📊 [Nansen] {sm_count} Smart Money wallets — Watch")
 
         # Volume amongst Smart Money wallets
-        if volume_usd > 1_000_000:
+        # Netflow scoring
+        if netflow > 500_000:
+            pts += 15
+            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Strong SM buying")
+        elif netflow > 100_000:
             pts += 10
-            notes.append(f"✅ [Nansen] SM volume: ${volume_usd:,.0f} — Institutional-scale activity")
-        elif volume_usd > 100_000:
+            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Clear SM buying")
+        elif netflow > 10_000:
             pts += 6
-            notes.append(f"🔶 [Nansen] SM volume: ${volume_usd:,.0f}")
-        elif volume_usd > 10_000:
+            notes.append(f"🔶 [Nansen] Net inflow: +${netflow:,.0f} — Mild SM buying")
+        elif netflow > 0:
             pts += 3
-            notes.append(f"📊 [Nansen] SM volume: ${volume_usd:,.0f}")
+            notes.append(f"📊 [Nansen] Net inflow: +${netflow:,.0f} — Slight buying")
+        elif netflow < 0:
+            pts = max(0, pts - 5)
+            notes.append(f"⚠️  [Nansen] Net OUTFLOW: ${netflow:,.0f} — SM selling")
 
         return min(pts, 30), notes
 
