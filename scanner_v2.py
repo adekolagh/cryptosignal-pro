@@ -224,7 +224,7 @@ class NansenLayer:
         # LONG signal payload — SM buying (sort by highest netflow first)
         payload = {
             "chains": chains,
-            "timeframe": "24h",
+            "timeframe": "7d",
             "pagination": {"page": 1, "per_page": 30},
             "filters": {
                 "only_smart_money": True,
@@ -288,7 +288,7 @@ class NansenLayer:
 
         payload = {
             "chains": chains,
-            "timeframe": "24h",
+            "timeframe": "7d",
             "pagination": {"page": 1, "per_page": 20},
             "filters": {
                 "only_smart_money": True,
