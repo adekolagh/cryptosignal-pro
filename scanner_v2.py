@@ -1141,7 +1141,7 @@ class CryptoSignalScannerV2:
         cg_max        = 5    # CoinGecko — always free
         self.MAX_RAW  = nansen_max + etherscan_max + cc_max + fg_max + cg_max
 
-    CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb"]
+    CHAINS = ["ethereum", "solana", "bnb", "base", "arbitrum", "polygon", "optimism", "avalanche"]
 
     # Block explorer URLs for contract address verification
     EXPLORERS = {
