@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-15T03:21:25.800336Z",
+  "last_scan": "2026-04-15T03:27:26.335022Z",
   "threshold": 30,
   "max_raw": 85,
   "layer_status": {
@@ -15,14 +15,14 @@
       "symbol": "LAVA",
       "name": "LAVA",
       "chain": "arbitrum",
-      "price": 0.03096864044100242,
+      "price": 0.030930009481583805,
       "score": 41,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.03096864044100242,
-      "target1": 0.026942717183672107,
-      "target2": 0.024155539543981887,
-      "sl": 0.03251707246305254,
+      "entry": 0.030930009481583805,
+      "target1": 0.026909108248977912,
+      "target2": 0.02412540739563537,
+      "sl": 0.032476509955662994,
       "sm_buyers": 2,
       "sm_netflow": -168384.36299247225,
       "arkham_entities": 0,
@@ -55,20 +55,20 @@
       "nansen_traders": 2,
       "nansen_netflow": -168384.36299247225,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T03:21:25.800372Z"
+      "timestamp": "2026-04-15T03:27:26.335064Z"
     },
     {
       "symbol": "GUA",
       "name": "GUA",
       "chain": "bnb",
-      "price": 0.6548602782893369,
+      "price": 0.671666860765482,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.6548602782893369,
-      "target1": 0.5697284421117231,
-      "target2": 0.5107910170656828,
-      "sl": 0.6876032922038038,
+      "entry": 0.671666860765482,
+      "target1": 0.5843501688659694,
+      "target2": 0.523900151397076,
+      "sl": 0.7052502038037561,
       "sm_buyers": 1,
       "sm_netflow": -14238.443730503524,
       "arkham_entities": 0,
@@ -101,20 +101,20 @@
       "nansen_traders": 1,
       "nansen_netflow": -14238.443730503524,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T03:21:25.800386Z"
+      "timestamp": "2026-04-15T03:27:26.335080Z"
     },
     {
       "symbol": "\u9f99\u867e",
       "name": "\u9f99\u867e",
       "chain": "bnb",
-      "price": 0.012410890583775386,
+      "price": 0.012324654415726728,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.012410890583775386,
-      "target1": 0.010797474807884587,
-      "target2": 0.009680494655344802,
-      "sl": 0.013031435112964156,
+      "entry": 0.012324654415726728,
+      "target1": 0.010722449341682254,
+      "target2": 0.009613230444266848,
+      "sl": 0.012940887136513065,
       "sm_buyers": 2,
       "sm_netflow": -2210.7144190920344,
       "arkham_entities": 0,
@@ -147,7 +147,7 @@
       "nansen_traders": 2,
       "nansen_netflow": -2210.7144190920344,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T03:21:25.800399Z"
+      "timestamp": "2026-04-15T03:27:26.335092Z"
     }
   ]
 }
