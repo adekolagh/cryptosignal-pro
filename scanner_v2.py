@@ -1141,7 +1141,9 @@ class CryptoSignalScannerV2:
         cg_max        = 5    # CoinGecko — always free
         self.MAX_RAW  = nansen_max + etherscan_max + cc_max + fg_max + cg_max
 
-    CHAINS = ["ethereum", "solana", "bnb", "base", "arbitrum", "polygon", "optimism", "avalanche"]
+    # Nansen max 5 chains per request — rotate groups each scan
+    CHAINS_A = ["ethereum", "solana", "bnb", "base", "arbitrum"]
+    CHAINS_B = ["ethereum", "polygon", "optimism", "avalanche", "solana"]
 
     # Block explorer URLs for contract address verification
     EXPLORERS = {
@@ -1236,14 +1238,18 @@ class CryptoSignalScannerV2:
         self._nansen_rot.reset()
         self._etherscan_rot.reset()
         log.info(f"── Scan #{self.scan_no} ─────────────────────────────────────────────")
+        # Alternate chain groups each scan to cover all 8 chains
+        # without exceeding Nansen's 5-chain limit per request
+        active_chains = self.CHAINS_A if self.scan_no % 2 == 1 else self.CHAINS_B
+        log.info(f"   Chains this scan: {active_chains}")
 
         ssl_ctx = ssl.create_default_context(cafile=certifi.where())
         connector = aiohttp.TCPConnector(ssl=ssl_ctx)
         async with aiohttp.ClientSession(connector=connector) as session:
 
             # ── Fetch all data concurrently ──────────────────────────
-            sm_tokens_task   = self.nansen.screen_smart_money_tokens(session, self.CHAINS)
-            sm_shorts_task   = self.nansen.screen_short_signals(session, self.CHAINS)
+            sm_tokens_task   = self.nansen.screen_smart_money_tokens(session, active_chains)
+            sm_shorts_task   = self.nansen.screen_short_signals(session, active_chains)
             cg_markets_task  = self.cg.fetch_markets(session)
             cg_trending_task = self.cg.fetch_trending(session)
             cc_data_task     = self.lc.fetch(session)
