@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-15T10:31:33.734550Z",
+  "last_scan": "2026-04-15T11:32:32.042478Z",
   "threshold": 30,
   "max_raw": 100,
   "layer_status": {
@@ -15,14 +15,14 @@
       "symbol": "LAVA",
       "name": "LAVA",
       "chain": "arbitrum",
-      "price": 0.029828316251008645,
+      "price": 0.029839908925099256,
       "score": 41,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.029828316251008645,
-      "target1": 0.02595063513837752,
-      "target2": 0.023266086675786744,
-      "sl": 0.03131973206355908,
+      "entry": 0.029839908925099256,
+      "target1": 0.025960720764836354,
+      "target2": 0.02327512896157742,
+      "sl": 0.03133190437135422,
       "sm_buyers": 2,
       "sm_netflow": -168384.36299247225,
       "arkham_entities": 0,
@@ -55,20 +55,20 @@
       "nansen_traders": 2,
       "nansen_netflow": -168384.36299247225,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734587Z"
+      "timestamp": "2026-04-15T11:32:32.042511Z"
     },
     {
       "symbol": "FHE",
       "name": "FHE",
       "chain": "bnb",
-      "price": 0.017342542582805577,
+      "price": 0.017514740408955568,
       "score": 41,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.017342542582805577,
-      "target1": 0.015088012047040852,
-      "target2": 0.01352718321458835,
-      "sl": 0.018209669711945858,
+      "entry": 0.017514740408955568,
+      "target1": 0.015237824155791344,
+      "target2": 0.013661497518985344,
+      "sl": 0.01839047742940335,
       "sm_buyers": 2,
       "sm_netflow": -123316.20119047059,
       "arkham_entities": 0,
@@ -101,22 +101,22 @@
       "nansen_traders": 2,
       "nansen_netflow": -123316.20119047059,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734603Z"
+      "timestamp": "2026-04-15T11:32:32.042525Z"
     },
     {
       "symbol": "WLD",
       "name": "WLD",
       "chain": "ethereum",
-      "price": 0.2957063831704448,
+      "price": 0.2974521380756483,
       "score": 40,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.2957063831704448,
-      "target1": 0.25726455335828696,
-      "target2": 0.23065097887294694,
-      "sl": 0.31049170232896706,
+      "entry": 0.2974521380756483,
+      "target1": 0.25878336012581404,
+      "target2": 0.2320126676990057,
+      "sl": 0.31232474497943075,
       "sm_buyers": 3,
-      "sm_netflow": -450444.1546349972,
+      "sm_netflow": -450789.54725463927,
       "arkham_entities": 0,
       "token_address": "0x163f8c2467924be0ae7b5347228cabf260318753",
       "coingecko_url": "https://www.coingecko.com/en/coins/worldcoin-wld",
@@ -132,7 +132,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $450,444 \u2014 strong selling pressure",
+          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $450,790 \u2014 strong selling pressure",
           "cls": "bad"
         },
         {
@@ -148,27 +148,27 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [CoinGecko] -7.2% in 24h \u2014 price declining",
+          "t": "\ud83d\udcc9 [CoinGecko] -5.8% in 24h \u2014 price declining",
           "cls": "neu"
         }
       ],
       "nansen_traders": 3,
-      "nansen_netflow": -450444.1546349972,
+      "nansen_netflow": -450789.54725463927,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734621Z"
+      "timestamp": "2026-04-15T11:32:32.042537Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "arbitrum",
-      "price": 0.03256303934406776,
+      "price": 0.03259050552777113,
       "score": 36,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.03256303934406776,
-      "target1": 0.03581934327847454,
-      "target2": 0.039075647212881315,
-      "sl": 0.030934887376864374,
+      "entry": 0.03259050552777113,
+      "target1": 0.035849556080548246,
+      "target2": 0.039108606633325355,
+      "sl": 0.030960980251382574,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -217,25 +217,25 @@
       "nansen_traders": 1,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-15T10:31:33.734634Z"
+      "timestamp": "2026-04-15T11:32:32.042547Z"
     },
     {
       "symbol": "ATH",
       "name": "ATH",
       "chain": "ethereum",
-      "price": 0.006087537200302042,
-      "score": 36,
+      "price": 0.006083203974970169,
+      "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.006087537200302042,
-      "target1": 0.005296157364262776,
-      "target2": 0.004748279016235593,
-      "sl": 0.006391914060317144,
+      "entry": 0.006083203974970169,
+      "target1": 0.005292387458224047,
+      "target2": 0.004744899100476732,
+      "sl": 0.006387364173718678,
       "sm_buyers": 2,
       "sm_netflow": -166380.26212058347,
       "arkham_entities": 0,
       "token_address": "0xbe0ed4138121ecfc5c0e56b40517da27e6c5226b",
-      "coingecko_url": "https://www.coingecko.com/en/coins/aethir",
+      "coingecko_url": "",
       "explorer_url": "https://etherscan.io/token/0xbe0ed4138121ecfc5c0e56b40517da27e6c5226b",
       "layers": [
         "nansen",
@@ -262,29 +262,25 @@
         {
           "t": "\u26a0\ufe0f  [Fear&Greed] Fear 23/100 \u2014 caution shorting in fear market",
           "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [CoinGecko] -1.1% in 24h \u2014 slight decline",
-          "cls": "neu"
         }
       ],
       "nansen_traders": 2,
       "nansen_netflow": -166380.26212058347,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734646Z"
+      "timestamp": "2026-04-15T11:32:32.042556Z"
     },
     {
       "symbol": "\u6211\u7684\u5200\u76fe",
       "name": "\u6211\u7684\u5200\u76fe",
       "chain": "solana",
-      "price": 0.0031848764644050002,
+      "price": 0.0031402651185349884,
       "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.0031848764644050002,
-      "target1": 0.00277084252403235,
-      "target2": 0.0024842036422359002,
-      "sl": 0.0033441202876252503,
+      "entry": 0.0031402651185349884,
+      "target1": 0.00273203065312544,
+      "target2": 0.002449406792457291,
+      "sl": 0.003297278374461738,
       "sm_buyers": 2,
       "sm_netflow": -32124.865542488707,
       "arkham_entities": 0,
@@ -317,158 +313,20 @@
       "nansen_traders": 2,
       "nansen_netflow": -32124.865542488707,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734657Z"
-    },
-    {
-      "symbol": "UNC",
-      "name": "UNC",
-      "chain": "solana",
-      "price": 0.006668944580607668,
-      "score": 35,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.006668944580607668,
-      "target1": 0.005801981785128672,
-      "target2": 0.005201776772873982,
-      "sl": 0.007002391809638052,
-      "sm_buyers": 4,
-      "sm_netflow": -22249.793226133468,
-      "arkham_entities": 0,
-      "token_address": "ACtfUWtgvaXrQGNMiohTusi5jcx5RJf5zwu9aAxkpump",
-      "coingecko_url": "",
-      "explorer_url": "https://solscan.io/token/ACtfUWtgvaXrQGNMiohTusi5jcx5RJf5zwu9aAxkpump",
-      "layers": [
-        "nansen",
-        "etherscan",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\u26a0\ufe0f  [Nansen] 4 SM wallets selling \u2014 watch closely",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $22,250 \u2014 moderate selling",
-          "cls": "bad"
-        },
-        {
-          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 23/100 \u2014 caution shorting in fear market",
-          "cls": "neu"
-        }
-      ],
-      "nansen_traders": 4,
-      "nansen_netflow": -22249.793226133468,
-      "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734667Z"
-    },
-    {
-      "symbol": "\u9f99\u867e",
-      "name": "\u9f99\u867e",
-      "chain": "bnb",
-      "price": 0.010277121368366978,
-      "score": 35,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.010277121368366978,
-      "target1": 0.008941095590479271,
-      "target2": 0.008016154667326242,
-      "sl": 0.010790977436785327,
-      "sm_buyers": 4,
-      "sm_netflow": -16986.74112482542,
-      "arkham_entities": 0,
-      "token_address": "0xeccbb861c0dda7efd964010085488b69317e4444",
-      "coingecko_url": "",
-      "explorer_url": "https://bscscan.com/token/0xeccbb861c0dda7efd964010085488b69317e4444",
-      "layers": [
-        "nansen",
-        "etherscan",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\u26a0\ufe0f  [Nansen] 4 SM wallets selling \u2014 watch closely",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $16,987 \u2014 moderate selling",
-          "cls": "bad"
-        },
-        {
-          "t": "\ud83d\udcca [Safety] BNB token \u2014 contract check not available (non-EVM)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 23/100 \u2014 caution shorting in fear market",
-          "cls": "neu"
-        }
-      ],
-      "nansen_traders": 4,
-      "nansen_netflow": -16986.74112482542,
-      "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734682Z"
-    },
-    {
-      "symbol": "LOL",
-      "name": "LOL",
-      "chain": "solana",
-      "price": 0.006174532145428402,
-      "score": 35,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.006174532145428402,
-      "target1": 0.00537184296652271,
-      "target2": 0.004816135073434154,
-      "sl": 0.006483258752699822,
-      "sm_buyers": 4,
-      "sm_netflow": -10563.285463982538,
-      "arkham_entities": 0,
-      "token_address": "34q2KmCvapecJgR6ZrtbCTrzZVtkt3a5mHEA3TuEsWYb",
-      "coingecko_url": "",
-      "explorer_url": "https://solscan.io/token/34q2KmCvapecJgR6ZrtbCTrzZVtkt3a5mHEA3TuEsWYb",
-      "layers": [
-        "nansen",
-        "etherscan",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\u26a0\ufe0f  [Nansen] 4 SM wallets selling \u2014 watch closely",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $10,563 \u2014 moderate selling",
-          "cls": "bad"
-        },
-        {
-          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 23/100 \u2014 caution shorting in fear market",
-          "cls": "neu"
-        }
-      ],
-      "nansen_traders": 4,
-      "nansen_netflow": -10563.285463982538,
-      "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734692Z"
+      "timestamp": "2026-04-15T11:32:32.042599Z"
     },
     {
       "symbol": "RAVE",
       "name": "RAVE",
       "chain": "bnb",
-      "price": 14.106305150756647,
-      "score": 32,
+      "price": 13.577169253600438,
+      "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 14.106305150756647,
-      "target1": 12.272485481158283,
-      "target2": 11.002918017590185,
-      "sl": 14.81162040829448,
+      "entry": 13.577169253600438,
+      "target1": 11.81213725063238,
+      "target2": 10.590192017808342,
+      "sl": 14.25602771628046,
       "sm_buyers": 1,
       "sm_netflow": -26684.818978110212,
       "arkham_entities": 0,
@@ -498,27 +356,165 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [CoinGecko] -3.0% in 24h \u2014 slight decline",
+          "t": "\ud83d\udcc9 [CoinGecko] -9.0% in 24h \u2014 price declining",
           "cls": "neu"
         }
       ],
       "nansen_traders": 1,
       "nansen_netflow": -26684.818978110212,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734702Z"
+      "timestamp": "2026-04-15T11:32:32.042609Z"
+    },
+    {
+      "symbol": "UNC",
+      "name": "UNC",
+      "chain": "solana",
+      "price": 0.007733946283752093,
+      "score": 35,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.007733946283752093,
+      "target1": 0.006728533266864321,
+      "target2": 0.006032478101326633,
+      "sl": 0.008120643597939698,
+      "sm_buyers": 4,
+      "sm_netflow": -22240.899722519534,
+      "arkham_entities": 0,
+      "token_address": "ACtfUWtgvaXrQGNMiohTusi5jcx5RJf5zwu9aAxkpump",
+      "coingecko_url": "",
+      "explorer_url": "https://solscan.io/token/ACtfUWtgvaXrQGNMiohTusi5jcx5RJf5zwu9aAxkpump",
+      "layers": [
+        "nansen",
+        "etherscan",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\u26a0\ufe0f  [Nansen] 4 SM wallets selling \u2014 watch closely",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $22,241 \u2014 moderate selling",
+          "cls": "bad"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 23/100 \u2014 caution shorting in fear market",
+          "cls": "neu"
+        }
+      ],
+      "nansen_traders": 4,
+      "nansen_netflow": -22240.899722519534,
+      "signal_type": "SHORT",
+      "timestamp": "2026-04-15T11:32:32.042618Z"
+    },
+    {
+      "symbol": "\u9f99\u867e",
+      "name": "\u9f99\u867e",
+      "chain": "bnb",
+      "price": 0.010262250231981034,
+      "score": 35,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.010262250231981034,
+      "target1": 0.0089281577018235,
+      "target2": 0.008004555180945207,
+      "sl": 0.010775362743580087,
+      "sm_buyers": 4,
+      "sm_netflow": -17225.23841240872,
+      "arkham_entities": 0,
+      "token_address": "0xeccbb861c0dda7efd964010085488b69317e4444",
+      "coingecko_url": "",
+      "explorer_url": "https://bscscan.com/token/0xeccbb861c0dda7efd964010085488b69317e4444",
+      "layers": [
+        "nansen",
+        "etherscan",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\u26a0\ufe0f  [Nansen] 4 SM wallets selling \u2014 watch closely",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $17,225 \u2014 moderate selling",
+          "cls": "bad"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] BNB token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 23/100 \u2014 caution shorting in fear market",
+          "cls": "neu"
+        }
+      ],
+      "nansen_traders": 4,
+      "nansen_netflow": -17225.23841240872,
+      "signal_type": "SHORT",
+      "timestamp": "2026-04-15T11:32:32.042624Z"
+    },
+    {
+      "symbol": "LOL",
+      "name": "LOL",
+      "chain": "solana",
+      "price": 0.006453963637420993,
+      "score": 35,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.006453963637420993,
+      "target1": 0.0056149483645562635,
+      "target2": 0.005034091637188374,
+      "sl": 0.006776661819292043,
+      "sm_buyers": 4,
+      "sm_netflow": -10221.154836399284,
+      "arkham_entities": 0,
+      "token_address": "34q2KmCvapecJgR6ZrtbCTrzZVtkt3a5mHEA3TuEsWYb",
+      "coingecko_url": "",
+      "explorer_url": "https://solscan.io/token/34q2KmCvapecJgR6ZrtbCTrzZVtkt3a5mHEA3TuEsWYb",
+      "layers": [
+        "nansen",
+        "etherscan",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\u26a0\ufe0f  [Nansen] 4 SM wallets selling \u2014 watch closely",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $10,221 \u2014 moderate selling",
+          "cls": "bad"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 23/100 \u2014 caution shorting in fear market",
+          "cls": "neu"
+        }
+      ],
+      "nansen_traders": 4,
+      "nansen_netflow": -10221.154836399284,
+      "signal_type": "SHORT",
+      "timestamp": "2026-04-15T11:32:32.042629Z"
     },
     {
       "symbol": "JUP",
       "name": "JUP",
       "chain": "solana",
-      "price": 0.16564371046651843,
+      "price": 0.16623832089271542,
       "score": 32,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.16564371046651843,
-      "target1": 0.14411002810587104,
-      "target2": 0.1292020941638844,
-      "sl": 0.17392589598984437,
+      "entry": 0.16623832089271542,
+      "target1": 0.14462733917666243,
+      "target2": 0.12966589029631803,
+      "sl": 0.1745502369373512,
       "sm_buyers": 1,
       "sm_netflow": -25315.239264477597,
       "arkham_entities": 0,
@@ -548,27 +544,27 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [CoinGecko] -2.9% in 24h \u2014 slight decline",
+          "t": "\ud83d\udcca [CoinGecko] -2.3% in 24h \u2014 slight decline",
           "cls": "neu"
         }
       ],
       "nansen_traders": 1,
       "nansen_netflow": -25315.239264477597,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734712Z"
+      "timestamp": "2026-04-15T11:32:32.042634Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "bnb",
-      "price": 0.37309563604466917,
+      "price": 0.36629870108015994,
       "score": 31,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.37309563604466917,
-      "target1": 0.41040519964913613,
-      "target2": 0.447714763253603,
-      "sl": 0.3544408542424357,
+      "entry": 0.36629870108015994,
+      "target1": 0.402928571188176,
+      "target2": 0.4395584412961919,
+      "sl": 0.34798376602615194,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -617,20 +613,20 @@
       "nansen_traders": 1,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-15T10:31:33.734723Z"
+      "timestamp": "2026-04-15T11:32:32.042640Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "bnb",
-      "price": 0.0014436025621719574,
+      "price": 0.001407904294081687,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.0014436025621719574,
-      "target1": 0.0015879628183891534,
-      "target2": 0.001732323074606349,
-      "sl": 0.0013714224340633594,
+      "entry": 0.001407904294081687,
+      "target1": 0.0015486947234898557,
+      "target2": 0.0016894851528980242,
+      "sl": 0.0013375090793776025,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -648,11 +644,11 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udd36 [Nansen] Net inflow: +$51,278 \u2014 Mild buying",
+          "t": "\ud83d\udd36 [Nansen] Net inflow: +$51,268 \u2014 Mild buying",
           "cls": "med"
         },
         {
-          "t": "\ud83d\udd36 [Nansen] Netflow/Liquidity: 8.0% \u2014 Meaningful ratio",
+          "t": "\ud83d\udd36 [Nansen] Netflow/Liquidity: 8.3% \u2014 Meaningful ratio",
           "cls": "med"
         },
         {
@@ -679,20 +675,20 @@
       "nansen_traders": 1,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-15T10:31:33.734733Z"
+      "timestamp": "2026-04-15T11:32:32.042646Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "bnb",
-      "price": 0.4501836623923451,
+      "price": 0.44908958875576077,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.4501836623923451,
-      "target1": 0.49520202863157964,
-      "target2": 0.5402203948708141,
-      "sl": 0.42767447927272784,
+      "entry": 0.44908958875576077,
+      "target1": 0.4939985476313369,
+      "target2": 0.5389075065069129,
+      "sl": 0.4266351093179727,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -741,20 +737,20 @@
       "nansen_traders": 1,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-15T10:31:33.734742Z"
+      "timestamp": "2026-04-15T11:32:32.042651Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "bnb",
-      "price": 1.6030688890327738,
+      "price": 1.6048593365809252,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 1.6030688890327738,
-      "target1": 1.7633757779360513,
-      "target2": 1.9236826668393285,
-      "sl": 1.522915444581135,
+      "entry": 1.6048593365809252,
+      "target1": 1.7653452702390178,
+      "target2": 1.9258312038971102,
+      "sl": 1.5246163697518789,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -799,20 +795,20 @@
       "nansen_traders": 1,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-15T10:31:33.734752Z"
+      "timestamp": "2026-04-15T11:32:32.042656Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "solana",
-      "price": 0.00313856096583877,
+      "price": 0.003172382117098328,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.00313856096583877,
-      "target1": 0.003452417062422647,
-      "target2": 0.0037662731590065238,
-      "sl": 0.002981632917546831,
+      "entry": 0.003172382117098328,
+      "target1": 0.003489620328808161,
+      "target2": 0.0038068585405179934,
+      "sl": 0.0030137630112434116,
       "sm_buyers": 1,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -834,7 +830,7 @@
           "cls": "med"
         },
         {
-          "t": "\u2705 [Nansen] Netflow/Liquidity: 16.2% \u2014 High conviction ratio",
+          "t": "\u2705 [Nansen] Netflow/Liquidity: 16.1% \u2014 High conviction ratio",
           "cls": "ok"
         },
         {
@@ -857,20 +853,20 @@
       "nansen_traders": 1,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-15T10:31:33.734761Z"
+      "timestamp": "2026-04-15T11:32:32.042661Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "solana",
-      "price": 0.008155279745216234,
+      "price": 0.008185014614330648,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.008155279745216234,
-      "target1": 0.008970807719737859,
-      "target2": 0.00978633569425948,
-      "sl": 0.0077475157579554215,
+      "entry": 0.008185014614330648,
+      "target1": 0.009003516075763714,
+      "target2": 0.009822017537196777,
+      "sl": 0.007775763883614115,
       "sm_buyers": 2,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -892,7 +888,7 @@
           "cls": "med"
         },
         {
-          "t": "\ud83d\udd36 [Nansen] Netflow/Liquidity: 5.3% \u2014 Meaningful ratio",
+          "t": "\ud83d\udd36 [Nansen] Netflow/Liquidity: 5.4% \u2014 Meaningful ratio",
           "cls": "med"
         },
         {
@@ -919,22 +915,22 @@
       "nansen_traders": 2,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-15T10:31:33.734771Z"
+      "timestamp": "2026-04-15T11:32:32.042665Z"
     },
     {
       "symbol": "DEXE",
       "name": "DEXE",
       "chain": "bnb",
-      "price": 11.957740457773333,
+      "price": 12.03476985706324,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 11.957740457773333,
-      "target1": 10.4032341982628,
-      "target2": 9.3270375570632,
-      "sl": 12.555627480662,
+      "entry": 12.03476985706324,
+      "target1": 10.47024977564502,
+      "target2": 9.387120488509328,
+      "sl": 12.636508349916403,
       "sm_buyers": 1,
-      "sm_netflow": -28359.327741797722,
+      "sm_netflow": -28358.14540822363,
       "arkham_entities": 0,
       "token_address": "0x6e88056e8376ae7709496ba64d37fa2f8015ce3e",
       "coingecko_url": "https://www.coingecko.com/en/coins/dexe",
@@ -950,7 +946,7 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $28,359 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $28,358 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -963,22 +959,22 @@
         }
       ],
       "nansen_traders": 1,
-      "nansen_netflow": -28359.327741797722,
+      "nansen_netflow": -28358.14540822363,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734780Z"
+      "timestamp": "2026-04-15T11:32:32.042670Z"
     },
     {
       "symbol": "CWU",
       "name": "CWU",
       "chain": "solana",
-      "price": 0.027910472185673687,
+      "price": 0.02786948874496159,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.027910472185673687,
-      "target1": 0.024282110801536107,
-      "target2": 0.021770168304825477,
-      "sl": 0.029305995794957372,
+      "entry": 0.02786948874496159,
+      "target1": 0.024246455208116583,
+      "target2": 0.02173820122107004,
+      "sl": 0.02926296318220967,
       "sm_buyers": 1,
       "sm_netflow": -22072.004092826945,
       "arkham_entities": 0,
@@ -1011,22 +1007,22 @@
       "nansen_traders": 1,
       "nansen_netflow": -22072.004092826945,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734789Z"
+      "timestamp": "2026-04-15T11:32:32.042674Z"
     },
     {
       "symbol": "COOKIE",
       "name": "COOKIE",
       "chain": "bnb",
-      "price": 0.015930062614334342,
+      "price": 0.01592544480887505,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.015930062614334342,
-      "target1": 0.013859154474470878,
-      "target2": 0.012425448839180788,
-      "sl": 0.01672656574505106,
+      "entry": 0.01592544480887505,
+      "target1": 0.013855136983721294,
+      "target2": 0.01242184695092254,
+      "sl": 0.016721717049318803,
       "sm_buyers": 1,
-      "sm_netflow": -20491.33619345533,
+      "sm_netflow": -20420.201668200738,
       "arkham_entities": 0,
       "token_address": "0xc0041ef357b183448b235a8ea73ce4e4ec8c265f",
       "coingecko_url": "",
@@ -1042,7 +1038,7 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $20,491 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $20,420 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -1055,9 +1051,9 @@
         }
       ],
       "nansen_traders": 1,
-      "nansen_netflow": -20491.33619345533,
+      "nansen_netflow": -20420.201668200738,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-15T10:31:33.734798Z"
+      "timestamp": "2026-04-15T11:32:32.042678Z"
     }
   ]
 }
