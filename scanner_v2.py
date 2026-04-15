@@ -188,6 +188,7 @@ class TokenSignal:
     sm_netflow_usd:      float = 0.0
     arkham_flagged:      bool = False
     arkham_entity_count: int = 0
+    signal_type:         str = "LONG"   # LONG = buy signal, SHORT = sell/dump signal
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -220,17 +221,16 @@ class NansenLayer:
         from_dt = (now_utc - timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M:%SZ")
         to_dt   = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+        # LONG signal payload — SM buying (sort by highest netflow first)
         payload = {
             "chains": chains,
-            "date": {"from": from_dt, "to": to_dt},
-            "pagination": {"page": 1, "per_page": 50},
+            "timeframe": "24h",
+            "pagination": {"page": 1, "per_page": 30},
             "filters": {
                 "only_smart_money": True,
-                "market_cap_usd":   {"min": 500_000, "max": 5_000_000_000},
-                "liquidity":        {"min": 100_000},
-                "nof_traders":      {"min": 20},
+                "market_cap_usd":   {"min": 100_000},  # loose filter — scoring handles quality
             },
-            "order_by": [{"field": "volume", "direction": "DESC"}]
+            "order_by": [{"field": "netflow", "direction": "DESC"}]
         }
 
         # Try with current key, rotate on failure, try once more
@@ -269,6 +269,64 @@ class NansenLayer:
                 log.warning(f"   Nansen screener error: {e}")
                 break
 
+        return []
+
+    async def screen_short_signals(
+        self, session: aiohttp.ClientSession, chains: list
+    ) -> list:
+        """
+        Fetch tokens where Smart Money is SELLING (negative netflow).
+        These are SHORT signals — useful for futures/perpetuals trading.
+        Sort by netflow ASC = most negative (strongest selling) first.
+        """
+        if not self.rotator.has_keys():
+            return []
+
+        now_utc = datetime.now(timezone.utc)
+        from_dt = (now_utc - timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        to_dt   = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        payload = {
+            "chains": chains,
+            "timeframe": "24h",
+            "pagination": {"page": 1, "per_page": 20},
+            "filters": {
+                "only_smart_money": True,
+                "market_cap_usd":   {"min": 100_000},
+            },
+            "order_by": [{"field": "netflow", "direction": "ASC"}]  # most negative first
+        }
+
+        for attempt in range(len(self.rotator._keys) + 1):
+            key = self.rotator.current()
+            if not key:
+                break
+            try:
+                async with session.post(
+                    f"{self.BASE}/api/v1/token-screener",
+                    headers=self._headers(),
+                    json=payload,
+                    timeout=15
+                ) as r:
+                    if r.status == 200:
+                        data   = await r.json()
+                        tokens = data.get("tokens", data.get("data", []))
+                        # Only keep tokens with actual negative netflow
+                        short_tokens = [t for t in tokens if (t.get("netflow", 0) or 0) < 0]
+                        log.info(
+                            f"   Nansen SHORT screener: {len(short_tokens)} SM selling tokens"
+                        )
+                        return short_tokens
+                    elif r.status in (401, 402, 429):
+                        reason = {401:"invalid key",402:"credits exhausted",429:"rate limited"}[r.status]
+                        if not self.rotator.rotate(reason):
+                            break
+                    else:
+                        log.warning(f"   Nansen short screener HTTP {r.status}")
+                        break
+            except Exception as e:
+                log.warning(f"   Nansen short screener error: {e}")
+                break
         return []
 
     async def get_smart_money_netflow(
@@ -323,6 +381,42 @@ class NansenLayer:
                 break
 
         return {}
+
+    def score_short(self, token: dict) -> tuple[int, list]:
+        """
+        Score a SHORT signal based on Smart Money SELLING intensity.
+        The stronger and more coordinated the selling, the higher the score.
+        Max 30 pts.
+        """
+        pts = 0
+        notes = []
+
+        sm_count = token.get("nof_traders", 0) or 0
+        sell_vol = token.get("sell_volume", 0) or 0
+        netflow  = token.get("netflow", 0) or 0  # negative = selling
+        outflow  = abs(netflow)
+
+        # SM wallet count selling
+        if sm_count >= 10:
+            pts += 15; notes.append(f"📉 [Nansen] {sm_count} SM wallets SELLING — strong exit signal")
+        elif sm_count >= 5:
+            pts += 10; notes.append(f"📉 [Nansen] {sm_count} SM wallets selling — significant exit")
+        elif sm_count >= 2:
+            pts += 6;  notes.append(f"⚠️  [Nansen] {sm_count} SM wallets selling — watch closely")
+        elif sm_count >= 1:
+            pts += 3;  notes.append(f"📊 [Nansen] {sm_count} SM wallet selling")
+
+        # Outflow magnitude
+        if outflow > 500_000:
+            pts += 15; notes.append(f"📉 [Nansen] SM OUTFLOW: ${outflow:,.0f} — massive institutional exit")
+        elif outflow > 100_000:
+            pts += 10; notes.append(f"📉 [Nansen] SM OUTFLOW: ${outflow:,.0f} — strong selling pressure")
+        elif outflow > 10_000:
+            pts += 6;  notes.append(f"⚠️  [Nansen] SM OUTFLOW: ${outflow:,.0f} — moderate selling")
+        elif outflow > 0:
+            pts += 3;  notes.append(f"📊 [Nansen] SM OUTFLOW: ${outflow:,.0f} — light selling")
+
+        return min(pts, 30), notes
 
     def score_screener(self, token: dict) -> tuple[int, list]:
         """Score based on Nansen Smart Money screener result. Max 30 pts."""
@@ -805,9 +899,14 @@ class TelegramAlerter:
         bar = "█" * filled + "░" * (10 - filled)
         conf = self._confidence_label(sig.score)
         risk_e = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🔴"}.get(sig.risk, "🟡")
+        is_short = sig.signal_type == "SHORT"
 
         # ── Header ────────────────────────────────────────────────────
-        msg  = f"🚨 *TRADE SIGNAL — BUY ${sig.symbol}* 🚨\n\n"
+        if is_short:
+            msg  = f"📉 *SHORT SIGNAL — SELL ${sig.symbol}* 📉\n\n"
+            msg += f"_Smart Money is EXITING this token — short opportunity_\n\n"
+        else:
+            msg  = f"🚨 *LONG SIGNAL — BUY ${sig.symbol}* 🚨\n\n"
         msg += f"🪙 *{sig.name}* (`${sig.symbol}`) | Chain: `{sig.chain.upper()}`\n"
         msg += f"💲 Price: `${sig.price:,.6g}`\n"
         msg += f"📊 Score: `{bar}` *{sig.score}/100*\n"
@@ -858,8 +957,20 @@ class TelegramAlerter:
                 msg += f"{w}\n"
 
         # ── Trade levels ──────────────────────────────────────────────
-        msg += f"""
-━━ *TRADE LEVELS* ━━
+        if is_short:
+            msg += f"""
+━━ *SHORT TRADE LEVELS* ━━
+📤 Entry (Short):  `${sig.entry:,.6g}` ← sell/short here
+🎯 Target 1:       `${sig.target_1:,.6g}` *(-8%)* ← take partial profit
+🎯 Target 2:       `${sig.target_2:,.6g}` *(-15%)* ← full target
+🛑 Stop Loss:      `${sig.stop_loss:,.6g}` *(+3%)* ← cut loss if price goes up
+
+_Trade on: Binance Futures, Bybit, OKX, Hyperliquid_
+🕐 _{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}_
+_⚠️ AI signal only. Futures trading carries high risk. DYOR._"""
+        else:
+            msg += f"""
+━━ *LONG TRADE LEVELS* ━━
 📥 Entry:     `${sig.entry:,.6g}`
 🏆 Target 1:  `${sig.target_1:,.6g}` *(+5%)*
 🏆 Target 2:  `${sig.target_2:,.6g}` *(+10%)*
@@ -982,6 +1093,7 @@ class CryptoSignalScannerV2:
                     "breakdown":       [{"t": n, "cls": "ok" if "✅" in n else "med" if "🔶" in n else "bad" if "🚨" in n or "OUTFLOW" in n else "neu"} for n in sig.breakdown],
                     "nansen_traders":  sig.smart_money_buyers,
                     "nansen_netflow":  sig.sm_netflow_usd,
+                    "signal_type":     sig.signal_type,
                     "timestamp":       datetime.utcnow().isoformat() + "Z",
                 })
             SIGNALS_JSON.parent.mkdir(parents=True, exist_ok=True)
@@ -990,9 +1102,17 @@ class CryptoSignalScannerV2:
             log.warning(f"   Could not write signals.json: {e}")
 
     def _trade_levels(self, price: float, risk: str) -> tuple[float, float, float]:
+        """LONG trade levels — targets above entry, stop loss below."""
         t1 = price * (1.05 if risk == "LOW" else 1.07 if risk == "MEDIUM" else 1.10)
         t2 = price * (1.10 if risk == "LOW" else 1.15 if risk == "MEDIUM" else 1.20)
         sl = price * (0.97 if risk != "HIGH" else 0.95)
+        return t1, t2, sl
+
+    def _trade_levels_short(self, price: float, risk: str) -> tuple[float, float, float]:
+        """SHORT trade levels — targets BELOW entry, stop loss ABOVE entry."""
+        t1 = price * (0.92 if risk == "LOW" else 0.90 if risk == "MEDIUM" else 0.87)
+        t2 = price * (0.85 if risk == "LOW" else 0.82 if risk == "MEDIUM" else 0.78)
+        sl = price * (1.03 if risk != "HIGH" else 1.05)   # stop loss ABOVE entry
         return t1, t2, sl
 
     def _risk_and_timeframe(self, score: int, sm_buyers: int, netflow: float) -> tuple[str, str]:
@@ -1015,18 +1135,24 @@ class CryptoSignalScannerV2:
         connector = aiohttp.TCPConnector(ssl=ssl_ctx)
         async with aiohttp.ClientSession(connector=connector) as session:
 
-            # ── Fetch base data concurrently ─────────────────────────
-            sm_tokens_task  = self.nansen.screen_smart_money_tokens(session, self.CHAINS)
-            cg_markets_task = self.cg.fetch_markets(session)
-            cg_trending_task= self.cg.fetch_trending(session)
-            cc_data_task    = self.lc.fetch(session)
-            fg_data_task    = self.san_fg.fetch(session)
+            # ── Fetch all data concurrently ──────────────────────────
+            sm_tokens_task   = self.nansen.screen_smart_money_tokens(session, self.CHAINS)
+            sm_shorts_task   = self.nansen.screen_short_signals(session, self.CHAINS)
+            cg_markets_task  = self.cg.fetch_markets(session)
+            cg_trending_task = self.cg.fetch_trending(session)
+            cc_data_task     = self.lc.fetch(session)
+            fg_data_task     = self.san_fg.fetch(session)
 
-            sm_tokens, cg_markets, trending, lc_all, fg_data = await asyncio.gather(
-                sm_tokens_task, cg_markets_task, cg_trending_task, cc_data_task, fg_data_task
+            sm_tokens, sm_shorts, cg_markets, trending, lc_all, fg_data = await asyncio.gather(
+                sm_tokens_task, sm_shorts_task, cg_markets_task,
+                cg_trending_task, cc_data_task, fg_data_task
             )
 
-            log.info(f"   Nansen SM tokens: {len(sm_tokens)} | CG coins: {len(cg_markets)} | Trending: {len(trending)}")
+            log.info(
+                f"   Nansen LONG: {len(sm_tokens)} tokens | "
+                f"SHORT: {len(sm_shorts)} tokens | "
+                f"CG: {len(cg_markets)} coins | Trending: {len(trending)}"
+            )
 
             # ── If no Nansen key, fall back to CoinGecko high-volume coins ──
             if not sm_tokens and not self._nansen_rot.has_keys():
@@ -1123,6 +1249,95 @@ class CryptoSignalScannerV2:
                     entry=price, target_1=t1, target_2=t2, stop_loss=sl,
                     risk=risk, smart_money_buyers=sm_count,
                     sm_netflow_usd=net_flow, arkham_entity_count=entity_count,
+                ))
+
+            # ── Process SHORT signals ────────────────────────────────
+            for token in sm_shorts:
+                sym       = (token.get("token_symbol", token.get("symbol", "")) or "").upper()
+                name      = token.get("token_name", token.get("name", sym))
+                chain     = token.get("chain", "ethereum")
+                tok_addr  = token.get("token_address", token.get("address", ""))
+                price_raw = token.get("price_usd", token.get("price", 0)) or 0
+
+                cg_coin   = cg_markets.get(sym, {})
+                price     = price_raw or (cg_coin.get("current_price") or 0)
+                if price <= 0:
+                    continue
+
+                # Skip if already in LONG candidates (conflicting signals)
+                if any(c.symbol == sym for c in candidates):
+                    log.debug(f"   Skipping SHORT {sym} — already a LONG candidate")
+                    continue
+
+                # Score the short signal
+                sh_pts, sh_notes = self.nansen.score_short(token)
+
+                # Etherscan safety check (scam tokens should not be shorted either)
+                etherscan_info = await self.arkham.fetch_token_info(session, tok_addr, chain)
+                ark_pts, ark_notes, is_suspicious = self.arkham.score(etherscan_info, chain, tok_addr)
+                if is_suspicious:
+                    continue
+
+                # Fear & Greed — for shorts, GREED is actually good (overheated = dump incoming)
+                fg_val = fg_data["value"] if fg_data else 50
+                fg_pts = 0
+                fg_notes = []
+                if fg_val >= 75:
+                    fg_pts = 10; fg_notes.append(f"📉 [Fear&Greed] EXTREME GREED {fg_val}/100 — market overheated, dump likely")
+                elif fg_val >= 60:
+                    fg_pts = 7;  fg_notes.append(f"📉 [Fear&Greed] Greed {fg_val}/100 — elevated risk of correction")
+                elif fg_val >= 45:
+                    fg_pts = 4;  fg_notes.append(f"📊 [Fear&Greed] Neutral {fg_val}/100 — uncertain conditions for short")
+                else:
+                    fg_pts = 1;  fg_notes.append(f"⚠️  [Fear&Greed] Fear {fg_val}/100 — caution shorting in fear market")
+
+                # CoinGecko — for shorts check if price dropping
+                cg_pts_s = 0; cg_notes_s = []
+                if cg_coin:
+                    chg_24h = cg_coin.get("price_change_percentage_24h", 0) or 0
+                    if chg_24h <= -10:
+                        cg_pts_s = 5; cg_notes_s.append(f"📉 [CoinGecko] -{abs(chg_24h):.1f}% in 24h — confirmed downtrend")
+                    elif chg_24h <= -5:
+                        cg_pts_s = 3; cg_notes_s.append(f"📉 [CoinGecko] -{abs(chg_24h):.1f}% in 24h — price declining")
+                    elif chg_24h <= 0:
+                        cg_pts_s = 1; cg_notes_s.append(f"📊 [CoinGecko] {chg_24h:.1f}% in 24h — slight decline")
+
+                # Combine short score
+                raw_short = sh_pts + ark_pts + fg_pts + cg_pts_s
+                max_short = 30 + (20 if self._etherscan_rot.has_keys() else 10) + 10 + 5
+                norm_short = int((raw_short / max_short) * 100)
+
+                if norm_short < SIGNAL_THRESHOLD:
+                    continue
+
+                sm_count = token.get("nof_traders", 0) or 0
+                netflow  = token.get("netflow", 0) or 0
+                risk, tf = self._risk_and_timeframe(norm_short, sm_count, netflow)
+                t1, t2, sl = self._trade_levels_short(price, risk)
+
+                all_notes = sh_notes + ark_notes + fg_notes + cg_notes_s
+
+                cg_id   = cg_coin.get("id", "").lower() if cg_coin else ""
+                cg_url  = f"https://www.coingecko.com/en/coins/{cg_id}" if cg_id else ""
+                exp_url = (self.EXPLORERS.get(chain, "") + tok_addr) if tok_addr else ""
+
+                candidates.append(TokenSignal(
+                    symbol=sym, name=name, chain=chain, price=price,
+                    token_address=tok_addr,
+                    coingecko_id=cg_id,
+                    coingecko_url=cg_url,
+                    explorer_url=exp_url,
+                    score=norm_short,
+                    signal_type="SHORT",
+                    breakdown=all_notes, timeframe=tf,
+                    entry=price,
+                    target_1=t1,   # BELOW entry for shorts
+                    target_2=t2,   # further BELOW for shorts
+                    stop_loss=sl,  # ABOVE entry for shorts
+                    risk=risk,
+                    smart_money_buyers=sm_count,
+                    sm_netflow_usd=netflow,
+                    arkham_entity_count=0,
                 ))
 
             # ── Sort + Send ───────────────────────────────────────────

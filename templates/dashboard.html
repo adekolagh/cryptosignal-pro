@@ -183,6 +183,20 @@ input[type=range]::-webkit-slider-thumb{
 .card.sc-h{border-left-color:var(--red)}
 .card.sc-m{border-left-color:var(--amber)}
 .card.sc-l{border-left-color:var(--accent)}
+.card.short{border-left-color:var(--red);background:rgba(239,68,68,.03)}
+.card.short .score-n{color:var(--red)}
+.short-badge{
+  display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:3px;margin-left:6px;
+  background:rgba(239,68,68,.15);color:var(--red);
+  border:1px solid rgba(239,68,68,.3);letter-spacing:.5px;
+}
+.long-badge{
+  display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:3px;margin-left:6px;
+  background:rgba(34,197,94,.12);color:var(--green);
+  border:1px solid rgba(34,197,94,.3);letter-spacing:.5px;
+}
 .card.new{animation:flash .8s ease-out}
 @keyframes flash{0%{box-shadow:0 0 20px rgba(0,201,167,.35)}100%{box-shadow:none}}
 
@@ -756,6 +770,16 @@ function getExchanges(sig) {
     });
   }
 
+  // For SHORT signals — add futures/perps platforms
+  if (sig.signal_type === 'SHORT') {
+    return [
+      {name:'Binance Futures', url:'https://www.binance.com/en/futures/'+sym+'USDT',      type:'cex', icon:'🟡'},
+      {name:'Bybit Perps',     url:'https://www.bybit.com/trade/usdt/'+sym+'USDT',         type:'cex', icon:'🔴'},
+      {name:'OKX Futures',     url:'https://www.okx.com/trade-swap/'+sym.toLowerCase()+'-usdt-swap', type:'cex', icon:'⚫'},
+      {name:'Hyperliquid',     url:'https://app.hyperliquid.xyz/trade/'+sym,                type:'dex', icon:'💧'},
+    ];
+  }
+
   return exchanges;
 }
 
@@ -772,7 +796,8 @@ function buildCard(sig) {
   ).join('');
 
   const div = document.createElement('div');
-  div.className = 'card sc-' + sc;
+  const isShort = sig.signal_type === 'SHORT';
+  div.className = 'card sc-' + sc + (isShort ? ' short' : '');
   div.innerHTML = `
     <div class="ch" style="cursor:pointer" onclick="openModal(${signals.indexOf(sig)})">
       <div class="coin-grp">
@@ -781,6 +806,9 @@ function buildCard(sig) {
           <div>
             <span class="coin-sym">${esc(sig.symbol)}</span>
             <span class="chain-tag">${esc(sig.chain||'')}</span>
+            ${isShort
+              ? '<span class="short-badge">📉 SHORT</span>'
+              : '<span class="long-badge">📈 LONG</span>'}
           </div>
           <div class="coin-name">${esc(sig.name||sig.symbol)} · ${fmt(sig.price)}</div>
         </div>
@@ -794,10 +822,10 @@ function buildCard(sig) {
     <div class="sbar"><div class="sfill ${fillCls}" style="width:${sig.score}%"></div></div>
 
     <div class="price-row">
-      <div class="pr-cell"><div class="pr-l">Entry</div><div class="pr-v bl">${fmt(sig.entry)}</div></div>
-      <div class="pr-cell"><div class="pr-l">Target 1</div><div class="pr-v gn">${fmt(sig.target1)} <small style="color:var(--text3);font-size:9px">+5%</small></div></div>
-      <div class="pr-cell"><div class="pr-l">Target 2</div><div class="pr-v gn">${fmt(sig.target2)} <small style="color:var(--text3);font-size:9px">+10%</small></div></div>
-      <div class="pr-cell"><div class="pr-l">Stop Loss</div><div class="pr-v rd">${fmt(sig.sl)} <small style="color:var(--text3);font-size:9px">-3%</small></div></div>
+      <div class="pr-cell"><div class="pr-l">${isShort?'Short Entry':'Entry'}</div><div class="pr-v bl">${fmt(sig.entry)}</div></div>
+      <div class="pr-cell"><div class="pr-l">Target 1</div><div class="pr-v ${isShort?'rd':'gn'}">${fmt(sig.target1)} <small style="color:var(--text3);font-size:9px">${isShort?'-8%':'+5%'}</small></div></div>
+      <div class="pr-cell"><div class="pr-l">Target 2</div><div class="pr-v ${isShort?'rd':'gn'}">${fmt(sig.target2)} <small style="color:var(--text3);font-size:9px">${isShort?'-15%':'+10%'}</small></div></div>
+      <div class="pr-cell"><div class="pr-l">Stop Loss</div><div class="pr-v ${isShort?'gn':'rd'}">${fmt(sig.sl)} <small style="color:var(--text3);font-size:9px">${isShort?'+3%':'-3%'}</small></div></div>
     </div>
 
     <div class="id-row">
