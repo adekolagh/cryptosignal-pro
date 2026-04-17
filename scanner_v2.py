@@ -143,7 +143,9 @@ class KeyRotator:
     def advance(self):
         """Round-robin — move to next key every scan to spread credit usage."""
         self._exhausted.clear()
-        self._index = (self._index + 1) % max(len(self._keys), 1)
+        if len(self._keys) > 0:
+            self._index = (self.scan_index if hasattr(self, "scan_index") else 0)
+            self.scan_index = (getattr(self, "scan_index", 0) + 1) % len(self._keys)
 
     def reset(self):
         """
