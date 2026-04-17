@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-17T05:31:51.460576Z",
+  "last_scan": "2026-04-17T05:35:33.551109Z",
   "threshold": 30,
   "max_raw": 100,
   "layer_status": {
@@ -53,27 +53,27 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [CoinGecko] -53.4% in 24h \u2014 confirmed downtrend",
+          "t": "\ud83d\udcc9 [CoinGecko] -54.2% in 24h \u2014 confirmed downtrend",
           "cls": "neu"
         }
       ],
       "nansen_traders": 3,
       "nansen_netflow": -47802.3067511391,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460615Z"
+      "timestamp": "2026-04-17T05:35:33.551142Z"
     },
     {
       "symbol": "UNC",
       "name": "UNC",
       "chain": "solana",
-      "price": 0.01306789616685375,
+      "price": 0.012545188526080317,
       "score": 41,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.01306789616685375,
-      "target1": 0.011369069665162762,
-      "target2": 0.010192959010145925,
-      "sl": 0.013721290975196438,
+      "entry": 0.012545188526080317,
+      "target1": 0.010914314017689875,
+      "target2": 0.009785247050342647,
+      "sl": 0.013172447952384333,
       "sm_buyers": 7,
       "sm_netflow": -48434.491646833965,
       "arkham_entities": 0,
@@ -106,20 +106,20 @@
       "nansen_traders": 7,
       "nansen_netflow": -48434.491646833965,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460629Z"
+      "timestamp": "2026-04-17T05:35:33.551169Z"
     },
     {
       "symbol": "\ud83c\udf31 ASTEROID",
       "name": "\ud83c\udf31 ASTEROID",
       "chain": "solana",
-      "price": 0.008643144949061782,
+      "price": 0.007182664262775137,
       "score": 41,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.008643144949061782,
-      "target1": 0.007519536105683751,
-      "target2": 0.006741653060268191,
-      "sl": 0.009075302196514872,
+      "entry": 0.007182664262775137,
+      "target1": 0.006248917908614369,
+      "target2": 0.0056024781249646065,
+      "sl": 0.007541797475913894,
       "sm_buyers": 7,
       "sm_netflow": -13946.376537922883,
       "arkham_entities": 0,
@@ -152,7 +152,7 @@
       "nansen_traders": 7,
       "nansen_netflow": -13946.376537922883,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460639Z"
+      "timestamp": "2026-04-17T05:35:33.551178Z"
     },
     {
       "symbol": "BIO",
@@ -199,14 +199,14 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [CoinGecko] -22.2% in 24h \u2014 confirmed downtrend",
+          "t": "\ud83d\udcc9 [CoinGecko] -22.8% in 24h \u2014 confirmed downtrend",
           "cls": "neu"
         }
       ],
       "nansen_traders": 3,
       "nansen_netflow": -76268.09602476968,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460650Z"
+      "timestamp": "2026-04-17T05:35:33.551187Z"
     },
     {
       "symbol": "MORPHO",
@@ -256,7 +256,7 @@
       "nansen_traders": 3,
       "nansen_netflow": -310610.09940171934,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460659Z"
+      "timestamp": "2026-04-17T05:35:33.551194Z"
     },
     {
       "symbol": "LOL",
@@ -302,20 +302,20 @@
       "nansen_traders": 2,
       "nansen_netflow": -19024.704262261217,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460667Z"
+      "timestamp": "2026-04-17T05:35:33.551202Z"
     },
     {
       "symbol": "ASTEROID",
       "name": "ASTEROID",
       "chain": "solana",
-      "price": 0.0003622564911094632,
+      "price": 0.0003887217569199921,
       "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.0003622564911094632,
-      "target1": 0.00031516314726523297,
-      "target2": 0.0002825600630653813,
-      "sl": 0.0003803693156649364,
+      "entry": 0.0003887217569199921,
+      "target1": 0.0003381879285203931,
+      "target2": 0.00030320297039759385,
+      "sl": 0.0004081578447659917,
       "sm_buyers": 3,
       "sm_netflow": -14240.093709406941,
       "arkham_entities": 0,
@@ -348,7 +348,7 @@
       "nansen_traders": 3,
       "nansen_netflow": -14240.093709406941,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460675Z"
+      "timestamp": "2026-04-17T05:35:33.551208Z"
     },
     {
       "symbol": "",
@@ -406,7 +406,7 @@
       "nansen_traders": 2,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-17T05:31:51.460688Z"
+      "timestamp": "2026-04-17T05:35:33.551220Z"
     },
     {
       "symbol": "INSURANCE",
@@ -452,7 +452,7 @@
       "nansen_traders": 1,
       "nansen_netflow": -56406.523993884584,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460697Z"
+      "timestamp": "2026-04-17T05:35:33.551227Z"
     },
     {
       "symbol": "ARB",
@@ -498,7 +498,7 @@
       "nansen_traders": 1,
       "nansen_netflow": -33139.14444377405,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460708Z"
+      "timestamp": "2026-04-17T05:35:33.551235Z"
     },
     {
       "symbol": "MILKERS",
@@ -544,7 +544,7 @@
       "nansen_traders": 2,
       "nansen_netflow": -6423.096525870721,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:31:51.460718Z"
+      "timestamp": "2026-04-17T05:35:33.551241Z"
     }
   ]
 }
