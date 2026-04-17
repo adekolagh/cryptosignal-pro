@@ -45,6 +45,7 @@ TELEGRAM_BOT_TOKEN    = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
+
 SCAN_INTERVAL_SEC   = 300   # 5 minutes
 SIGNAL_THRESHOLD    = 30    # 30 = testing, raise to 50 when scoring stabilises
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
@@ -1233,6 +1234,7 @@ class CryptoSignalScannerV2:
         # Falls back to singular NANSEN_API_KEY for backward compatibility
         nansen_keys    = _load_keys("NANSEN_API_KEYS",    "NANSEN_API_KEY")
         etherscan_keys = _load_keys("ETHERSCAN_API_KEYS", "ETHERSCAN_API_KEY")
+        arkham_keys    = _load_keys("ARKHAM_API_KEYS",    "ARKHAM_API_KEY")
 
         # ── Create rotators ────────────────────────────────────────────
         self._nansen_rot    = KeyRotator("Nansen",    nansen_keys)
@@ -1244,7 +1246,7 @@ class CryptoSignalScannerV2:
         self.lc       = CryptoCompareSocialLayer()
         self.san_fg       = FearGreedLayer()
         self.cg           = CoinGeckoLayer()
-        self.arkham_intel = ArkhamIntelLayer(ARKHAM_API_KEYS)
+        self.arkham_intel = ArkhamIntelLayer(arkham_keys)
         self.telegram = TelegramAlerter()
         self.scan_no  = 0
         # Dynamic MAX_RAW — only count layers that have active keys
