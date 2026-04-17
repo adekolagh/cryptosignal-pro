@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-17T05:52:33.288457Z",
+  "last_scan": "2026-04-17T06:24:47.153686Z",
   "threshold": 30,
   "max_raw": 100,
   "layer_status": {
@@ -16,16 +16,16 @@
       "symbol": "UNC",
       "name": "UNC",
       "chain": "solana",
-      "price": 0.01254047426511494,
+      "price": 0.011725594187508829,
       "score": 41,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.01254047426511494,
-      "target1": 0.010910212610649998,
-      "target2": 0.009781569926789654,
-      "sl": 0.013167497978370687,
+      "entry": 0.011725594187508829,
+      "target1": 0.01020126694313268,
+      "target2": 0.009145963466256887,
+      "sl": 0.012311873896884271,
       "sm_buyers": 7,
-      "sm_netflow": -48434.491646833965,
+      "sm_netflow": -51058.91854032335,
       "arkham_entities": 0,
       "token_address": "ACtfUWtgvaXrQGNMiohTusi5jcx5RJf5zwu9aAxkpump",
       "coingecko_url": "",
@@ -41,7 +41,7 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $48,434 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $51,059 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -54,24 +54,24 @@
         }
       ],
       "nansen_traders": 7,
-      "nansen_netflow": -48434.491646833965,
+      "nansen_netflow": -51058.91854032335,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288494Z"
+      "timestamp": "2026-04-17T06:24:47.153723Z"
     },
     {
       "symbol": "BIO",
       "name": "BIO",
       "chain": "ethereum",
-      "price": 0.03407849515195887,
+      "price": 0.03395496168768467,
       "score": 36,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.03407849515195887,
-      "target1": 0.029648290782204215,
-      "target2": 0.026581226218527917,
-      "sl": 0.035782419909556815,
-      "sm_buyers": 3,
-      "sm_netflow": -76268.09602476968,
+      "entry": 0.03395496168768467,
+      "target1": 0.029540816668285664,
+      "target2": 0.026484870116394044,
+      "sl": 0.035652709772068907,
+      "sm_buyers": 2,
+      "sm_netflow": -56166.768431337514,
       "arkham_entities": 0,
       "token_address": "0xcb1592591996765ec0efc1f92599a19767ee5ffa",
       "coingecko_url": "https://www.coingecko.com/en/coins/bio-protocol",
@@ -83,11 +83,11 @@
       ],
       "breakdown": [
         {
-          "t": "\u26a0\ufe0f  [Nansen] 3 SM wallets selling \u2014 watch closely",
+          "t": "\u26a0\ufe0f  [Nansen] 2 SM wallets selling \u2014 watch closely",
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $76,268 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $56,167 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -103,29 +103,29 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [CoinGecko] -13.4% in 24h \u2014 confirmed downtrend",
+          "t": "\ud83d\udcc9 [CoinGecko] -16.3% in 24h \u2014 confirmed downtrend",
           "cls": "neu"
         }
       ],
-      "nansen_traders": 3,
-      "nansen_netflow": -76268.09602476968,
+      "nansen_traders": 2,
+      "nansen_netflow": -56166.768431337514,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288510Z"
+      "timestamp": "2026-04-17T06:24:47.153738Z"
     },
     {
       "symbol": "\ud83c\udf31 ASTEROID",
       "name": "\ud83c\udf31 ASTEROID",
       "chain": "solana",
-      "price": 0.0062453118738372585,
+      "price": 0.005828897648019867,
       "score": 36,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.0062453118738372585,
-      "target1": 0.005433421330238415,
-      "target2": 0.004871343261593062,
-      "sl": 0.0065575774675291215,
+      "entry": 0.005828897648019867,
+      "target1": 0.005071140953777285,
+      "target2": 0.0045465401654554965,
+      "sl": 0.006120342530420861,
       "sm_buyers": 8,
-      "sm_netflow": -6460.407857060338,
+      "sm_netflow": -2977.202285729283,
       "arkham_entities": 0,
       "token_address": "F1ppSHedBsGGwEKH78JVgoqr4xkQHswtsGGLpgM7bCP2",
       "coingecko_url": "",
@@ -141,7 +141,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [Nansen] SM OUTFLOW: $6,460 \u2014 light selling",
+          "t": "\ud83d\udcca [Nansen] SM OUTFLOW: $2,977 \u2014 light selling",
           "cls": "bad"
         },
         {
@@ -154,22 +154,22 @@
         }
       ],
       "nansen_traders": 8,
-      "nansen_netflow": -6460.407857060338,
+      "nansen_netflow": -2977.202285729283,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288521Z"
+      "timestamp": "2026-04-17T06:24:47.153748Z"
     },
     {
       "symbol": "MORPHO",
       "name": "MORPHO",
       "chain": "ethereum",
-      "price": 1.792081746727625,
+      "price": 1.8016744180793118,
       "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 1.792081746727625,
-      "target1": 1.5591111196530338,
-      "target2": 1.3978237624475476,
-      "sl": 1.8816858340640064,
+      "entry": 1.8016744180793118,
+      "target1": 1.5674567437290012,
+      "target2": 1.4053060461018634,
+      "sl": 1.8917581389832776,
       "sm_buyers": 3,
       "sm_netflow": -310610.09940171934,
       "arkham_entities": 0,
@@ -206,22 +206,22 @@
       "nansen_traders": 3,
       "nansen_netflow": -310610.09940171934,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288532Z"
+      "timestamp": "2026-04-17T06:24:47.153758Z"
     },
     {
       "symbol": "AKE",
       "name": "AKE",
       "chain": "bnb",
-      "price": 0.0004907670922773101,
+      "price": 0.0004731250039452401,
       "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.0004907670922773101,
-      "target1": 0.00042696737028125975,
-      "target2": 0.00038279833197630187,
-      "sl": 0.0005153054468911756,
+      "entry": 0.0004731250039452401,
+      "target1": 0.00041161875343235886,
+      "target2": 0.0003690375030772873,
+      "sl": 0.0004967812541425021,
       "sm_buyers": 3,
-      "sm_netflow": -47802.28711702869,
+      "sm_netflow": -47325.55941003936,
       "arkham_entities": 0,
       "token_address": "0x2c3a8ee94ddd97244a93bc48298f97d2c412f7db",
       "coingecko_url": "",
@@ -237,7 +237,7 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $47,802 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $47,326 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -250,24 +250,24 @@
         }
       ],
       "nansen_traders": 3,
-      "nansen_netflow": -47802.28711702869,
+      "nansen_netflow": -47325.55941003936,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288542Z"
+      "timestamp": "2026-04-17T06:24:47.153767Z"
     },
     {
       "symbol": "LOL",
       "name": "LOL",
       "chain": "solana",
-      "price": 0.0027164876202668236,
+      "price": 0.0023653268740468124,
       "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.0027164876202668236,
-      "target1": 0.0023633442296321365,
-      "target2": 0.0021188603438081224,
-      "sl": 0.002852312001280165,
+      "entry": 0.0023653268740468124,
+      "target1": 0.0020578343804207267,
+      "target2": 0.0018449549617565138,
+      "sl": 0.002483593217749153,
       "sm_buyers": 2,
-      "sm_netflow": -19024.741405938123,
+      "sm_netflow": -20962.98352336828,
       "arkham_entities": 0,
       "token_address": "34q2KmCvapecJgR6ZrtbCTrzZVtkt3a5mHEA3TuEsWYb",
       "coingecko_url": "",
@@ -283,7 +283,7 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $19,025 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $20,963 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -296,24 +296,24 @@
         }
       ],
       "nansen_traders": 2,
-      "nansen_netflow": -19024.741405938123,
+      "nansen_netflow": -20962.98352336828,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288551Z"
+      "timestamp": "2026-04-17T06:24:47.153779Z"
     },
     {
       "symbol": "ASTEROID",
       "name": "ASTEROID",
       "chain": "solana",
-      "price": 0.00039916923455784564,
+      "price": 0.00016403378289972498,
       "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.00039916923455784564,
-      "target1": 0.0003472772340653257,
-      "target2": 0.0003113520029551196,
-      "sl": 0.00041912769628573793,
+      "entry": 0.00016403378289972498,
+      "target1": 0.00014270939112276073,
+      "target2": 0.00012794635066178548,
+      "sl": 0.00017223547204471123,
       "sm_buyers": 3,
-      "sm_netflow": -14240.093709406941,
+      "sm_netflow": -15918.626791595314,
       "arkham_entities": 0,
       "token_address": "4UeLCRqARmfb6e6KQijtiktqqXUxbfk6jZng7DhuBAGS",
       "coingecko_url": "",
@@ -329,7 +329,7 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $14,240 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $15,919 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -342,22 +342,22 @@
         }
       ],
       "nansen_traders": 3,
-      "nansen_netflow": -14240.093709406941,
+      "nansen_netflow": -15918.626791595314,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288561Z"
+      "timestamp": "2026-04-17T06:24:47.153788Z"
     },
     {
       "symbol": "",
       "name": "",
       "chain": "bnb",
-      "price": 0.15003426565937122,
+      "price": 0.1513645113546475,
       "score": 32,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.15003426565937122,
-      "target1": 0.16503769222530837,
-      "target2": 0.18004111879124546,
-      "sl": 0.14253255237640267,
+      "entry": 0.1513645113546475,
+      "target1": 0.1665009624901123,
+      "target2": 0.181637413625577,
+      "sl": 0.14379628578691514,
       "sm_buyers": 2,
       "sm_netflow": 0.0,
       "arkham_entities": 0,
@@ -406,20 +406,20 @@
       "nansen_traders": 2,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-17T05:52:33.288579Z"
+      "timestamp": "2026-04-17T06:24:47.153803Z"
     },
     {
       "symbol": "INSURANCE",
       "name": "INSURANCE",
       "chain": "bnb",
-      "price": 106.1526514040014,
+      "price": 106.09557025967375,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 106.1526514040014,
-      "target1": 92.35280672148122,
-      "target2": 82.7990680951211,
-      "sl": 111.46028397420147,
+      "entry": 106.09557025967375,
+      "target1": 92.30314612591616,
+      "target2": 82.75454480254552,
+      "sl": 111.40034877265744,
       "sm_buyers": 1,
       "sm_netflow": -56406.523993884584,
       "arkham_entities": 0,
@@ -452,22 +452,22 @@
       "nansen_traders": 1,
       "nansen_netflow": -56406.523993884584,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288590Z"
+      "timestamp": "2026-04-17T06:24:47.153812Z"
     },
     {
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.12841637566508016,
+      "price": 0.13032568397930794,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.12841637566508016,
-      "target1": 0.11172224682861974,
-      "target2": 0.10016477301876253,
-      "sl": 0.13483719444833417,
+      "entry": 0.13032568397930794,
+      "target1": 0.1133833450619979,
+      "target2": 0.1016540335038602,
+      "sl": 0.13684196817827335,
       "sm_buyers": 1,
-      "sm_netflow": -33174.18757468715,
+      "sm_netflow": -33667.42491942656,
       "arkham_entities": 0,
       "token_address": "0x912ce59144191c1204e64559fe8253a0e49e6548",
       "coingecko_url": "https://www.coingecko.com/en/coins/arbitrum",
@@ -483,7 +483,7 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $33,174 \u2014 moderate selling",
+          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $33,667 \u2014 moderate selling",
           "cls": "bad"
         },
         {
@@ -496,22 +496,22 @@
         }
       ],
       "nansen_traders": 1,
-      "nansen_netflow": -33174.18757468715,
+      "nansen_netflow": -33667.42491942656,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288599Z"
+      "timestamp": "2026-04-17T06:24:47.153820Z"
     },
     {
       "symbol": "MILKERS",
       "name": "MILKERS",
       "chain": "solana",
-      "price": 0.000493914221304635,
+      "price": 0.0004808189616281956,
       "score": 30,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.000493914221304635,
-      "target1": 0.00042970537253503245,
-      "target2": 0.00038525309261761535,
-      "sl": 0.0005186099323698668,
+      "entry": 0.0004808189616281956,
+      "target1": 0.00041831249661653013,
+      "target2": 0.00037503879006999257,
+      "sl": 0.0005048599097096054,
       "sm_buyers": 2,
       "sm_netflow": -6423.096525870721,
       "arkham_entities": 0,
@@ -544,7 +544,7 @@
       "nansen_traders": 2,
       "nansen_netflow": -6423.096525870721,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:52:33.288609Z"
+      "timestamp": "2026-04-17T06:24:47.153828Z"
     }
   ]
 }
