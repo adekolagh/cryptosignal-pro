@@ -45,7 +45,7 @@ TELEGRAM_BOT_TOKEN    = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
-SCAN_INTERVAL_SEC   = 900   # 5 minutes
+SCAN_INTERVAL_SEC   = 300   # 5 minutes
 SIGNAL_THRESHOLD    = 30    # 30 = testing, raise to 50 when scoring stabilises
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
@@ -140,13 +140,6 @@ class KeyRotator:
         )
         return True
 
-    def advance(self):
-        """Round-robin — move to next key every scan to spread credit usage."""
-        self._exhausted.clear()
-        if len(self._keys) > 0:
-            self._index = (self.scan_index if hasattr(self, "scan_index") else 0)
-            self.scan_index = (getattr(self, "scan_index", 0) + 1) % len(self._keys)
-
     def reset(self):
         """
         Call at the start of every scan to allow rate-limited keys
@@ -231,7 +224,7 @@ class NansenLayer:
         # LONG signal payload — SM buying (sort by highest netflow first)
         payload = {
             "chains": chains,
-            "timeframe": "7d",
+            "timeframe": "24h",
             "pagination": {"page": 1, "per_page": 30},
             "filters": {
                 "only_smart_money": True,
@@ -295,7 +288,7 @@ class NansenLayer:
 
         payload = {
             "chains": chains,
-            "timeframe": "7d",
+            "timeframe": "24h",
             "pagination": {"page": 1, "per_page": 20},
             "filters": {
                 "only_smart_money": True,
@@ -324,8 +317,8 @@ class NansenLayer:
                             f"   Nansen SHORT screener: {len(short_tokens)} SM selling tokens"
                         )
                         return short_tokens
-                    elif r.status in (401, 402, 403, 429):
-                        reason = {401:"invalid key",402:"credits exhausted",403:"forbidden/exhausted",429:"rate limited"}[r.status]
+                    elif r.status in (401, 402, 429):
+                        reason = {401:"invalid key",402:"credits exhausted",429:"rate limited"}[r.status]
                         if not self.rotator.rotate(reason):
                             break
                     else:
@@ -751,6 +744,119 @@ class EtherscanLayer:
         return min(pts, 20), notes, is_suspicious
 
 
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 7 — ARKHAM INTELLIGENCE  (Entity names + flow data)
+# API: https://api.arkm.com  |  Docs: https://intel.arkm.com/api/docs
+# Adds real entity names (Binance, Jump Trading, a16z) to signals
+# ─────────────────────────────────────────────────────────────────────
+class ArkhamIntelLayer:
+    BASE = "https://api.arkm.com"
+
+    def __init__(self, keys: list):
+        self._keys = keys
+        self._idx  = 0
+
+    def _key(self) -> str:
+        if not self._keys: return ""
+        return self._keys[self._idx % len(self._keys)]
+
+    def _rotate(self):
+        self._idx = (self._idx + 1) % max(len(self._keys), 1)
+
+    def has_keys(self) -> bool:
+        return bool(self._keys)
+
+    async def get_token_flow(self, session, chain: str, address: str) -> list:
+        if not self.has_keys() or not address: return []
+        if chain.lower() not in ("ethereum","base","arbitrum","bnb","polygon","optimism","avalanche"): return []
+        try:
+            async with session.get(
+                f"{self.BASE}/token/top_flow/{chain}/{address}",
+                params={"timeLast": "1d"},
+                headers={"API-Key": self._key()},
+                timeout=10
+            ) as r:
+                if r.status == 200:
+                    data = await r.json()
+                    flows = []
+                    for item in (data if isinstance(data, list) else []):
+                        entity = (item.get("address") or {}).get("arkhamEntity") or {}
+                        name   = entity.get("name", "")
+                        if name:
+                            flows.append({
+                                "entity": name,
+                                "type":   entity.get("type", ""),
+                                "inUSD":  item.get("inUSD", 0),
+                                "outUSD": item.get("outUSD", 0),
+                            })
+                    return flows
+                elif r.status in (429, 403):
+                    self._rotate()
+        except Exception as e:
+            log.debug(f"   Arkham flow error: {e}")
+        return []
+
+    async def get_token_holders(self, session, chain: str, address: str) -> list:
+        if not self.has_keys() or not address: return []
+        if chain.lower() not in ("ethereum","base","arbitrum","bnb","polygon","optimism","avalanche"): return []
+        try:
+            async with session.get(
+                f"{self.BASE}/token/holders/{chain}/{address}",
+                headers={"API-Key": self._key()},
+                timeout=10
+            ) as r:
+                if r.status == 200:
+                    data = await r.json()
+                    holders = []
+                    for item in (data.get("addressTopHolders") or {}).get(chain, []):
+                        entity = (item.get("address") or {}).get("arkhamEntity") or {}
+                        name   = entity.get("name", "")
+                        if name:
+                            holders.append({
+                                "entity": name,
+                                "type":   entity.get("type", ""),
+                                "pct":    item.get("pctOfCap", 0) or 0,
+                            })
+                    return holders[:10]
+                elif r.status in (429, 403):
+                    self._rotate()
+        except Exception as e:
+            log.debug(f"   Arkham holders error: {e}")
+        return []
+
+    def score(self, flows: list, holders: list) -> tuple[int, list]:
+        """Bonus pts from entity intelligence. Max +10, min -5."""
+        pts, notes = 0, []
+        fund_t = ("fund","vc","venture","hedge","defi-protocol","lending-decentralized")
+        cex_t  = ("cex","exchange")
+        for f in flows:
+            etype = (f.get("type") or "").lower()
+            name  = f.get("entity", "?")
+            net   = f.get("inUSD", 0) - f.get("outUSD", 0)
+            if any(t in etype for t in fund_t):
+                if net > 100_000:
+                    pts += 5; notes.append(f"✅ [Arkham] {name} (fund) +${net:,.0f} inflow")
+                elif net > 10_000:
+                    pts += 3; notes.append(f"🔶 [Arkham] {name} (fund) buying +${net:,.0f}")
+                elif net < -100_000:
+                    pts -= 3; notes.append(f"⚠️  [Arkham] {name} (fund) outflow ${net:,.0f}")
+            elif any(t in etype for t in cex_t):
+                if net < -500_000:
+                    pts += 3; notes.append(f"✅ [Arkham] {name} withdrawal ${abs(net):,.0f} — accumulation")
+                elif net > 500_000:
+                    pts -= 2; notes.append(f"⚠️  [Arkham] {name} deposit ${net:,.0f} — sell pressure")
+        fund_h = [h for h in holders if any(t in (h.get("type","").lower()) for t in fund_t)]
+        if fund_h:
+            total = sum(h["pct"] for h in fund_h)
+            if total > 0.05:
+                pts += 2
+                names = ", ".join(h["entity"] for h in fund_h[:3])
+                notes.append(f"✅ [Arkham] Funds hold {total*100:.1f}%: {names}")
+        if not notes:
+            notes.append("⚪ [Arkham] No named entity flow detected")
+        return min(max(pts, -5), 10), notes
+
+
 # ─────────────────────────────────────────────────────────────────
 # LAYER 4 — CRYPTOCOMPARE  (replaces LunarCrush — free instant key)
 # Get key: cryptocompare.com → My Account → API Keys (email verify only)
@@ -1136,8 +1242,9 @@ class CryptoSignalScannerV2:
         self.nansen   = NansenLayer(self._nansen_rot)
         self.arkham   = EtherscanLayer(self._etherscan_rot)
         self.lc       = CryptoCompareSocialLayer()
-        self.san_fg   = FearGreedLayer()
-        self.cg       = CoinGeckoLayer()
+        self.san_fg       = FearGreedLayer()
+        self.cg           = CoinGeckoLayer()
+        self.arkham_intel = ArkhamIntelLayer(ARKHAM_API_KEYS)
         self.telegram = TelegramAlerter()
         self.scan_no  = 0
         # Dynamic MAX_RAW — only count layers that have active keys
@@ -1148,9 +1255,7 @@ class CryptoSignalScannerV2:
         cg_max        = 5    # CoinGecko — always free
         self.MAX_RAW  = nansen_max + etherscan_max + cc_max + fg_max + cg_max
 
-    # Nansen max 5 chains per request — rotate groups each scan
-    CHAINS_A = ["ethereum", "solana", "bnb", "base", "arbitrum"]
-    CHAINS_B = ["ethereum", "polygon", "optimism", "avalanche", "solana"]
+    CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb"]
 
     # Block explorer URLs for contract address verification
     EXPLORERS = {
@@ -1178,6 +1283,7 @@ class CryptoSignalScannerV2:
                     "cryptocompare": bool(CRYPTOCOMPARE_API_KEY),
                     "fear_greed":    True,
                     "coingecko":     True,
+                    "arkham":        self.arkham_intel.has_keys(),
                 },
                 "signals": []
             }
@@ -1241,23 +1347,18 @@ class CryptoSignalScannerV2:
 
     async def run_scan(self):
         self.scan_no += 1
-        # Round-robin key rotation — advance to next key every scan
-        # This spreads credit usage evenly across all keys
-        self._nansen_rot.advance()
+        # Reset rotators so previously rate-limited keys can be retried
+        self._nansen_rot.reset()
         self._etherscan_rot.reset()
         log.info(f"── Scan #{self.scan_no} ─────────────────────────────────────────────")
-        # Alternate chain groups each scan to cover all 8 chains
-        # without exceeding Nansen's 5-chain limit per request
-        active_chains = self.CHAINS_A if self.scan_no % 2 == 1 else self.CHAINS_B
-        log.info(f"   Chains this scan: {active_chains}")
 
         ssl_ctx = ssl.create_default_context(cafile=certifi.where())
         connector = aiohttp.TCPConnector(ssl=ssl_ctx)
         async with aiohttp.ClientSession(connector=connector) as session:
 
             # ── Fetch all data concurrently ──────────────────────────
-            sm_tokens_task   = self.nansen.screen_smart_money_tokens(session, active_chains)
-            sm_shorts_task   = self.nansen.screen_short_signals(session, active_chains)
+            sm_tokens_task   = self.nansen.screen_smart_money_tokens(session, self.CHAINS)
+            sm_shorts_task   = self.nansen.screen_short_signals(session, self.CHAINS)
             cg_markets_task  = self.cg.fetch_markets(session)
             cg_trending_task = self.cg.fetch_trending(session)
             cc_data_task     = self.lc.fetch(session)
@@ -1330,6 +1431,15 @@ class CryptoSignalScannerV2:
                     log.warning(f"   🚨 {sym} SKIPPED — unverified contract on Etherscan")
                     continue
 
+                # ── Score Layer 7: Arkham entity intelligence ─────────
+                ark_i_pts, ark_i_notes = 0, []
+                if tok_addr and self.arkham_intel.has_keys():
+                    af, ah = await asyncio.gather(
+                        self.arkham_intel.get_token_flow(session, chain, tok_addr),
+                        self.arkham_intel.get_token_holders(session, chain, tok_addr)
+                    )
+                    ark_i_pts, ark_i_notes = self.arkham_intel.score(af, ah)
+
                 # ── Score Layer 4: LunarCrush social ─────────────────
                 lc_pts, lc_notes = self.lc.score(sym, lc_all.get(sym, {}))
 
@@ -1340,7 +1450,7 @@ class CryptoSignalScannerV2:
                 cg_pts, cg_notes = self.cg.score(cg_coin if cg_coin else None, sym in trending)
 
                 # ── Combine ───────────────────────────────────────────
-                raw_total = nm_s_pts + nm_nf_pts + ark_pts + lc_pts + san_pts + cg_pts
+                raw_total = nm_s_pts + nm_nf_pts + ark_pts + lc_pts + san_pts + cg_pts + ark_i_pts
                 norm = int((raw_total / self.MAX_RAW) * 100)
 
                 if norm < SIGNAL_THRESHOLD:
@@ -1350,7 +1460,7 @@ class CryptoSignalScannerV2:
                 risk, tf = self._risk_and_timeframe(norm, sm_count, net_flow)
                 t1, t2, sl = self._trade_levels(price, risk)
 
-                all_notes = nm_s_notes + nm_nf_notes + ark_notes + lc_notes + san_notes + cg_notes
+                all_notes = nm_s_notes + nm_nf_notes + ark_notes + lc_notes + san_notes + cg_notes + ark_i_notes
 
                 # ── Enrich with CoinGecko ID + explorer URL ───────────
                 cg_id  = cg_coin.get("id", "").lower() if cg_coin else ""
