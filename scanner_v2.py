@@ -140,6 +140,11 @@ class KeyRotator:
         )
         return True
 
+    def advance(self):
+        """Round-robin — move to next key every scan to spread credit usage."""
+        self._exhausted.clear()
+        self._index = (self._index + 1) % max(len(self._keys), 1)
+
     def reset(self):
         """
         Call at the start of every scan to allow rate-limited keys
@@ -1234,8 +1239,9 @@ class CryptoSignalScannerV2:
 
     async def run_scan(self):
         self.scan_no += 1
-        # Reset rotators so previously rate-limited keys can be retried
-        self._nansen_rot.reset()
+        # Round-robin key rotation — advance to next key every scan
+        # This spreads credit usage evenly across all keys
+        self._nansen_rot.advance()
         self._etherscan_rot.reset()
         log.info(f"── Scan #{self.scan_no} ─────────────────────────────────────────────")
         # Alternate chain groups each scan to cover all 8 chains
