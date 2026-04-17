@@ -1501,6 +1501,16 @@ class CryptoSignalScannerV2:
                     log.debug(f"   Skipping SHORT {sym} — already a LONG candidate")
                     continue
 
+                # Skip Pump.fun tokens — cannot be shorted on any exchange
+                if tok_addr and tok_addr.lower().endswith("pump"):
+                    log.debug(f"   Skipping SHORT {sym} — Pump.fun token, no perps market")
+                    continue
+
+                # Skip Solana tokens for SHORT — no futures market for most
+                if chain.lower() == "solana":
+                    log.debug(f"   Skipping SHORT {sym} — Solana token, limited perps availability")
+                    continue
+
                 # Score the short signal
                 sh_pts, sh_notes = self.nansen.score_short(token)
 
