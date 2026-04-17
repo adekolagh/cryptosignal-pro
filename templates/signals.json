@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-17T21:28:05.351987Z",
+  "last_scan": "2026-04-17T22:07:55.829393Z",
   "threshold": 45,
   "max_raw": 100,
   "layer_status": {
@@ -16,14 +16,14 @@
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.13312313999259104,
+      "price": 0.13212784179677892,
       "score": 63,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.13312313999259104,
-      "target1": 0.1158171317935542,
-      "target2": 0.10383604919422101,
-      "sl": 0.1397792969922206,
+      "entry": 0.13212784179677892,
+      "target1": 0.11495122236319766,
+      "target2": 0.10305971660148756,
+      "sl": 0.13873423388661787,
       "sm_buyers": 11,
       "sm_netflow": -1541356.3128494727,
       "arkham_entities": 0,
@@ -56,20 +56,20 @@
       "nansen_traders": 11,
       "nansen_netflow": -1541356.3128494727,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T21:28:05.352025Z"
+      "timestamp": "2026-04-17T22:07:55.829433Z"
     },
     {
       "symbol": "ASTEROID",
       "name": "ASTEROID",
       "chain": "ethereum",
-      "price": 4.468465906210157e-05,
+      "price": 4.912756940189591e-05,
       "score": 49,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 4.468465906210157e-05,
-      "target1": 3.887565338402837e-05,
-      "target2": 3.485403406843923e-05,
-      "sl": 4.6918892015206654e-05,
+      "entry": 4.912756940189591e-05,
+      "target1": 4.2740985379649446e-05,
+      "target2": 3.8319504133478815e-05,
+      "sl": 5.158394787199071e-05,
       "sm_buyers": 11,
       "sm_netflow": -147900.48113186657,
       "arkham_entities": 0,
@@ -106,7 +106,7 @@
       "nansen_traders": 11,
       "nansen_netflow": -147900.48113186657,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T21:28:05.352041Z"
+      "timestamp": "2026-04-17T22:07:55.829447Z"
     }
   ]
 }
