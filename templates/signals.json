@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-17T20:06:09.819176Z",
+  "last_scan": "2026-04-17T20:43:24.996841Z",
   "threshold": 45,
   "max_raw": 100,
   "layer_status": {
@@ -16,16 +16,16 @@
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.1332205649759874,
+      "price": 0.13323135042714357,
       "score": 63,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.1332205649759874,
-      "target1": 0.11590189152910903,
-      "target2": 0.10391204068127016,
-      "sl": 0.13988159322478677,
+      "entry": 0.13323135042714357,
+      "target1": 0.1159112748716149,
+      "target2": 0.10392045333317199,
+      "sl": 0.13989291794850076,
       "sm_buyers": 11,
-      "sm_netflow": -1545395.9309657153,
+      "sm_netflow": -1550772.7115733507,
       "arkham_entities": 0,
       "token_address": "0x912ce59144191c1204e64559fe8253a0e49e6548",
       "coingecko_url": "https://www.coingecko.com/en/coins/arbitrum",
@@ -41,7 +41,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $1,545,396 \u2014 massive institutional exit",
+          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $1,550,773 \u2014 massive institutional exit",
           "cls": "bad"
         },
         {
@@ -54,24 +54,24 @@
         }
       ],
       "nansen_traders": 11,
-      "nansen_netflow": -1545395.9309657153,
+      "nansen_netflow": -1550772.7115733507,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T20:06:09.819215Z"
+      "timestamp": "2026-04-17T20:43:24.996875Z"
     },
     {
       "symbol": "ASTEROID",
       "name": "ASTEROID",
       "chain": "ethereum",
-      "price": 4.826466196651946e-05,
+      "price": 4.226497066019402e-05,
       "score": 49,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 4.826466196651946e-05,
-      "target1": 4.199025591087193e-05,
-      "target2": 3.764643633388518e-05,
-      "sl": 5.067789506484543e-05,
+      "entry": 4.226497066019402e-05,
+      "target1": 3.67705244743688e-05,
+      "target2": 3.296667711495134e-05,
+      "sl": 4.437821919320372e-05,
       "sm_buyers": 11,
-      "sm_netflow": -147665.55799956867,
+      "sm_netflow": -148038.17361372363,
       "arkham_entities": 0,
       "token_address": "0xf280b16ef293d8e534e370794ef26bf312694126",
       "coingecko_url": "https://www.coingecko.com/en/coins/asteroid-shiba",
@@ -87,7 +87,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $147,666 \u2014 strong selling pressure",
+          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $148,038 \u2014 strong selling pressure",
           "cls": "bad"
         },
         {
@@ -104,9 +104,9 @@
         }
       ],
       "nansen_traders": 11,
-      "nansen_netflow": -147665.55799956867,
+      "nansen_netflow": -148038.17361372363,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T20:06:09.819231Z"
+      "timestamp": "2026-04-17T20:43:24.996889Z"
     }
   ]
 }
