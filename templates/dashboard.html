@@ -396,6 +396,7 @@ input[type=range]::-webkit-slider-thumb{
         <div class="layer"><div class="lnum">4</div><div class="linfo"><div class="lname">Vol + Momentum</div><div class="lsrc">CryptoCompare</div></div><div class="lpts">15pt</div><div class="badge b-setup" id="l4">Setup</div></div>
         <div class="layer"><div class="lnum">5</div><div class="linfo"><div class="lname">Fear &amp; Greed</div><div class="lsrc">Alternative.me</div></div><div class="lpts">10pt</div><div class="badge b-free">Free</div></div>
         <div class="layer"><div class="lnum">6</div><div class="linfo"><div class="lname">Volume Check</div><div class="lsrc">CoinGecko</div></div><div class="lpts">5pt</div><div class="badge b-free">Free</div></div>
+        <div class="layer"><div class="lnum">7</div><div class="linfo"><div class="lname">Entity Intel</div><div class="lsrc">Arkham</div></div><div class="lpts">+bonus</div><div class="badge b-setup" id="l7">Setup</div></div>
       </div>
     </div>
 
@@ -567,6 +568,7 @@ function updateLayers() {
   set('l2', layerStatus.nansen, layerStatus.nansen ? 'Live' : 'No Key');
   set('l3', layerStatus.etherscan, layerStatus.etherscan ? 'Live' : 'Setup');
   set('l4', layerStatus.cryptocompare, layerStatus.cryptocompare ? 'Live' : 'Setup');
+  set('l7', layerStatus.arkham, layerStatus.arkham ? 'Live' : 'Setup');
 }
 
 // ═══════════════════════════════════════════════
