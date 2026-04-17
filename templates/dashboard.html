@@ -374,7 +374,7 @@ input[type=range]::-webkit-slider-thumb{
 <!-- STATS BAR -->
 <div class="stats">
   <div class="stat"><div class="stat-l">Signals</div><div class="stat-v" id="sSignals">—</div><div class="stat-s">above threshold</div></div>
-  <div class="stat"><div class="stat-l">Scans</div><div class="stat-v" id="sScans">—</div><div class="stat-s">every 5 min</div></div>
+  <div class="stat"><div class="stat-l">Scans</div><div class="stat-v" id="sScans">—</div><div class="stat-s">every 15 min</div></div>
   <div class="stat"><div class="stat-l">Best Score</div><div class="stat-v" id="sBest" style="color:var(--amber)">—</div><div class="stat-s" id="sBestSym">—</div></div>
   <div class="stat"><div class="stat-l">Last Scan</div><div class="stat-v" id="sLast" style="font-size:16px;color:var(--green)">—</div><div class="stat-s">UTC</div></div>
   <div class="stat"><div class="stat-l">Refresh In</div><div class="stat-v" id="sNext" style="color:var(--accent2)">15s</div><div class="stat-s">auto-refresh</div></div>
@@ -609,7 +609,7 @@ function renderFeed() {
         signals.length + ' signal(s) found — lower the threshold slider to see them.\nBest score: ' + (signals[0]?.score || 0) + '/100';
     } else {
       empty.querySelector('.empty-t').textContent = 'No signals this scan';
-      empty.querySelector('.empty-s').textContent = 'Smart Money not moving right now.\nScanner checks every 5 minutes automatically.';
+      empty.querySelector('.empty-s').textContent = 'Smart Money not moving right now.\nScanner checks every 15 minutes automatically.';
     }
     return;
   }
