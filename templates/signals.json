@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-17T05:39:03.875808Z",
+  "last_scan": "2026-04-17T05:41:18.933675Z",
   "threshold": 30,
   "max_raw": 100,
   "layer_status": {
@@ -9,7 +9,7 @@
     "cryptocompare": true,
     "fear_greed": true,
     "coingecko": true,
-    "arkham": false
+    "arkham": true
   },
   "signals": [
     {
@@ -53,27 +53,27 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [CoinGecko] -54.1% in 24h \u2014 confirmed downtrend",
+          "t": "\ud83d\udcc9 [CoinGecko] -53.3% in 24h \u2014 confirmed downtrend",
           "cls": "neu"
         }
       ],
       "nansen_traders": 3,
       "nansen_netflow": -47802.30620242065,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875849Z"
+      "timestamp": "2026-04-17T05:41:18.933716Z"
     },
     {
       "symbol": "UNC",
       "name": "UNC",
       "chain": "solana",
-      "price": 0.012878381963623842,
+      "price": 0.012807647395874346,
       "score": 41,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.012878381963623842,
-      "target1": 0.011204192308352743,
-      "target2": 0.010045137931626596,
-      "sl": 0.013522301061805034,
+      "entry": 0.012807647395874346,
+      "target1": 0.01114265323441068,
+      "target2": 0.00998996496878199,
+      "sl": 0.013448029765668064,
       "sm_buyers": 7,
       "sm_netflow": -48434.491646833965,
       "arkham_entities": 0,
@@ -106,53 +106,7 @@
       "nansen_traders": 7,
       "nansen_netflow": -48434.491646833965,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875863Z"
-    },
-    {
-      "symbol": "\ud83c\udf31 ASTEROID",
-      "name": "\ud83c\udf31 ASTEROID",
-      "chain": "solana",
-      "price": 0.007841236198781687,
-      "score": 41,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.007841236198781687,
-      "target1": 0.006821875492940068,
-      "target2": 0.006116164235049716,
-      "sl": 0.008233298008720772,
-      "sm_buyers": 7,
-      "sm_netflow": -11344.753945838962,
-      "arkham_entities": 0,
-      "token_address": "F1ppSHedBsGGwEKH78JVgoqr4xkQHswtsGGLpgM7bCP2",
-      "coingecko_url": "",
-      "explorer_url": "https://solscan.io/token/F1ppSHedBsGGwEKH78JVgoqr4xkQHswtsGGLpgM7bCP2",
-      "layers": [
-        "nansen",
-        "etherscan",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\ud83d\udcc9 [Nansen] 7 SM wallets selling \u2014 significant exit",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Nansen] SM OUTFLOW: $11,345 \u2014 moderate selling",
-          "cls": "bad"
-        },
-        {
-          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 21/100 \u2014 caution shorting in fear market",
-          "cls": "neu"
-        }
-      ],
-      "nansen_traders": 7,
-      "nansen_netflow": -11344.753945838962,
-      "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875872Z"
+      "timestamp": "2026-04-17T05:41:18.933734Z"
     },
     {
       "symbol": "BIO",
@@ -199,14 +153,60 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [CoinGecko] -23.7% in 24h \u2014 confirmed downtrend",
+          "t": "\ud83d\udcc9 [CoinGecko] -24.1% in 24h \u2014 confirmed downtrend",
           "cls": "neu"
         }
       ],
       "nansen_traders": 3,
       "nansen_netflow": -76268.09602476968,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875882Z"
+      "timestamp": "2026-04-17T05:41:18.933747Z"
+    },
+    {
+      "symbol": "\ud83c\udf31 ASTEROID",
+      "name": "\ud83c\udf31 ASTEROID",
+      "chain": "solana",
+      "price": 0.006650389896084537,
+      "score": 36,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.006650389896084537,
+      "target1": 0.0057858392095935475,
+      "target2": 0.005187304118945939,
+      "sl": 0.006982909390888764,
+      "sm_buyers": 8,
+      "sm_netflow": -8297.803248305085,
+      "arkham_entities": 0,
+      "token_address": "F1ppSHedBsGGwEKH78JVgoqr4xkQHswtsGGLpgM7bCP2",
+      "coingecko_url": "",
+      "explorer_url": "https://solscan.io/token/F1ppSHedBsGGwEKH78JVgoqr4xkQHswtsGGLpgM7bCP2",
+      "layers": [
+        "nansen",
+        "etherscan",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\ud83d\udcc9 [Nansen] 8 SM wallets selling \u2014 significant exit",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca [Nansen] SM OUTFLOW: $8,298 \u2014 light selling",
+          "cls": "bad"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 21/100 \u2014 caution shorting in fear market",
+          "cls": "neu"
+        }
+      ],
+      "nansen_traders": 8,
+      "nansen_netflow": -8297.803248305085,
+      "signal_type": "SHORT",
+      "timestamp": "2026-04-17T05:41:18.933757Z"
     },
     {
       "symbol": "MORPHO",
@@ -256,7 +256,7 @@
       "nansen_traders": 3,
       "nansen_netflow": -310610.09940171934,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875891Z"
+      "timestamp": "2026-04-17T05:41:18.933766Z"
     },
     {
       "symbol": "LOL",
@@ -302,20 +302,20 @@
       "nansen_traders": 2,
       "nansen_netflow": -19024.728880997867,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875899Z"
+      "timestamp": "2026-04-17T05:41:18.933775Z"
     },
     {
       "symbol": "ASTEROID",
       "name": "ASTEROID",
       "chain": "solana",
-      "price": 0.00041617126963659616,
+      "price": 0.00042851620687811,
       "score": 35,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.00041617126963659616,
-      "target1": 0.00036206900458383864,
-      "target2": 0.000324613590316545,
-      "sl": 0.00043697983311842596,
+      "entry": 0.00042851620687811,
+      "target1": 0.0003728090999839557,
+      "target2": 0.0003342426413649258,
+      "sl": 0.00044994201722201553,
       "sm_buyers": 3,
       "sm_netflow": -14240.093709406941,
       "arkham_entities": 0,
@@ -348,7 +348,7 @@
       "nansen_traders": 3,
       "nansen_netflow": -14240.093709406941,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875907Z"
+      "timestamp": "2026-04-17T05:41:18.933783Z"
     },
     {
       "symbol": "",
@@ -401,12 +401,16 @@
         {
           "t": "\u2705 [Fear&Greed] EXTREME FEAR 21/100 \u2193 \u2014 ideal SM buy zone",
           "cls": "ok"
+        },
+        {
+          "t": "\u26aa [Arkham] No named entity flow detected",
+          "cls": "neu"
         }
       ],
       "nansen_traders": 2,
       "nansen_netflow": 0.0,
       "signal_type": "LONG",
-      "timestamp": "2026-04-17T05:39:03.875921Z"
+      "timestamp": "2026-04-17T05:41:18.933799Z"
     },
     {
       "symbol": "INSURANCE",
@@ -452,7 +456,7 @@
       "nansen_traders": 1,
       "nansen_netflow": -56406.523993884584,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875930Z"
+      "timestamp": "2026-04-17T05:41:18.933806Z"
     },
     {
       "symbol": "ARB",
@@ -498,7 +502,7 @@
       "nansen_traders": 1,
       "nansen_netflow": -33087.788587590985,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875938Z"
+      "timestamp": "2026-04-17T05:41:18.933812Z"
     },
     {
       "symbol": "MILKERS",
@@ -544,7 +548,7 @@
       "nansen_traders": 2,
       "nansen_netflow": -6423.096525870721,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T05:39:03.875974Z"
+      "timestamp": "2026-04-17T05:41:18.933818Z"
     }
   ]
 }
