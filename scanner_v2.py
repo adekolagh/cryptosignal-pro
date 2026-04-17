@@ -317,8 +317,8 @@ class NansenLayer:
                             f"   Nansen SHORT screener: {len(short_tokens)} SM selling tokens"
                         )
                         return short_tokens
-                    elif r.status in (401, 402, 429):
-                        reason = {401:"invalid key",402:"credits exhausted",429:"rate limited"}[r.status]
+                    elif r.status in (401, 402, 403, 429):
+                        reason = {401:"invalid key",402:"credits exhausted",403:"forbidden/exhausted",429:"rate limited"}[r.status]
                         if not self.rotator.rotate(reason):
                             break
                     else:
