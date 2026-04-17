@@ -45,7 +45,7 @@ TELEGRAM_BOT_TOKEN    = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
-SCAN_INTERVAL_SEC   = 300   # 5 minutes
+SCAN_INTERVAL_SEC   = 900   # 5 minutes
 SIGNAL_THRESHOLD    = 30    # 30 = testing, raise to 50 when scoring stabilises
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
