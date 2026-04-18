@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-18T16:39:59.304670Z",
+  "last_scan": "2026-04-18T17:22:34.691220Z",
   "threshold": 40,
   "max_raw": 100,
   "layer_status": {
@@ -16,14 +16,14 @@
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.12819601262730212,
+      "price": 0.12826510650894452,
       "score": 50,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.12819601262730212,
-      "target1": 0.11153053098575284,
-      "target2": 0.09999288984929566,
-      "sl": 0.13460581325866725,
+      "entry": 0.12826510650894452,
+      "target1": 0.11159064266278172,
+      "target2": 0.10004678307697673,
+      "sl": 0.13467836183439175,
       "sm_buyers": 10,
       "sm_netflow": -1486925.5407219944,
       "arkham_entities": 0,
@@ -37,7 +37,7 @@
       ],
       "breakdown": [
         {
-          "t": "SIGNIFICANT [Valuation] Outflow 28.0% of liquidity",
+          "t": "SIGNIFICANT [Valuation] Outflow 28.1% of liquidity",
           "cls": "neu"
         },
         {
@@ -49,7 +49,7 @@
           "cls": "neu"
         },
         {
-          "t": "[Valuation] Liq $5,319,942 | MCap $777,230,979 | Ratio 0.68%",
+          "t": "[Valuation] Liq $5,292,874 | MCap $775,546,882 | Ratio 0.68%",
           "cls": "neu"
         },
         {
@@ -65,20 +65,20 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [CoinGecko] -3.2% in 24h \u2014 slight decline",
+          "t": "\ud83d\udcca [CoinGecko] -3.6% in 24h \u2014 slight decline",
           "cls": "neu"
         }
       ],
       "nansen_traders": 10,
       "nansen_netflow": -1486925.5407219944,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T16:39:59.304707Z",
-      "liquidity_usd": 5319942.097761409,
-      "market_cap_usd": 777230979.0,
-      "liq_mcap_ratio": 0.6844737589598072,
-      "flow_impact_pct": 27.950032413843022,
+      "timestamp": "2026-04-18T17:22:34.691255Z",
+      "liquidity_usd": 5292873.715031503,
+      "market_cap_usd": 775546882.0,
+      "liq_mcap_ratio": 0.6824698593825953,
+      "flow_impact_pct": 28.0929721882311,
       "flow_classification": "SIGNIFICANT",
-      "price_change_24h": -2.213626591319331,
+      "price_change_24h": -2.1609226111247164,
       "price_confirmed": true,
       "projection": "\ud83d\udd36 Selling pressure: 28% of liquidity \u2014 watch for breakout"
     }
