@@ -45,9 +45,8 @@ TELEGRAM_BOT_TOKEN    = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
-
 SCAN_INTERVAL_SEC   = 300   # 5 minutes
-SIGNAL_THRESHOLD    = 45    # 30 = testing, raise to 50 when scoring stabilises
+SIGNAL_THRESHOLD    = 30    # 30 = testing, raise to 50 when scoring stabilises
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
 
@@ -383,122 +382,204 @@ class NansenLayer:
 
         return {}
 
-    def score_short(self, token: dict) -> tuple[int, list]:
+
+    @staticmethod
+    def classify_flow(flow_pct):
+        if flow_pct < 5.0:    return ("NOISE",       "⚪")
+        elif flow_pct < 15.0: return ("WATCH",       "🔶")
+        elif flow_pct < 30.0: return ("SIGNIFICANT", "🟡")
+        elif flow_pct < 50.0: return ("MAJOR",       "🔴")
+        else:                 return ("EXTREME",     "🚨")
+
+    @staticmethod
+    def classify_liq_health(liquidity, market_cap):
+        if market_cap <= 0: return ("UNKNOWN", "❓")
+        r = (liquidity / market_cap) * 100
+        if r < 0.1:   return ("ULTRA-THIN", "🚨")
+        elif r < 0.5: return ("THIN",       "⚠️")
+        elif r < 2.0: return ("MODERATE",   "🔶")
+        elif r < 10:  return ("HEALTHY",    "✅")
+        else:         return ("DEEP",       "💎")
+
+    @staticmethod
+    def check_price_confirms(price_chg, is_long):
+        if is_long:
+            if price_chg > 5.0:    return True,  f"✅ Price +{price_chg:.1f}% confirms buying — BULLISH"
+            elif price_chg >= -2.0: return True,  f"📊 Price flat ({price_chg:+.1f}%) + inflow = ACCUMULATION — pre-pump likely"
+            else:                   return False, f"⚠️ Price {price_chg:+.1f}% falling despite buying — weak LONG"
+        else:
+            if price_chg < -5.0:   return True,  f"✅ Price {price_chg:.1f}% confirms selling — BEARISH"
+            elif price_chg <= 2.0: return True,  f"📊 Price flat ({price_chg:+.1f}%) + outflow = DISTRIBUTION — pre-dump likely"
+            else:                  return False, f"🚫 Price +{price_chg:.1f}% rising despite selling — SHORT BLOCKED"
+
+    @staticmethod
+    def project_move(flow_pct, flow_class, price_chg, is_long):
+        if flow_class == "NOISE": return "Routine rebalancing — no directional pressure"
+        direction = "upward" if is_long else "downward"
+        word = "PUMP" if is_long else "DUMP"
+        inout = "inflow" if is_long else "outflow"
+        if flow_class == "EXTREME" and abs(price_chg) < 2:
+            return f"🚀 PRE-{word}: {flow_pct:.0f}% of liquidity moved, price not reacted — imminent {direction} move"
+        elif flow_class == "MAJOR" and abs(price_chg) < 5:
+            return f"📈 {'ACCUMULATION' if is_long else 'DISTRIBUTION'}: {flow_pct:.0f}% liquidity {inout} — {direction} move expected 1-3 days"
+        elif flow_class == "SIGNIFICANT":
+            return f"🔶 {'Buying' if is_long else 'Selling'} pressure: {flow_pct:.0f}% of liquidity — watch for breakout"
+        else:
+            return f"📊 {flow_pct:.0f}% {inout} — monitor, insufficient for major move yet"
+
+    def score_short(self, token: dict) -> tuple:
         """
-        Score a SHORT signal based on Smart Money SELLING intensity.
-        The stronger and more coordinated the selling, the higher the score.
-        Max 30 pts.
+        SHORT scoring with liquidity-valuation engine.
+        BLOCKS if: price rising (buyers absorbing sellers)
+        BLOCKS if: flow < 5% of liquidity (noise)
         """
         pts = 0
         notes = []
 
-        sm_count = token.get("nof_traders", 0) or 0
-        sell_vol = token.get("sell_volume", 0) or 0
-        netflow  = token.get("netflow", 0) or 0  # negative = selling
-        outflow  = abs(netflow)
+        sm_count   = token.get("nof_traders", 0) or 0
+        netflow    = token.get("netflow", 0) or 0
+        sell_vol   = token.get("sell_volume", 0) or 0
+        liquidity  = token.get("liquidity", 0) or 1
+        market_cap = token.get("market_cap_usd", 0) or 0
+        price_chg  = (token.get("price_change", 0) or 0) * 100
+        outflow    = abs(netflow) if netflow < 0 else sell_vol
 
-        # SM wallet count selling
+        flow_pct  = (outflow / liquidity) * 100 if liquidity > 0 else 0
+        flow_class, flow_emoji = self.classify_flow(flow_pct)
+        liq_class, liq_emoji  = self.classify_liq_health(liquidity, market_cap)
+        liq_ratio = (liquidity / market_cap * 100) if market_cap > 0 else 0
+        price_ok, price_note  = self.check_price_confirms(price_chg, is_long=False)
+        projection = self.project_move(flow_pct, flow_class, price_chg, is_long=False)
+
+        valuation = {
+            "liquidity_usd": liquidity, "market_cap_usd": market_cap,
+            "liq_mcap_ratio": liq_ratio, "liq_classification": liq_class,
+            "flow_usd": outflow, "flow_pct": flow_pct,
+            "flow_classification": flow_class, "price_change_24h": price_chg,
+            "price_confirmed": price_ok, "projection": projection,
+        }
+
+        # HARD BLOCK 1 — price rising, buyers absorbing sellers
+        if not price_ok and price_chg > 2.0:
+            notes.append(f"🚫 SHORT BLOCKED — Price +{price_chg:.1f}% rising despite {flow_pct:.1f}% outflow")
+            notes.append(f"📊 Buyers stronger than sellers — do not short")
+            notes.append(f"💡 {projection}")
+            return 0, notes, valuation
+
+        # HARD BLOCK 2 — noise level selling
+        if flow_class == "NOISE":
+            notes.append(f"⚪ SHORT BLOCKED — Flow {flow_pct:.1f}% of liquidity is NOISE")
+            notes.append(f"💡 {projection}")
+            return 0, notes, valuation
+
+        # Flow impact (0-15 pts)
+        if flow_class == "EXTREME":
+            pts += 15; notes.append(f"🚨 [Valuation] Outflow {flow_pct:.1f}% of liquidity — EXTREME")
+        elif flow_class == "MAJOR":
+            pts += 12; notes.append(f"🔴 [Valuation] Outflow {flow_pct:.1f}% of liquidity — MAJOR")
+        elif flow_class == "SIGNIFICANT":
+            pts += 8;  notes.append(f"🟡 [Valuation] Outflow {flow_pct:.1f}% of liquidity — SIGNIFICANT")
+        elif flow_class == "WATCH":
+            pts += 4;  notes.append(f"🔶 [Valuation] Outflow {flow_pct:.1f}% of liquidity — WATCH")
+
+        # SM wallet count (0-10 pts)
         if sm_count >= 10:
-            pts += 15; notes.append(f"📉 [Nansen] {sm_count} SM wallets SELLING — strong exit signal")
+            pts += 10; notes.append(f"📉 [Nansen] {sm_count} SM wallets SELLING — coordinated exit")
         elif sm_count >= 5:
-            pts += 10; notes.append(f"📉 [Nansen] {sm_count} SM wallets selling — significant exit")
+            pts += 7;  notes.append(f"📉 [Nansen] {sm_count} SM wallets selling")
         elif sm_count >= 2:
-            pts += 6;  notes.append(f"⚠️  [Nansen] {sm_count} SM wallets selling — watch closely")
+            pts += 4;  notes.append(f"⚠️ [Nansen] {sm_count} SM wallets selling")
         elif sm_count >= 1:
-            pts += 3;  notes.append(f"📊 [Nansen] {sm_count} SM wallet selling")
+            pts += 2;  notes.append(f"📊 [Nansen] {sm_count} SM wallet selling")
 
-        # Outflow magnitude
-        if outflow > 500_000:
-            pts += 15; notes.append(f"📉 [Nansen] SM OUTFLOW: ${outflow:,.0f} — massive institutional exit")
-        elif outflow > 100_000:
-            pts += 10; notes.append(f"📉 [Nansen] SM OUTFLOW: ${outflow:,.0f} — strong selling pressure")
-        elif outflow > 10_000:
-            pts += 6;  notes.append(f"⚠️  [Nansen] SM OUTFLOW: ${outflow:,.0f} — moderate selling")
-        elif outflow > 0:
-            pts += 3;  notes.append(f"📊 [Nansen] SM OUTFLOW: ${outflow:,.0f} — light selling")
+        # Price confirmation
+        notes.append(price_note)
+        if price_ok: pts += 3
 
-        return min(pts, 30), notes
+        notes.append(f"💡 [Valuation] Liq ${liquidity:,.0f} | MCap ${market_cap:,.0f} | Ratio {liq_ratio:.2f}% | {liq_class}")
+        notes.append(f"🔮 [Projection] {projection}")
+        return min(pts, 30), notes, valuation
 
-    def score_screener(self, token: dict) -> tuple[int, list]:
+    def score_screener(self, token: dict) -> tuple:
         """
-        Layer 1 scoring — Smart Money activity from Nansen screener.
-        Uses real Nansen field names: nof_traders, netflow, liquidity,
-        token_age_days. Max 30 pts.
-
-        Three sub-scores:
-          A. SM wallet count      (0-15 pts)
-          B. Netflow magnitude    (0-10 pts)
-          C. Netflow/Liq ratio + Token age bonus  (0-5 pts)
+        Layer 1 -- Liquidity-Valuation scoring.
+        All flows as percentage of current liquidity.
+        Returns: (pts, notes, valuation_dict)
         """
-        pts   = 0
+        pts = 0
         notes = []
 
-        # Real Nansen field names
-        sm_count  = token.get("nof_traders", 0) or 0
-        netflow   = token.get("netflow", 0) or 0
-        liquidity = token.get("liquidity", 0) or 1    # avoid division by zero
-        age_days  = token.get("token_age_days", 0) or 0
+        sm_count   = token.get("nof_traders", 0) or 0
+        netflow    = token.get("netflow", 0) or 0
+        buy_vol    = token.get("buy_volume", 0) or 0
+        sell_vol   = token.get("sell_volume", 0) or 0
+        liquidity  = token.get("liquidity", 0) or 1
+        market_cap = token.get("market_cap_usd", 0) or 0
+        age_days   = token.get("token_age_days", 0) or 0
+        price_chg  = (token.get("price_change", 0) or 0) * 100
 
-        # ── A. Smart Money wallet count (0-15 pts) ───────────────────
+        flow_usd  = abs(netflow) if netflow != 0 else max(buy_vol, sell_vol)
+        flow_pct  = (flow_usd / liquidity) * 100 if liquidity > 0 else 0
+        flow_class, flow_emoji = self.classify_flow(flow_pct)
+        liq_class, liq_emoji  = self.classify_liq_health(liquidity, market_cap)
+        liq_ratio = (liquidity / market_cap * 100) if market_cap > 0 else 0
+        is_long   = netflow >= 0
+        price_ok, price_note = self.check_price_confirms(price_chg, is_long)
+        projection = self.project_move(flow_pct, flow_class, price_chg, is_long)
+
+        valuation = {
+            "liquidity_usd": liquidity, "market_cap_usd": market_cap,
+            "liq_mcap_ratio": liq_ratio, "liq_classification": liq_class,
+            "flow_usd": flow_usd, "flow_pct": flow_pct,
+            "flow_classification": flow_class, "price_change_24h": price_chg,
+            "price_confirmed": price_ok, "projection": projection,
+            "is_long": is_long,
+        }
+
+        # A. Flow impact as % of liquidity (0-15 pts)
+        if flow_class == "EXTREME":
+            pts += 15; notes.append(f"🚨 [Valuation] Flow {flow_pct:.1f}% of liquidity — EXTREME")
+        elif flow_class == "MAJOR":
+            pts += 12; notes.append(f"🔴 [Valuation] Flow {flow_pct:.1f}% of liquidity — MAJOR")
+        elif flow_class == "SIGNIFICANT":
+            pts += 8;  notes.append(f"🟡 [Valuation] Flow {flow_pct:.1f}% of liquidity — SIGNIFICANT")
+        elif flow_class == "WATCH":
+            pts += 4;  notes.append(f"🔶 [Valuation] Flow {flow_pct:.1f}% of liquidity — WATCH")
+        else:
+            notes.append(f"⚪ [Valuation] Flow {flow_pct:.1f}% of liquidity — NOISE")
+
+        # B. Market health context (0-5 pts)
+        if liq_class in ("THIN", "ULTRA-THIN"):
+            pts += 5; notes.append(f"{liq_emoji} [Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap — signals amplified")
+        elif liq_class == "MODERATE":
+            pts += 3; notes.append(f"{liq_emoji} [Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap")
+        else:
+            pts += 2; notes.append(f"{liq_emoji} [Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap")
+
+        # C. SM wallet count (0-8 pts)
         if sm_count >= 10:
-            pts += 15
-            notes.append(f"✅ [Nansen] {sm_count} SM wallets active — High conviction")
+            pts += 8; notes.append(f"✅ [Nansen] {sm_count} SM wallets — HIGH conviction")
         elif sm_count >= 5:
-            pts += 10
-            notes.append(f"✅ [Nansen] {sm_count} SM wallets active — Good conviction")
+            pts += 6; notes.append(f"✅ [Nansen] {sm_count} SM wallets — GOOD conviction")
         elif sm_count >= 2:
-            pts += 6
-            notes.append(f"🔶 [Nansen] {sm_count} SM wallets active — Moderate")
+            pts += 3; notes.append(f"🔶 [Nansen] {sm_count} SM wallets")
         elif sm_count >= 1:
-            pts += 3
-            notes.append(f"📊 [Nansen] {sm_count} SM wallet active")
+            pts += 1; notes.append(f"📊 [Nansen] {sm_count} SM wallet")
 
-        # ── B. Netflow magnitude (0-10 pts) ──────────────────────────
-        if netflow > 500_000:
-            pts += 10
-            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Institutional scale")
-        elif netflow > 100_000:
-            pts += 8
-            notes.append(f"✅ [Nansen] Net inflow: +${netflow:,.0f} — Strong buying")
-        elif netflow > 10_000:
-            pts += 5
-            notes.append(f"🔶 [Nansen] Net inflow: +${netflow:,.0f} — Mild buying")
-        elif netflow > 0:
-            pts += 2
-            notes.append(f"📊 [Nansen] Net inflow: +${netflow:,.0f} — Slight buying")
-        elif netflow < -100_000:
-            pts = max(0, pts - 5)
-            notes.append(f"⚠️  [Nansen] Net OUTFLOW: ${netflow:,.0f} — SM selling")
+        # D. Price confirmation (+2 or -10)
+        notes.append(price_note)
+        pts = pts + 2 if price_ok else max(0, pts - 10)
 
-        # ── C. Netflow/Liquidity ratio bonus (0-3 pts) ───────────────
-        # The bigger the netflow relative to available liquidity,
-        # the stronger the conviction — price MUST move
-        if liquidity > 0 and netflow > 0:
-            ratio = (netflow / liquidity) * 100
-            if ratio >= 20:
-                pts += 3
-                notes.append(f"✅ [Nansen] Netflow/Liquidity: {ratio:.1f}% — EXTREME conviction (price must move)")
-            elif ratio >= 10:
-                pts += 2
-                notes.append(f"✅ [Nansen] Netflow/Liquidity: {ratio:.1f}% — High conviction ratio")
-            elif ratio >= 5:
-                pts += 1
-                notes.append(f"🔶 [Nansen] Netflow/Liquidity: {ratio:.1f}% — Meaningful ratio")
-
-        # ── D. Token age bonus (0-2 pts) ─────────────────────────────
-        # Older tokens have survived market cycles — more trustworthy
+        # E. Token age (0-2 pts)
         if age_days >= 365:
-            pts += 2
-            notes.append(f"✅ [Nansen] Token age: {int(age_days)}d — Established project")
+            pts += 2; notes.append(f"✅ [Nansen] Token age {int(age_days)}d — established")
         elif age_days >= 90:
-            pts += 1
-            notes.append(f"📊 [Nansen] Token age: {int(age_days)}d — Maturing project")
-        elif age_days < 30 and age_days > 0:
-            pts = max(0, pts - 2)
-            notes.append(f"⚠️  [Nansen] Token age: {int(age_days)}d — Very new token, higher risk")
+            pts += 1; notes.append(f"📊 [Nansen] Token age {int(age_days)}d — maturing")
+        elif 0 < age_days < 30:
+            pts = max(0, pts - 2); notes.append(f"⚠️ [Nansen] Token age {int(age_days)}d — very new")
 
-        return min(pts, 30), notes
-
+        notes.append(f"🔮 [Projection] {projection}")
+        return min(pts, 30), notes, valuation
     def score_netflow(self, netflow_data: dict) -> tuple[int, list, float]:
         """Score based on Smart Money netflow direction. Max 20 pts."""
         if not netflow_data:
@@ -1400,6 +1481,27 @@ class CryptoSignalScannerV2:
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price", token.get("price_usd", 0)) or 0
 
+                # ── PRE-FILTER GATE (LONG) ────────────────────────
+                # Rule 1: SM must be net buying
+                _netflow   = token.get("netflow", 0) or 0
+                if _netflow < 0:
+                    log.debug(f"   LONG {sym} rejected — SM net selling (netflow={_netflow:,.0f})")
+                    continue
+                # Rule 2: flow must be > 5% of liquidity (not noise)
+                _liquidity = token.get("liquidity", 0) or 1
+                _buy_vol   = token.get("buy_volume", 0) or 0
+                _flow_usd  = abs(_netflow) if _netflow != 0 else _buy_vol
+                _flow_pct  = (_flow_usd / _liquidity) * 100
+                if _flow_pct < 5.0:
+                    log.debug(f"   LONG {sym} rejected — flow {_flow_pct:.1f}% of liquidity is noise")
+                    continue
+                # Rule 3: price must not be falling against buying
+                _price_chg = (token.get("price_change", 0) or 0) * 100
+                if _price_chg < -5.0:
+                    log.debug(f"   LONG {sym} rejected — price {_price_chg:.1f}% falling despite buying")
+                    continue
+                # ── END PRE-FILTER ────────────────────────────────
+
                 # Fill price from CoinGecko if Nansen didn't return it
                 cg_coin  = cg_markets.get(sym, {})
                 price    = price_raw or (cg_coin.get("current_price") or 0)
@@ -1407,7 +1509,18 @@ class CryptoSignalScannerV2:
                     continue
 
                 # ── Score Layer 1: Nansen screener ───────────────────
-                nm_s_pts, nm_s_notes = self.nansen.score_screener(token)
+                nm_s_pts, nm_s_notes, token_valuation = self.nansen.score_screener(token)
+
+                # HARD BLOCK — skip tokens where SM is net selling
+                # netflow < 0 means SM is selling — wrong direction for LONG
+                tok_netflow = token.get("netflow", 0) or 0
+                if tok_netflow < 0:
+                    log.debug(f"   LONG {sym} blocked — negative netflow (SM selling)")
+                    continue
+                # Skip noise level flows
+                if token_valuation.get("flow_classification") == "NOISE":
+                    log.debug(f"   LONG {sym} blocked — noise level flow")
+                    continue
 
                 # ── Score Layer 2: Nansen Smart Money netflow ─────────
                 nm_nf_pts, nm_nf_notes, net_flow = 0, [], 0.0
@@ -1491,6 +1604,27 @@ class CryptoSignalScannerV2:
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price_usd", token.get("price", 0)) or 0
 
+                # ── PRE-FILTER GATE (SHORT) ───────────────────────
+                # Rule 1: SM must be net selling
+                _netflow   = token.get("netflow", 0) or 0
+                if _netflow >= 0:
+                    log.debug(f"   SHORT {sym} rejected — SM net buying (netflow={_netflow:,.0f})")
+                    continue
+                # Rule 2: flow must be > 5% of liquidity (not noise)
+                _liquidity = token.get("liquidity", 0) or 1
+                _sell_vol  = token.get("sell_volume", 0) or 0
+                _flow_usd  = abs(_netflow) if _netflow != 0 else _sell_vol
+                _flow_pct  = (_flow_usd / _liquidity) * 100
+                if _flow_pct < 5.0:
+                    log.debug(f"   SHORT {sym} rejected — flow {_flow_pct:.1f}% of liquidity is noise")
+                    continue
+                # Rule 3: price must not be rising against selling
+                _price_chg = (token.get("price_change", 0) or 0) * 100
+                if _price_chg > 2.0:
+                    log.debug(f"   SHORT {sym} rejected — price +{_price_chg:.1f}% rising despite selling")
+                    continue
+                # ── END PRE-FILTER ────────────────────────────────
+
                 cg_coin   = cg_markets.get(sym, {})
                 price     = price_raw or (cg_coin.get("current_price") or 0)
                 if price <= 0:
@@ -1501,18 +1635,13 @@ class CryptoSignalScannerV2:
                     log.debug(f"   Skipping SHORT {sym} — already a LONG candidate")
                     continue
 
-                # Skip Pump.fun tokens — cannot be shorted on any exchange
-                if tok_addr and tok_addr.lower().endswith("pump"):
-                    log.debug(f"   Skipping SHORT {sym} — Pump.fun token, no perps market")
-                    continue
-
-                # Skip Solana tokens for SHORT — no futures market for most
-                if chain.lower() == "solana":
-                    log.debug(f"   Skipping SHORT {sym} — Solana token, limited perps availability")
-                    continue
-
                 # Score the short signal
-                sh_pts, sh_notes = self.nansen.score_short(token)
+                sh_pts, sh_notes, token_valuation = self.nansen.score_short(token)
+
+                # HARD BLOCK — if valuation engine blocked the signal, skip entirely
+                if sh_pts == 0 and any("BLOCKED" in n for n in sh_notes):
+                    log.debug(f"   SHORT {sym} blocked by valuation engine")
+                    continue
 
                 # Etherscan safety check (scam tokens should not be shorted either)
                 etherscan_info = await self.arkham.fetch_token_info(session, tok_addr, chain)
