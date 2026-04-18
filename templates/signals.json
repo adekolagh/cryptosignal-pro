@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-18T11:49:55.897583Z",
+  "last_scan": "2026-04-18T11:50:19.882569Z",
   "threshold": 45,
   "max_raw": 100,
   "layer_status": {
@@ -37,7 +37,7 @@
       ],
       "breakdown": [
         {
-          "t": "SIGNIFICANT [Valuation] Outflow 28.2% of liquidity",
+          "t": "SIGNIFICANT [Valuation] Outflow 28.3% of liquidity",
           "cls": "neu"
         },
         {
@@ -49,7 +49,7 @@
           "cls": "neu"
         },
         {
-          "t": "[Valuation] Liq $5,270,300 | MCap $773,808,663 | Ratio 0.68%",
+          "t": "[Valuation] Liq $5,262,571 | MCap $774,159,855 | Ratio 0.68%",
           "cls": "neu"
         },
         {
@@ -72,11 +72,11 @@
       "nansen_traders": 10,
       "nansen_netflow": -1486925.5407219944,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T11:49:55.897621Z",
-      "liquidity_usd": 5270300.24802592,
-      "market_cap_usd": 773808663.0,
-      "liq_mcap_ratio": 0.6810857127902069,
-      "flow_impact_pct": 28.213298498106393,
+      "timestamp": "2026-04-18T11:50:19.882608Z",
+      "liquidity_usd": 5262570.533360666,
+      "market_cap_usd": 774159855.0,
+      "liq_mcap_ratio": 0.6797782782679509,
+      "flow_impact_pct": 28.254738464710837,
       "flow_classification": "SIGNIFICANT",
       "price_change_24h": -2.6762491766399408,
       "price_confirmed": true,
