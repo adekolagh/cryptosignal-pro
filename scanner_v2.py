@@ -1284,6 +1284,17 @@ class TelegramAlerter:
         bar      = "█" * filled + "░" * (10 - filled)
         risk_e   = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🔴"}.get(sig.risk, "🟡")
 
+        # ── Late entry warning ───────────────────────────────────────
+        price_chg    = sig.price_change_24h or 0
+        late_entry   = False
+        late_warning = ""
+        if sig.signal_type == "SHORT" and price_chg < -8.0:
+            late_entry   = True
+            late_warning = f"⚠️ *LATE ENTRY WARNING* — price already {price_chg:.1f}% down\nBounce risk is HIGH. Use 50% normal size. Tight stop loss mandatory."
+        elif sig.signal_type == "LONG" and price_chg > 8.0:
+            late_entry   = True
+            late_warning = f"⚠️ *LATE ENTRY WARNING* — price already +{price_chg:.1f}% up\nPullback risk is HIGH. Use 50% normal size. Tight stop loss mandatory."
+
         # ── Flow classification labels ────────────────────────────────
         flow_cls   = sig.flow_classification or "NOISE"
         flow_emoji = {"NOISE":"⚪","WATCH":"🔶","SIGNIFICANT":"🟡","MAJOR":"🔴","EXTREME":"🚨"}.get(flow_cls,"⚪")
@@ -1301,12 +1312,18 @@ class TelegramAlerter:
         flow_str = f"${flow_usd/1e6:.2f}M" if flow_usd >= 1e6 else f"${flow_usd/1e3:.0f}K"
 
         # ── Header ────────────────────────────────────────────────────
+        score_warning = ""
+        if sig.score < 50:
+            score_warning = "⚠️ WATCH ONLY — Score below 50. Monitor, do not trade large."
+        elif sig.score < 60:
+            score_warning = "🔶 MODERATE conviction — reduce position size"
+
         if is_short:
             header = f"📉 *SHORT — ${sig.symbol}* | Score `{sig.score}/100` {bar}"
-            subhead = f"_SM wallets distributing — selling pressure detected_"
+            subhead = f"_{score_warning if score_warning else 'SM wallets distributing — selling pressure detected'}_"
         else:
             header = f"🚀 *LONG — ${sig.symbol}* | Score `{sig.score}/100` {bar}"
-            subhead = f"_SM wallets accumulating — buying pressure detected_"
+            subhead = f"_{score_warning if score_warning else 'SM wallets accumulating — buying pressure detected'}_"
 
         # ── Valuation block ───────────────────────────────────────────
         confirm_txt = "✅ CONFIRMED" if confirmed else "⚠️ UNCONFIRMED"
@@ -1385,15 +1402,16 @@ _Verify contract before buying. DYOR._"""
         chain_str = f"⛓ Chain: `{sig.chain.upper()}` | `${sig.symbol}`"
 
         # ── Assemble ──────────────────────────────────────────────────
+        late_block = f"\n{late_warning}" if late_entry else ""
         msg = f"""{header}
 {subhead}
 {chain_str}{addr_block}{links}
 {valuation_block}
-{sm_block}
+{sm_block}{late_block}
 {trade_block}
 
 🕐 _{datetime.utcnow().strftime('%d %b %Y %H:%M UTC')}_
-_⚠️ Signal only. Not financial advice. DYOR._"""
+_⚠️ Signal only. Not financial advice. Always use stop loss. DYOR._"""
 
         return msg
 
@@ -1607,6 +1625,27 @@ class CryptoSignalScannerV2:
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price", token.get("price_usd", 0)) or 0
 
+                # ── PRE-FILTER GATE (LONG) ────────────────────────
+                # Rule 1: SM must be net buying
+                _netflow   = token.get("netflow", 0) or 0
+                if _netflow < 0:
+                    log.debug(f"   LONG {sym} rejected — SM net selling (netflow={_netflow:,.0f})")
+                    continue
+                # Rule 2: flow must be > 5% of liquidity (not noise)
+                _liquidity = token.get("liquidity", 0) or 1
+                _buy_vol   = token.get("buy_volume", 0) or 0
+                _flow_usd  = abs(_netflow) if _netflow != 0 else _buy_vol
+                _flow_pct  = (_flow_usd / _liquidity) * 100
+                if _flow_pct < 5.0:
+                    log.debug(f"   LONG {sym} rejected — flow {_flow_pct:.1f}% of liquidity is noise")
+                    continue
+                # Rule 3: price must not be falling against buying
+                _price_chg = (token.get("price_change", 0) or 0) * 100
+                if _price_chg < -5.0:
+                    log.debug(f"   LONG {sym} rejected — price {_price_chg:.1f}% falling despite buying")
+                    continue
+                # ── END PRE-FILTER ────────────────────────────────
+
                 # Fill price from CoinGecko if Nansen didn't return it
                 cg_coin  = cg_markets.get(sym, {})
                 price    = price_raw or (cg_coin.get("current_price") or 0)
@@ -1705,6 +1744,27 @@ class CryptoSignalScannerV2:
                 chain     = token.get("chain", "ethereum")
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price_usd", token.get("price", 0)) or 0
+
+                # ── PRE-FILTER GATE (SHORT) ───────────────────────
+                # Rule 1: SM must be net selling
+                _netflow   = token.get("netflow", 0) or 0
+                if _netflow >= 0:
+                    log.debug(f"   SHORT {sym} rejected — SM net buying (netflow={_netflow:,.0f})")
+                    continue
+                # Rule 2: flow must be > 5% of liquidity (not noise)
+                _liquidity = token.get("liquidity", 0) or 1
+                _sell_vol  = token.get("sell_volume", 0) or 0
+                _flow_usd  = abs(_netflow) if _netflow != 0 else _sell_vol
+                _flow_pct  = (_flow_usd / _liquidity) * 100
+                if _flow_pct < 5.0:
+                    log.debug(f"   SHORT {sym} rejected — flow {_flow_pct:.1f}% of liquidity is noise")
+                    continue
+                # Rule 3: price must not be rising against selling
+                _price_chg = (token.get("price_change", 0) or 0) * 100
+                if _price_chg > 2.0:
+                    log.debug(f"   SHORT {sym} rejected — price +{_price_chg:.1f}% rising despite selling")
+                    continue
+                # ── END PRE-FILTER ────────────────────────────────
 
                 # ── PRE-FILTER GATE (SHORT) ───────────────────────
                 # Block Pump.fun meme coins — no futures market exists
