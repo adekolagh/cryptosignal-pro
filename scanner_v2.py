@@ -46,7 +46,19 @@ TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
 SCAN_INTERVAL_SEC   = 300   # 5 minutes
-SIGNAL_THRESHOLD    = 45    # 45 = filters noise, raise to 55 when market recovers
+SIGNAL_THRESHOLD    = 38    # Base — overridden dynamically each scan by Fear&Greed
+
+def dynamic_threshold(fear_greed_value: int) -> int:
+    """
+    Threshold moves with market conditions automatically.
+    Bear market scores are naturally lower — threshold lowers too.
+    Bull market scores inflate — threshold rises to filter noise.
+    """
+    if fear_greed_value < 25:   return 35   # Extreme fear  (now: F&G=26)
+    elif fear_greed_value < 45: return 40   # Fear
+    elif fear_greed_value < 55: return 50   # Neutral
+    elif fear_greed_value < 75: return 55   # Greed
+    else:                       return 60   # Extreme greed
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
 
@@ -1454,13 +1466,13 @@ class CryptoSignalScannerV2:
         "avalanche": "https://snowtrace.io/token/",
     }
 
-    def _write_signals_json(self, candidates: list):
+    def _write_signals_json(self, candidates: list, threshold: int = None):
         """Write signals to templates/signals.json so dashboard.html can read them."""
         try:
             data = {
                 "scan_count":    self.scan_no,
                 "last_scan":     datetime.utcnow().isoformat() + "Z",
-                "threshold":     SIGNAL_THRESHOLD,
+                "threshold":     threshold if threshold is not None else SIGNAL_THRESHOLD,
                 "max_raw":       self.MAX_RAW,
                 "layer_status": {
                     "nansen":        self._nansen_rot.has_keys(),
@@ -1562,6 +1574,10 @@ class CryptoSignalScannerV2:
                 cg_trending_task, cc_data_task, fg_data_task
             )
 
+            # Dynamic threshold based on current Fear & Greed
+            active_threshold = dynamic_threshold(fg_data.get("value", 50) if fg_data else 50)
+            log.info(f"   Dynamic threshold: {active_threshold}/100 (Fear&Greed={fg_data.get('value',50) if fg_data else '?'})")
+
             log.info(
                 f"   Nansen LONG: {len(sm_tokens)} tokens | "
                 f"SHORT: {len(sm_shorts)} tokens | "
@@ -1646,7 +1662,7 @@ class CryptoSignalScannerV2:
                 raw_total = nm_s_pts + nm_nf_pts + ark_pts + lc_pts + san_pts + cg_pts + ark_i_pts
                 norm = int((raw_total / self.MAX_RAW) * 100)
 
-                if norm < SIGNAL_THRESHOLD:
+                if norm < active_threshold:
                     continue
 
                 sm_count = token.get("nof_traders", token.get("smart_money_count", token.get("nof_smart_money_traders", 0))) or 0
@@ -1738,7 +1754,7 @@ class CryptoSignalScannerV2:
                 max_short = 30 + (20 if self._etherscan_rot.has_keys() else 10) + 10 + 5
                 norm_short = int((raw_short / max_short) * 100)
 
-                if norm_short < SIGNAL_THRESHOLD:
+                if norm_short < active_threshold:
                     continue
 
                 sm_count = token.get("nof_traders", 0) or 0
@@ -1800,7 +1816,7 @@ class CryptoSignalScannerV2:
                 log.info(f"   ✅ {sent} alert(s) sent. Nansen credits used this scan: {credits_used}")
 
             # ── Write signals.json for dashboard ─────────────────────
-            self._write_signals_json(candidates)
+            self._write_signals_json(candidates, active_threshold)
 
 
 # ─────────────────────────────────────────────────────────────────────
