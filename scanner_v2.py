@@ -189,7 +189,6 @@ class TokenSignal:
     arkham_flagged:      bool = False
     arkham_entity_count: int = 0
     signal_type:         str = "LONG"   # LONG = buy signal, SHORT = sell/dump signal
-    # ── Valuation Engine fields ──────────────────────────────────
     liquidity_usd:       float = 0.0
     market_cap_usd:      float = 0.0
     liq_mcap_ratio:      float = 0.0
@@ -413,7 +412,7 @@ class NansenLayer:
     @staticmethod
     def check_price_confirms(price_chg, is_long):
         if is_long:
-            if price_chg > 5.0:    return True,  f"✅ Price +{price_chg:.1f}% confirms buying — BULLISH"
+            if price_chg > 5.0:     return True,  f"✅ Price +{price_chg:.1f}% confirms buying — BULLISH"
             elif price_chg >= -2.0: return True,  f"📊 Price flat ({price_chg:+.1f}%) + inflow = ACCUMULATION — pre-pump likely"
             else:                   return False, f"⚠️ Price {price_chg:+.1f}% falling despite buying — weak LONG"
         else:
@@ -424,13 +423,58 @@ class NansenLayer:
     @staticmethod
     def project_move(flow_pct, flow_class, price_chg, is_long):
         if flow_class == "NOISE": return "Routine rebalancing — no directional pressure"
-        direction = "upward" if is_long else "downward"
-        word = "PUMP" if is_long else "DUMP"
+        word  = "PUMP" if is_long else "DUMP"
         inout = "inflow" if is_long else "outflow"
+        dirn  = "upward" if is_long else "downward"
         if flow_class == "EXTREME" and abs(price_chg) < 2:
-            return f"🚀 PRE-{word}: {flow_pct:.0f}% of liquidity moved, price not reacted — imminent {direction} move"
+            return f"🚀 PRE-{word}: {flow_pct:.0f}% of liquidity moved, price not reacted — imminent {dirn} move"
         elif flow_class == "MAJOR" and abs(price_chg) < 5:
-            return f"📈 {'ACCUMULATION' if is_long else 'DISTRIBUTION'}: {flow_pct:.0f}% liquidity {inout} — {direction} move expected 1-3 days"
+            return f"📈 {'ACCUMULATION' if is_long else 'DISTRIBUTION'}: {flow_pct:.0f}% liquidity {inout} — {dirn} move expected 1-3 days"
+        elif flow_class == "SIGNIFICANT":
+            return f"🔶 {'Buying' if is_long else 'Selling'} pressure: {flow_pct:.0f}% of liquidity — watch for breakout"
+        else:
+            return f"📊 {flow_pct:.0f}% {inout} — monitor, insufficient for major move yet"
+
+
+    @staticmethod
+    def classify_flow(flow_pct):
+        if flow_pct < 5.0:    return ("NOISE",       "⚪")
+        elif flow_pct < 15.0: return ("WATCH",       "🔶")
+        elif flow_pct < 30.0: return ("SIGNIFICANT", "🟡")
+        elif flow_pct < 50.0: return ("MAJOR",       "🔴")
+        else:                 return ("EXTREME",     "🚨")
+
+    @staticmethod
+    def classify_liq_health(liquidity, market_cap):
+        if market_cap <= 0: return ("UNKNOWN", "❓")
+        r = (liquidity / market_cap) * 100
+        if r < 0.1:   return ("ULTRA-THIN", "🚨")
+        elif r < 0.5: return ("THIN",       "⚠️")
+        elif r < 2.0: return ("MODERATE",   "🔶")
+        elif r < 10:  return ("HEALTHY",    "✅")
+        else:         return ("DEEP",       "💎")
+
+    @staticmethod
+    def check_price_confirms(price_chg, is_long):
+        if is_long:
+            if price_chg > 5.0:     return True,  f"✅ Price +{price_chg:.1f}% confirms buying — BULLISH"
+            elif price_chg >= -2.0: return True,  f"📊 Price flat ({price_chg:+.1f}%) + inflow = ACCUMULATION — pre-pump likely"
+            else:                   return False, f"⚠️ Price {price_chg:+.1f}% falling despite buying — weak LONG"
+        else:
+            if price_chg < -5.0:   return True,  f"✅ Price {price_chg:.1f}% confirms selling — BEARISH"
+            elif price_chg <= 2.0: return True,  f"📊 Price flat ({price_chg:+.1f}%) + outflow = DISTRIBUTION — pre-dump likely"
+            else:                  return False, f"🚫 Price +{price_chg:.1f}% rising despite selling — SHORT BLOCKED"
+
+    @staticmethod
+    def project_move(flow_pct, flow_class, price_chg, is_long):
+        if flow_class == "NOISE": return "Routine rebalancing — no directional pressure"
+        word  = "PUMP" if is_long else "DUMP"
+        inout = "inflow" if is_long else "outflow"
+        dirn  = "upward" if is_long else "downward"
+        if flow_class == "EXTREME" and abs(price_chg) < 2:
+            return f"🚀 PRE-{word}: {flow_pct:.0f}% of liquidity moved, price not reacted — imminent {dirn} move"
+        elif flow_class == "MAJOR" and abs(price_chg) < 5:
+            return f"📈 {'ACCUMULATION' if is_long else 'DISTRIBUTION'}: {flow_pct:.0f}% liquidity {inout} — {dirn} move expected 1-3 days"
         elif flow_class == "SIGNIFICANT":
             return f"🔶 {'Buying' if is_long else 'Selling'} pressure: {flow_pct:.0f}% of liquidity — watch for breakout"
         else:
@@ -438,9 +482,10 @@ class NansenLayer:
 
     def score_short(self, token: dict) -> tuple:
         """
-        SHORT scoring with liquidity-valuation engine.
-        BLOCKS if: price rising (buyers absorbing sellers)
-        BLOCKS if: flow < 5% of liquidity (noise)
+        SHORT scoring -- liquidity-valuation based.
+        BLOCKS signal if: price rising (buyers absorbing sellers)
+        BLOCKS signal if: flow < 5% of liquidity (noise)
+        Returns: (pts, notes, valuation_dict)
         """
         pts = 0
         notes = []
@@ -453,61 +498,67 @@ class NansenLayer:
         price_chg  = (token.get("price_change", 0) or 0) * 100
         outflow    = abs(netflow) if netflow < 0 else sell_vol
 
-        flow_pct  = (outflow / liquidity) * 100 if liquidity > 0 else 0
+        flow_pct   = (outflow / liquidity) * 100 if liquidity > 0 else 0
         flow_class, flow_emoji = self.classify_flow(flow_pct)
-        liq_class, liq_emoji  = self.classify_liq_health(liquidity, market_cap)
-        liq_ratio = (liquidity / market_cap * 100) if market_cap > 0 else 0
-        price_ok, price_note  = self.check_price_confirms(price_chg, is_long=False)
+        liq_class,  liq_emoji  = self.classify_liq_health(liquidity, market_cap)
+        liq_ratio  = (liquidity / market_cap * 100) if market_cap > 0 else 0
+        price_ok, price_note = self.check_price_confirms(price_chg, is_long=False)
         projection = self.project_move(flow_pct, flow_class, price_chg, is_long=False)
 
         valuation = {
-            "liquidity_usd": liquidity, "market_cap_usd": market_cap,
-            "liq_mcap_ratio": liq_ratio, "liq_classification": liq_class,
-            "flow_usd": outflow, "flow_pct": flow_pct,
-            "flow_classification": flow_class, "price_change_24h": price_chg,
-            "price_confirmed": price_ok, "projection": projection,
+            "liquidity_usd":       liquidity,
+            "market_cap_usd":      market_cap,
+            "liq_mcap_ratio":      liq_ratio,
+            "liq_classification":  liq_class,
+            "flow_usd":            outflow,
+            "flow_pct":            flow_pct,
+            "flow_classification": flow_class,
+            "price_change_24h":    price_chg,
+            "price_confirmed":     price_ok,
+            "projection":          projection,
         }
 
-        # HARD BLOCK 1 — price rising, buyers absorbing sellers
+        # HARD BLOCK 1: price rising means buyers absorbing sellers
         if not price_ok and price_chg > 2.0:
-            notes.append(f"🚫 SHORT BLOCKED — Price +{price_chg:.1f}% rising despite {flow_pct:.1f}% outflow")
-            notes.append(f"📊 Buyers stronger than sellers — do not short")
-            notes.append(f"💡 {projection}")
+            notes.append(f"SHORT BLOCKED [Valuation] Price +{price_chg:.1f}% rising -- buyers absorbing {flow_pct:.1f}% outflow")
+            notes.append(f"[Projection] {projection}")
             return 0, notes, valuation
 
-        # HARD BLOCK 2 — noise level selling
+        # HARD BLOCK 2: noise-level selling
         if flow_class == "NOISE":
-            notes.append(f"⚪ SHORT BLOCKED — Flow {flow_pct:.1f}% of liquidity is NOISE")
-            notes.append(f"💡 {projection}")
+            notes.append(f"SHORT BLOCKED [Valuation] Flow {flow_pct:.1f}% of liquidity -- NOISE not a real dump")
+            notes.append(f"[Projection] {projection}")
             return 0, notes, valuation
 
-        # Flow impact (0-15 pts)
+        # Flow impact score (0-15 pts)
         if flow_class == "EXTREME":
-            pts += 15; notes.append(f"🚨 [Valuation] Outflow {flow_pct:.1f}% of liquidity — EXTREME")
+            pts += 15; notes.append(f"EXTREME [Valuation] Outflow {flow_pct:.1f}% of liquidity")
         elif flow_class == "MAJOR":
-            pts += 12; notes.append(f"🔴 [Valuation] Outflow {flow_pct:.1f}% of liquidity — MAJOR")
+            pts += 12; notes.append(f"MAJOR [Valuation] Outflow {flow_pct:.1f}% of liquidity")
         elif flow_class == "SIGNIFICANT":
-            pts += 8;  notes.append(f"🟡 [Valuation] Outflow {flow_pct:.1f}% of liquidity — SIGNIFICANT")
+            pts += 8;  notes.append(f"SIGNIFICANT [Valuation] Outflow {flow_pct:.1f}% of liquidity")
         elif flow_class == "WATCH":
-            pts += 4;  notes.append(f"🔶 [Valuation] Outflow {flow_pct:.1f}% of liquidity — WATCH")
+            pts += 4;  notes.append(f"WATCH [Valuation] Outflow {flow_pct:.1f}% of liquidity")
 
         # SM wallet count (0-10 pts)
         if sm_count >= 10:
-            pts += 10; notes.append(f"📉 [Nansen] {sm_count} SM wallets SELLING — coordinated exit")
+            pts += 10; notes.append(f"[Nansen] {sm_count} SM wallets SELLING -- coordinated exit")
         elif sm_count >= 5:
-            pts += 7;  notes.append(f"📉 [Nansen] {sm_count} SM wallets selling")
+            pts += 7;  notes.append(f"[Nansen] {sm_count} SM wallets selling")
         elif sm_count >= 2:
-            pts += 4;  notes.append(f"⚠️ [Nansen] {sm_count} SM wallets selling")
+            pts += 4;  notes.append(f"[Nansen] {sm_count} SM wallets selling")
         elif sm_count >= 1:
-            pts += 2;  notes.append(f"📊 [Nansen] {sm_count} SM wallet selling")
+            pts += 2;  notes.append(f"[Nansen] {sm_count} SM wallet selling")
 
         # Price confirmation
         notes.append(price_note)
-        if price_ok: pts += 3
+        pts = pts + 3 if price_ok else pts
 
-        notes.append(f"💡 [Valuation] Liq ${liquidity:,.0f} | MCap ${market_cap:,.0f} | Ratio {liq_ratio:.2f}% | {liq_class}")
-        notes.append(f"🔮 [Projection] {projection}")
+        notes.append(f"[Valuation] Liq ${liquidity:,.0f} | MCap ${market_cap:,.0f} | Ratio {liq_ratio:.2f}%")
+        notes.append(f"[Projection] {projection}")
+
         return min(pts, 30), notes, valuation
+
 
     def score_screener(self, token: dict) -> tuple:
         """
@@ -515,7 +566,7 @@ class NansenLayer:
         All flows as percentage of current liquidity.
         Returns: (pts, notes, valuation_dict)
         """
-        pts = 0
+        pts   = 0
         notes = []
 
         sm_count   = token.get("nof_traders", 0) or 0
@@ -527,53 +578,57 @@ class NansenLayer:
         age_days   = token.get("token_age_days", 0) or 0
         price_chg  = (token.get("price_change", 0) or 0) * 100
 
-        flow_usd  = abs(netflow) if netflow != 0 else max(buy_vol, sell_vol)
-        flow_pct  = (flow_usd / liquidity) * 100 if liquidity > 0 else 0
+        flow_usd   = abs(netflow) if netflow != 0 else max(buy_vol, sell_vol)
+        flow_pct   = (flow_usd / liquidity) * 100 if liquidity > 0 else 0
         flow_class, flow_emoji = self.classify_flow(flow_pct)
-        liq_class, liq_emoji  = self.classify_liq_health(liquidity, market_cap)
-        liq_ratio = (liquidity / market_cap * 100) if market_cap > 0 else 0
-        is_long   = netflow >= 0
+        liq_class,  liq_emoji  = self.classify_liq_health(liquidity, market_cap)
+        liq_ratio  = (liquidity / market_cap * 100) if market_cap > 0 else 0
+        is_long    = netflow >= 0
         price_ok, price_note = self.check_price_confirms(price_chg, is_long)
         projection = self.project_move(flow_pct, flow_class, price_chg, is_long)
 
         valuation = {
-            "liquidity_usd": liquidity, "market_cap_usd": market_cap,
-            "liq_mcap_ratio": liq_ratio, "liq_classification": liq_class,
-            "flow_usd": flow_usd, "flow_pct": flow_pct,
-            "flow_classification": flow_class, "price_change_24h": price_chg,
-            "price_confirmed": price_ok, "projection": projection,
-            "is_long": is_long,
+            "liquidity_usd":       liquidity,
+            "market_cap_usd":      market_cap,
+            "liq_mcap_ratio":      liq_ratio,
+            "liq_classification":  liq_class,
+            "flow_usd":            flow_usd,
+            "flow_pct":            flow_pct,
+            "flow_classification": flow_class,
+            "price_change_24h":    price_chg,
+            "price_confirmed":     price_ok,
+            "projection":          projection,
         }
 
         # A. Flow impact as % of liquidity (0-15 pts)
         if flow_class == "EXTREME":
-            pts += 15; notes.append(f"🚨 [Valuation] Flow {flow_pct:.1f}% of liquidity — EXTREME")
+            pts += 15; notes.append(f"EXTREME [Valuation] Flow: {flow_pct:.1f}% of liquidity")
         elif flow_class == "MAJOR":
-            pts += 12; notes.append(f"🔴 [Valuation] Flow {flow_pct:.1f}% of liquidity — MAJOR")
+            pts += 12; notes.append(f"MAJOR [Valuation] Flow: {flow_pct:.1f}% of liquidity")
         elif flow_class == "SIGNIFICANT":
-            pts += 8;  notes.append(f"🟡 [Valuation] Flow {flow_pct:.1f}% of liquidity — SIGNIFICANT")
+            pts += 8;  notes.append(f"SIGNIFICANT [Valuation] Flow: {flow_pct:.1f}% of liquidity")
         elif flow_class == "WATCH":
-            pts += 4;  notes.append(f"🔶 [Valuation] Flow {flow_pct:.1f}% of liquidity — WATCH")
+            pts += 4;  notes.append(f"WATCH [Valuation] Flow: {flow_pct:.1f}% of liquidity")
         else:
-            notes.append(f"⚪ [Valuation] Flow {flow_pct:.1f}% of liquidity — NOISE")
+            notes.append(f"NOISE [Valuation] Flow: {flow_pct:.1f}% -- routine rebalancing")
 
-        # B. Market health context (0-5 pts)
+        # B. Market health (0-5 pts)
         if liq_class in ("THIN", "ULTRA-THIN"):
-            pts += 5; notes.append(f"{liq_emoji} [Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap — signals amplified")
+            pts += 5; notes.append(f"[Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap -- signals amplified")
         elif liq_class == "MODERATE":
-            pts += 3; notes.append(f"{liq_emoji} [Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap")
+            pts += 3; notes.append(f"[Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap")
         else:
-            pts += 2; notes.append(f"{liq_emoji} [Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap")
+            pts += 2; notes.append(f"[Valuation] {liq_class} market {liq_ratio:.2f}% liq/mcap")
 
         # C. SM wallet count (0-8 pts)
         if sm_count >= 10:
-            pts += 8; notes.append(f"✅ [Nansen] {sm_count} SM wallets — HIGH conviction")
+            pts += 8; notes.append(f"[Nansen] {sm_count} SM wallets -- HIGH conviction")
         elif sm_count >= 5:
-            pts += 6; notes.append(f"✅ [Nansen] {sm_count} SM wallets — GOOD conviction")
+            pts += 6; notes.append(f"[Nansen] {sm_count} SM wallets -- GOOD conviction")
         elif sm_count >= 2:
-            pts += 3; notes.append(f"🔶 [Nansen] {sm_count} SM wallets")
+            pts += 3; notes.append(f"[Nansen] {sm_count} SM wallets")
         elif sm_count >= 1:
-            pts += 1; notes.append(f"📊 [Nansen] {sm_count} SM wallet")
+            pts += 1; notes.append(f"[Nansen] {sm_count} SM wallet")
 
         # D. Price confirmation (+2 or -10)
         notes.append(price_note)
@@ -581,14 +636,16 @@ class NansenLayer:
 
         # E. Token age (0-2 pts)
         if age_days >= 365:
-            pts += 2; notes.append(f"✅ [Nansen] Token age {int(age_days)}d — established")
+            pts += 2; notes.append(f"[Nansen] Token age: {int(age_days)}d established")
         elif age_days >= 90:
-            pts += 1; notes.append(f"📊 [Nansen] Token age {int(age_days)}d — maturing")
+            pts += 1; notes.append(f"[Nansen] Token age: {int(age_days)}d maturing")
         elif 0 < age_days < 30:
-            pts = max(0, pts - 2); notes.append(f"⚠️ [Nansen] Token age {int(age_days)}d — very new")
+            pts = max(0, pts - 2); notes.append(f"[Nansen] Token age: {int(age_days)}d very new")
 
-        notes.append(f"🔮 [Projection] {projection}")
+        notes.append(f"[Projection] {projection}")
         return min(pts, 30), notes, valuation
+
+
     def score_netflow(self, netflow_data: dict) -> tuple[int, list, float]:
         """Score based on Smart Money netflow direction. Max 20 pts."""
         if not netflow_data:
@@ -1205,90 +1262,119 @@ class TelegramAlerter:
         return "⚪ LOW"
 
     def build_message(self, sig: TokenSignal) -> str:
-        filled = sig.score // 10
-        bar = "█" * filled + "░" * (10 - filled)
-        conf = self._confidence_label(sig.score)
-        risk_e = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🔴"}.get(sig.risk, "🟡")
+        """
+        Telegram alert — built around the valuation model.
+        Shows liquidity impact %, pattern classification,
+        price confirmation and forward projection clearly.
+        """
         is_short = sig.signal_type == "SHORT"
+        filled   = sig.score // 10
+        bar      = "█" * filled + "░" * (10 - filled)
+        risk_e   = {"LOW": "🟢", "MEDIUM": "🟡", "HIGH": "🔴"}.get(sig.risk, "🟡")
+
+        # ── Flow classification labels ────────────────────────────────
+        flow_cls   = sig.flow_classification or "NOISE"
+        flow_emoji = {"NOISE":"⚪","WATCH":"🔶","SIGNIFICANT":"🟡","MAJOR":"🔴","EXTREME":"🚨"}.get(flow_cls,"⚪")
+        flow_pct   = sig.flow_impact_pct or 0
+        liq        = sig.liquidity_usd or 0
+        mcap       = sig.market_cap_usd or 0
+        liq_ratio  = sig.liq_mcap_ratio or 0
+        price_chg  = sig.price_change_24h or 0
+        confirmed  = sig.price_confirmed
+        projection = sig.projection or ""
+
+        liq_str  = f"${liq/1e6:.2f}M" if liq >= 1e6 else f"${liq/1e3:.0f}K"
+        mcap_str = f"${mcap/1e6:.1f}M" if mcap >= 1e6 else f"${mcap/1e3:.0f}K"
+        flow_usd = liq * flow_pct / 100
+        flow_str = f"${flow_usd/1e6:.2f}M" if flow_usd >= 1e6 else f"${flow_usd/1e3:.0f}K"
 
         # ── Header ────────────────────────────────────────────────────
         if is_short:
-            msg  = f"📉 *SHORT SIGNAL — SELL ${sig.symbol}* 📉\n\n"
-            msg += f"_Smart Money is EXITING this token — short opportunity_\n\n"
+            header = f"📉 *SHORT — ${sig.symbol}* | Score `{sig.score}/100` {bar}"
+            subhead = f"_SM wallets distributing — selling pressure detected_"
         else:
-            msg  = f"🚨 *LONG SIGNAL — BUY ${sig.symbol}* 🚨\n\n"
-        msg += f"🪙 *{sig.name}* (`${sig.symbol}`) | Chain: `{sig.chain.upper()}`\n"
-        msg += f"💲 Price: `${sig.price:,.6g}`\n"
-        msg += f"📊 Score: `{bar}` *{sig.score}/100*\n"
-        msg += f"🎯 Confidence: {conf}\n"
-        msg += f"⏱ Hold: `{sig.timeframe}`\n"
-        msg += f"{risk_e} Risk: `{sig.risk}`\n"
+            header = f"🚀 *LONG — ${sig.symbol}* | Score `{sig.score}/100` {bar}"
+            subhead = f"_SM wallets accumulating — buying pressure detected_"
 
-        # ── Token Identity (contract + links) ─────────────────────────
-        msg += "\n━━ *TOKEN IDENTITY* ━━\n"
+        # ── Valuation block ───────────────────────────────────────────
+        confirm_txt = "✅ CONFIRMED" if confirmed else "⚠️ UNCONFIRMED"
+        price_dir   = f"+{price_chg:.1f}%" if price_chg >= 0 else f"{price_chg:.1f}%"
 
-        # Contract address — full for copy-paste, shortened for display
+        valuation_block = f"""
+━━ *VALUATION ANALYSIS* ━━
+{flow_emoji} *Flow Impact:* `{flow_pct:.1f}%` of liquidity `({flow_str})` — *{flow_cls}*
+💧 *Liquidity:* `{liq_str}` | MCap `{mcap_str}` | Ratio `{liq_ratio:.2f}%`
+📈 *24h Price:* `{price_dir}` — {confirm_txt}
+🔮 *Pattern:* _{projection}_"""
+
+        # ── Token identity ────────────────────────────────────────────
+        addr_block = ""
         if sig.token_address:
             addr = sig.token_address
-            short = addr[:6] + "..." + addr[-4:] if len(addr) > 12 else addr
-            msg += f"📋 Contract: `{addr}`\n"
-            msg += f"   _{short} — copy above to verify_\n"
-        else:
-            msg += f"📋 Contract: _Not available (large-cap native token)_\n"
-
-        # CoinGecko link for research
+            short_addr = addr[:8] + "..." + addr[-6:]
+            addr_block = f"\n📋 *Contract:* `{addr}`"
+        links = ""
         if sig.coingecko_url:
-            msg += f"🦎 CoinGecko: {sig.coingecko_url}\n"
-        else:
-            msg += f"🦎 CoinGecko: https://www.coingecko.com/en/search?query={sig.symbol}\n"
-
-        # Block explorer link
+            links += f"\n🦎 [CoinGecko]({sig.coingecko_url})"
         if sig.explorer_url:
-            msg += f"🔍 Explorer: {sig.explorer_url}\n"
+            links += f" | 🔍 [Explorer]({sig.explorer_url})"
 
-        # ── Smart Money data ──────────────────────────────────────────
-        if sig.smart_money_buyers > 0 or sig.sm_netflow_usd > 0:
-            msg += "\n━━ *SMART MONEY* ━━\n"
-            if sig.smart_money_buyers > 0:
-                msg += f"🐋 Wallets buying: `{sig.smart_money_buyers}`\n"
-            if sig.sm_netflow_usd > 0:
-                msg += f"💰 Net inflow: `+${sig.sm_netflow_usd:,.0f}`\n"
-            if sig.arkham_entity_count > 0:
-                msg += f"🏛 Known entities: `{sig.arkham_entity_count}` accumulating\n"
+        # ── Smart Money block ─────────────────────────────────────────
+        sm_wallets = sig.smart_money_buyers or 0
+        netflow    = sig.sm_netflow_usd or 0
+        if is_short:
+            sm_action = f"🐋 *{sm_wallets} SM wallet{'s' if sm_wallets!=1 else ''}* SELLING"
+            sm_flow   = f"📤 *Outflow:* `${abs(netflow):,.0f}` in 24h"
+        else:
+            sm_action = f"🐋 *{sm_wallets} SM wallet{'s' if sm_wallets!=1 else ''}* BUYING"
+            sm_flow   = f"📥 *Inflow:* `+${netflow:,.0f}` in 24h"
 
-        # ── Signal breakdown ──────────────────────────────────────────
-        msg += "\n━━ *SIGNAL BREAKDOWN* ━━\n"
-        for note in sig.breakdown:
-            msg += f"{note}\n"
-
-        if sig.warnings:
-            msg += "\n⚠️ *WARNINGS*\n"
-            for w in sig.warnings:
-                msg += f"{w}\n"
+        sm_block = f"""
+━━ *SMART MONEY* ━━
+{sm_action}
+{sm_flow}"""
 
         # ── Trade levels ──────────────────────────────────────────────
         if is_short:
-            msg += f"""
+            t1_pct = round((sig.target_1/sig.entry - 1)*100, 1) if sig.entry else -8
+            t2_pct = round((sig.target_2/sig.entry - 1)*100, 1) if sig.entry else -15
+            sl_pct = round((sig.stop_loss/sig.entry - 1)*100, 1) if sig.entry else 3
+            trade_block = f"""
 ━━ *SHORT TRADE LEVELS* ━━
-📤 Entry (Short):  `${sig.entry:,.6g}` ← sell/short here
-🎯 Target 1:       `${sig.target_1:,.6g}` *(-8%)* ← take partial profit
-🎯 Target 2:       `${sig.target_2:,.6g}` *(-15%)* ← full target
-🛑 Stop Loss:      `${sig.stop_loss:,.6g}` *(+3%)* ← cut loss if price goes up
-
-_Trade on: Binance Futures, Bybit, OKX, Hyperliquid_
-🕐 _{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}_
-_⚠️ AI signal only. Futures trading carries high risk. DYOR._"""
+📤 *Entry:*     `${sig.entry:,.6g}` — short here
+🎯 *Target 1:*  `${sig.target_1:,.6g}` `({t1_pct:.1f}%)` — partial profit
+🎯 *Target 2:*  `${sig.target_2:,.6g}` `({t2_pct:.1f}%)` — full target
+🛑 *Stop Loss:* `${sig.stop_loss:,.6g}` `(+{sl_pct:.1f}%)` — exit if wrong
+⏱ *Window:* `{sig.timeframe}`
+{risk_e} *Risk:* `{sig.risk}` — use trailing stop
+_Platforms: Binance Futures · Bybit Perps · OKX · Hyperliquid_"""
         else:
-            msg += f"""
+            t1_pct = round((sig.target_1/sig.entry - 1)*100, 1) if sig.entry else 7
+            t2_pct = round((sig.target_2/sig.entry - 1)*100, 1) if sig.entry else 15
+            sl_pct = round((sig.stop_loss/sig.entry - 1)*100, 1) if sig.entry else -3
+            trade_block = f"""
 ━━ *LONG TRADE LEVELS* ━━
-📥 Entry:     `${sig.entry:,.6g}`
-🏆 Target 1:  `${sig.target_1:,.6g}` *(+5%)*
-🏆 Target 2:  `${sig.target_2:,.6g}` *(+10%)*
-🛑 Stop Loss: `${sig.stop_loss:,.6g}` *(-3%)*
+📥 *Entry:*     `${sig.entry:,.6g}` — buy here
+🏆 *Target 1:*  `${sig.target_1:,.6g}` `(+{t1_pct:.1f}%)` — partial profit
+🏆 *Target 2:*  `${sig.target_2:,.6g}` `(+{t2_pct:.1f}%)` — full target
+🛑 *Stop Loss:* `${sig.stop_loss:,.6g}` `({sl_pct:.1f}%)` — exit if wrong
+⏱ *Window:* `{sig.timeframe}`
+{risk_e} *Risk:* `{sig.risk}` — use trailing stop
+_Verify contract before buying. DYOR._"""
 
-_Always verify the contract address before trading._
-🕐 _{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}_
-_⚠️ AI signal only. DYOR. Never risk more than you can afford._"""
+        # ── Chain ─────────────────────────────────────────────────────
+        chain_str = f"⛓ Chain: `{sig.chain.upper()}` | `${sig.symbol}`"
+
+        # ── Assemble ──────────────────────────────────────────────────
+        msg = f"""{header}
+{subhead}
+{chain_str}{addr_block}{links}
+{valuation_block}
+{sm_block}
+{trade_block}
+
+🕐 _{datetime.utcnow().strftime('%d %b %Y %H:%M UTC')}_
+_⚠️ Signal only. Not financial advice. DYOR._"""
 
         return msg
 
@@ -1408,14 +1494,14 @@ class CryptoSignalScannerV2:
                     "nansen_netflow":  sig.sm_netflow_usd,
                     "signal_type":     sig.signal_type,
                     "timestamp":       datetime.utcnow().isoformat() + "Z",
-                    "liquidity_usd":       sig.liquidity_usd,
-                    "market_cap_usd":      sig.market_cap_usd,
-                    "liq_mcap_ratio":      sig.liq_mcap_ratio,
-                    "flow_impact_pct":     sig.flow_impact_pct,
-                    "flow_classification": sig.flow_classification,
-                    "price_change_24h":    sig.price_change_24h,
-                    "price_confirmed":     sig.price_confirmed,
-                    "projection":          sig.projection,
+                    "liquidity_usd":         sig.liquidity_usd,
+                    "market_cap_usd":        sig.market_cap_usd,
+                    "liq_mcap_ratio":        sig.liq_mcap_ratio,
+                    "flow_impact_pct":       sig.flow_impact_pct,
+                    "flow_classification":   sig.flow_classification,
+                    "price_change_24h":      sig.price_change_24h,
+                    "price_confirmed":       sig.price_confirmed,
+                    "projection":            sig.projection,
                 })
             SIGNALS_JSON.parent.mkdir(parents=True, exist_ok=True)
             SIGNALS_JSON.write_text(json.dumps(data, indent=2))
@@ -1498,27 +1584,6 @@ class CryptoSignalScannerV2:
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price", token.get("price_usd", 0)) or 0
 
-                # ── PRE-FILTER GATE (LONG) ────────────────────────
-                # Rule 1: SM must be net buying
-                _netflow   = token.get("netflow", 0) or 0
-                if _netflow < 0:
-                    log.debug(f"   LONG {sym} rejected — SM net selling (netflow={_netflow:,.0f})")
-                    continue
-                # Rule 2: flow must be > 5% of liquidity (not noise)
-                _liquidity = token.get("liquidity", 0) or 1
-                _buy_vol   = token.get("buy_volume", 0) or 0
-                _flow_usd  = abs(_netflow) if _netflow != 0 else _buy_vol
-                _flow_pct  = (_flow_usd / _liquidity) * 100
-                if _flow_pct < 5.0:
-                    log.debug(f"   LONG {sym} rejected — flow {_flow_pct:.1f}% of liquidity is noise")
-                    continue
-                # Rule 3: price must not be falling against buying
-                _price_chg = (token.get("price_change", 0) or 0) * 100
-                if _price_chg < -5.0:
-                    log.debug(f"   LONG {sym} rejected — price {_price_chg:.1f}% falling despite buying")
-                    continue
-                # ── END PRE-FILTER ────────────────────────────────
-
                 # Fill price from CoinGecko if Nansen didn't return it
                 cg_coin  = cg_markets.get(sym, {})
                 price    = price_raw or (cg_coin.get("current_price") or 0)
@@ -1527,17 +1592,6 @@ class CryptoSignalScannerV2:
 
                 # ── Score Layer 1: Nansen screener ───────────────────
                 nm_s_pts, nm_s_notes, token_valuation = self.nansen.score_screener(token)
-
-                # HARD BLOCK — skip tokens where SM is net selling
-                # netflow < 0 means SM is selling — wrong direction for LONG
-                tok_netflow = token.get("netflow", 0) or 0
-                if tok_netflow < 0:
-                    log.debug(f"   LONG {sym} blocked — negative netflow (SM selling)")
-                    continue
-                # Skip noise level flows
-                if token_valuation.get("flow_classification") == "NOISE":
-                    log.debug(f"   LONG {sym} blocked — noise level flow")
-                    continue
 
                 # ── Score Layer 2: Nansen Smart Money netflow ─────────
                 nm_nf_pts, nm_nf_notes, net_flow = 0, [], 0.0
@@ -1611,6 +1665,14 @@ class CryptoSignalScannerV2:
                     entry=price, target_1=t1, target_2=t2, stop_loss=sl,
                     risk=risk, smart_money_buyers=sm_count,
                     sm_netflow_usd=net_flow, arkham_entity_count=entity_count,
+                    liquidity_usd=token_valuation.get("liquidity_usd", 0),
+                    market_cap_usd=token_valuation.get("market_cap_usd", 0),
+                    liq_mcap_ratio=token_valuation.get("liq_mcap_ratio", 0),
+                    flow_impact_pct=token_valuation.get("flow_pct", 0),
+                    flow_classification=token_valuation.get("flow_classification", "NOISE"),
+                    price_change_24h=token_valuation.get("price_change_24h", 0),
+                    price_confirmed=token_valuation.get("price_confirmed", False),
+                    projection=token_valuation.get("projection", ""),
                 ))
 
             # ── Process SHORT signals ────────────────────────────────
@@ -1620,37 +1682,6 @@ class CryptoSignalScannerV2:
                 chain     = token.get("chain", "ethereum")
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price_usd", token.get("price", 0)) or 0
-
-                # ── PRE-FILTER GATE (SHORT) ───────────────────────
-                # Rule 0: Skip Pump.fun meme coins — no futures market
-                _addr = token.get("token_address", token.get("address", "")) or ""
-                if _addr.lower().endswith("pump"):
-                    log.debug(f"   SHORT {sym} rejected — Pump.fun token, no futures market")
-                    continue
-                # Rule 0b: Skip Solana tokens — limited futures availability
-                _chain_s = token.get("chain", "")
-                if _chain_s.lower() == "solana":
-                    log.debug(f"   SHORT {sym} rejected — Solana token, no perps market")
-                    continue
-                # Rule 1: SM must be net selling
-                _netflow   = token.get("netflow", 0) or 0
-                if _netflow >= 0:
-                    log.debug(f"   SHORT {sym} rejected — SM net buying (netflow={_netflow:,.0f})")
-                    continue
-                # Rule 2: flow must be > 5% of liquidity (not noise)
-                _liquidity = token.get("liquidity", 0) or 1
-                _sell_vol  = token.get("sell_volume", 0) or 0
-                _flow_usd  = abs(_netflow) if _netflow != 0 else _sell_vol
-                _flow_pct  = (_flow_usd / _liquidity) * 100
-                if _flow_pct < 5.0:
-                    log.debug(f"   SHORT {sym} rejected — flow {_flow_pct:.1f}% of liquidity is noise")
-                    continue
-                # Rule 3: price must not be rising against selling
-                _price_chg = (token.get("price_change", 0) or 0) * 100
-                if _price_chg > 2.0:
-                    log.debug(f"   SHORT {sym} rejected — price +{_price_chg:.1f}% rising despite selling")
-                    continue
-                # ── END PRE-FILTER ────────────────────────────────
 
                 cg_coin   = cg_markets.get(sym, {})
                 price     = price_raw or (cg_coin.get("current_price") or 0)
@@ -1664,11 +1695,6 @@ class CryptoSignalScannerV2:
 
                 # Score the short signal
                 sh_pts, sh_notes, token_valuation = self.nansen.score_short(token)
-
-                # HARD BLOCK — if valuation engine blocked the signal, skip entirely
-                if sh_pts == 0 and any("BLOCKED" in n for n in sh_notes):
-                    log.debug(f"   SHORT {sym} blocked by valuation engine")
-                    continue
 
                 # Etherscan safety check (scam tokens should not be shorted either)
                 etherscan_info = await self.arkham.fetch_token_info(session, tok_addr, chain)
