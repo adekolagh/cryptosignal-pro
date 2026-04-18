@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-18T15:49:41.208956Z",
+  "last_scan": "2026-04-18T16:39:59.304670Z",
   "threshold": 40,
   "max_raw": 100,
   "layer_status": {
@@ -16,14 +16,14 @@
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.12842243246097548,
+      "price": 0.12819601262730212,
       "score": 50,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.12842243246097548,
-      "target1": 0.11172751624104867,
-      "target2": 0.10016949731956087,
-      "sl": 0.13484355408402426,
+      "entry": 0.12819601262730212,
+      "target1": 0.11153053098575284,
+      "target2": 0.09999288984929566,
+      "sl": 0.13460581325866725,
       "sm_buyers": 10,
       "sm_netflow": -1486925.5407219944,
       "arkham_entities": 0,
@@ -45,11 +45,11 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca Price flat (-2.0%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
+          "t": "\ud83d\udcca Price flat (-2.2%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
           "cls": "neu"
         },
         {
-          "t": "[Valuation] Liq $5,313,522 | MCap $776,009,515 | Ratio 0.68%",
+          "t": "[Valuation] Liq $5,319,942 | MCap $777,230,979 | Ratio 0.68%",
           "cls": "neu"
         },
         {
@@ -65,96 +65,22 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [CoinGecko] -2.0% in 24h \u2014 slight decline",
+          "t": "\ud83d\udcca [CoinGecko] -3.2% in 24h \u2014 slight decline",
           "cls": "neu"
         }
       ],
       "nansen_traders": 10,
       "nansen_netflow": -1486925.5407219944,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T15:49:41.208993Z",
-      "liquidity_usd": 5313521.764835848,
-      "market_cap_usd": 776009515.0,
-      "liq_mcap_ratio": 0.6847237903823702,
-      "flow_impact_pct": 27.983804462085054,
+      "timestamp": "2026-04-18T16:39:59.304707Z",
+      "liquidity_usd": 5319942.097761409,
+      "market_cap_usd": 777230979.0,
+      "liq_mcap_ratio": 0.6844737589598072,
+      "flow_impact_pct": 27.950032413843022,
       "flow_classification": "SIGNIFICANT",
-      "price_change_24h": -2.0409162710141033,
+      "price_change_24h": -2.213626591319331,
       "price_confirmed": true,
       "projection": "\ud83d\udd36 Selling pressure: 28% of liquidity \u2014 watch for breakout"
-    },
-    {
-      "symbol": "ASTEROID",
-      "name": "ASTEROID",
-      "chain": "ethereum",
-      "price": 4.280654770694454e-05,
-      "score": 40,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 4.280654770694454e-05,
-      "target1": 3.724169650504175e-05,
-      "target2": 3.338910721141674e-05,
-      "sl": 4.494687509229177e-05,
-      "sm_buyers": 6,
-      "sm_netflow": -56404.01492960394,
-      "arkham_entities": 0,
-      "token_address": "0xf280b16ef293d8e534e370794ef26bf312694126",
-      "coingecko_url": "https://www.coingecko.com/en/coins/asteroid-shiba",
-      "explorer_url": "https://etherscan.io/token/0xf280b16ef293d8e534e370794ef26bf312694126",
-      "layers": [
-        "nansen",
-        "etherscan",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "WATCH [Valuation] Outflow 7.4% of liquidity",
-          "cls": "neu"
-        },
-        {
-          "t": "[Nansen] 6 SM wallets selling",
-          "cls": "neu"
-        },
-        {
-          "t": "\u2705 Price -7.0% confirms selling \u2014 BEARISH",
-          "cls": "ok"
-        },
-        {
-          "t": "[Valuation] Liq $766,189 | MCap $17,566,000 | Ratio 4.36%",
-          "cls": "neu"
-        },
-        {
-          "t": "[Projection] \ud83d\udcca 7% outflow \u2014 monitor, insufficient for major move yet",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udd36 [Safety] Contract verification status unknown",
-          "cls": "med"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Safety] No holder data \u2014 token may be very new or illiquid",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 26/100 \u2014 caution shorting in fear market",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcc9 [CoinGecko] -14.8% in 24h \u2014 confirmed downtrend",
-          "cls": "neu"
-        }
-      ],
-      "nansen_traders": 6,
-      "nansen_netflow": -56404.01492960394,
-      "signal_type": "SHORT",
-      "timestamp": "2026-04-18T15:49:41.209009Z",
-      "liquidity_usd": 766188.7908876892,
-      "market_cap_usd": 17566000.0,
-      "liq_mcap_ratio": 4.361771552360749,
-      "flow_impact_pct": 7.361634051609592,
-      "flow_classification": "WATCH",
-      "price_change_24h": -7.048045297747023,
-      "price_confirmed": true,
-      "projection": "\ud83d\udcca 7% outflow \u2014 monitor, insufficient for major move yet"
     }
   ]
 }
