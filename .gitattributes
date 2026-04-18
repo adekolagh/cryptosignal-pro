@@ -1,2 +1,2 @@
 templates/signals.json merge=ours
-templates/signals.json -merge
+templates/signals.json -diff
