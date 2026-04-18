@@ -569,6 +569,19 @@ class NansenLayer:
         notes.append(f"[Valuation] Liq ${liquidity:,.0f} | MCap ${market_cap:,.0f} | Ratio {liq_ratio:.2f}%")
         notes.append(f"[Projection] {projection}")
 
+        # Risk warnings — not blocks, just warnings
+        is_thin = liquidity < 1_000_000
+        is_late = price_chg < -8.0
+        is_new  = (token.get("token_age_days", 999) or 999) < 30
+        if is_thin or is_new:
+            notes.append(f"🔥 THIN/NEW TOKEN — 25% position size. Trailing stop mandatory")
+            notes.append(f"⚡ ${liquidity/1000:.0f}K liquidity — small buys = violent moves")
+        if is_late:
+            notes.append(f"⏰ LATE ENTRY — price already {price_chg:.1f}%. Trailing stop essential")
+        valuation["is_thin"] = is_thin
+        valuation["is_late"] = is_late
+        valuation["is_new"]  = is_new
+
         return min(pts, 30), notes, valuation
 
 
@@ -1383,7 +1396,7 @@ class TelegramAlerter:
 🛑 *Stop Loss:* `${fmt_price(sig.stop_loss)}` `(+{sl_pct:.1f}%)` — exit if wrong
 ⏱ *Window:* `{sig.timeframe}`
 {risk_e} *Risk:* `{sig.risk}` — use trailing stop
-_Platforms: {'Binance Futures · Bybit Perps · OKX · Hyperliquid' if sig.chain.lower() in ('ethereum','arbitrum','bnb','base') and sig.market_cap_usd > 50_000_000 else 'DEX only — check if listed on Bybit/OKX before shorting'}_"""
+_Platforms: {'Binance · Bybit · OKX · KuCoin · MEXC · Gate.io · Hyperliquid' if sig.chain.lower() in ('ethereum','arbitrum','bnb','base') and sig.market_cap_usd > 50_000_000 else 'MEXC · Gate.io · KuCoin list new tokens early — check listing before trading'}_"""
         else:
             t1_pct = round((sig.target_1/sig.entry - 1)*100, 1) if sig.entry else 7
             t2_pct = round((sig.target_2/sig.entry - 1)*100, 1) if sig.entry else 15
@@ -1402,12 +1415,33 @@ _Verify contract before buying. DYOR._"""
         chain_str = f"⛓ Chain: `{sig.chain.upper()}` | `${sig.symbol}`"
 
         # ── Assemble ──────────────────────────────────────────────────
+        # ── Special advice for thin/new tokens ─────────────────
+        is_thin = sig.liquidity_usd < 1_000_000
+        is_new  = getattr(sig, 'token_age_days', 999) < 30 if hasattr(sig, 'token_age_days') else False
+        
+        if is_thin:
+            special_block = f"""
+━━ ⚠️ *THIN LIQUIDITY ALERT* ━━
+💧 Liquidity: only `{liq_str}` — extreme moves possible
+📐 *Position size: 25% of normal maximum*
+🎯 *Use TRAILING STOP — not fixed stop loss*
+   Set trailing stop at 3-5% below highest price
+   This catches the pump AND protects from dump
+🛑 *Initial hard stop: 5% below entry*
+   If price drops 5% immediately — exit, signal failed
+⚡ Why trailing stop works here:
+   Small liquidity = violent pumps possible
+   Trailing stop rides the pump and exits on reversal
+   Fixed stop = gets stopped out before the pump"""
+        else:
+            special_block = ""
+
         late_block = f"\n{late_warning}" if late_entry else ""
         msg = f"""{header}
 {subhead}
 {chain_str}{addr_block}{links}
 {valuation_block}
-{sm_block}{late_block}
+{sm_block}{late_block}{special_block}
 {trade_block}
 
 🕐 _{datetime.utcnow().strftime('%d %b %Y %H:%M UTC')}_
@@ -1793,6 +1827,17 @@ class CryptoSignalScannerV2:
                 if _pchg > 2.0:
                     log.debug(f"   SHORT {sym} rejected — price +{_pchg:.1f}% rising")
                     continue
+                # ── RISK CLASSIFICATION (not a block — a warning) ──
+                # Thin liquidity tokens are HIGH RISK HIGH REWARD
+                # They can pump 500% or dump 80% on tiny volume
+                # Trade with: small size + tight SL + trailing stop
+                _is_thin    = _liq < 1_000_000
+                _is_late    = _pchg < -8.0
+                _is_new     = (token.get("token_age_days", 999) or 999) < 30
+                # Store risk flags in token for message building
+                token["_risk_thin"]  = _is_thin
+                token["_risk_late"]  = _is_late
+                token["_risk_new"]   = _is_new
                 # ── END PRE-FILTER ────────────────────────────────
 
                 cg_coin   = cg_markets.get(sym, {})
