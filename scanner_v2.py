@@ -1686,6 +1686,13 @@ class CryptoSignalScannerV2:
                 if price <= 0:
                     continue
 
+                # CONTRACT ADDRESS IS THE ONLY IDENTITY
+                # Symbol/name means nothing — multiple tokens share same name
+                # Always show contract address prominently in every signal
+                if not tok_addr:
+                    log.debug(f"   {sym} skipped — no contract address, cannot verify identity")
+                    continue
+
                 # ── Score Layer 1: Nansen screener ───────────────────
                 nm_s_pts, nm_s_notes, token_valuation = self.nansen.score_screener(token)
 
@@ -1843,6 +1850,11 @@ class CryptoSignalScannerV2:
                 cg_coin   = cg_markets.get(sym, {})
                 price     = price_raw or (cg_coin.get("current_price") or 0)
                 if price <= 0:
+                    continue
+
+                # CONTRACT ADDRESS IS THE ONLY IDENTITY
+                if not tok_addr:
+                    log.debug(f"   SHORT {sym} skipped — no contract address")
                     continue
 
                 # Skip if already in LONG candidates (conflicting signals)
