@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-17T23:56:00.580669Z",
+  "last_scan": "2026-04-18T02:32:13.687184Z",
   "threshold": 45,
   "max_raw": 100,
   "layer_status": {
@@ -16,16 +16,16 @@
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.13065079173901617,
+      "price": 0.13057435241797177,
       "score": 63,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.13065079173901617,
-      "target1": 0.11366618881294406,
-      "target2": 0.10190761755643261,
-      "sl": 0.137183331325967,
+      "entry": 0.13057435241797177,
+      "target1": 0.11359968660363544,
+      "target2": 0.10184799488601799,
+      "sl": 0.13710307003887037,
       "sm_buyers": 11,
-      "sm_netflow": -1529609.7400727558,
+      "sm_netflow": -1520792.4890253549,
       "arkham_entities": 0,
       "token_address": "0x912ce59144191c1204e64559fe8253a0e49e6548",
       "coingecko_url": "https://www.coingecko.com/en/coins/arbitrum",
@@ -41,7 +41,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $1,529,610 \u2014 massive institutional exit",
+          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $1,520,792 \u2014 massive institutional exit",
           "cls": "bad"
         },
         {
@@ -49,29 +49,29 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 21/100 \u2014 caution shorting in fear market",
+          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 26/100 \u2014 caution shorting in fear market",
           "cls": "neu"
         }
       ],
       "nansen_traders": 11,
-      "nansen_netflow": -1529609.7400727558,
+      "nansen_netflow": -1520792.4890253549,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T23:56:00.580704Z"
+      "timestamp": "2026-04-18T02:32:13.687219Z"
     },
     {
       "symbol": "ASTEROID",
       "name": "ASTEROID",
       "chain": "ethereum",
-      "price": 5.389832919071197e-05,
+      "price": 5.947870948137154e-05,
       "score": 49,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 5.389832919071197e-05,
-      "target1": 4.689154639591942e-05,
-      "target2": 4.204069676875534e-05,
-      "sl": 5.659324565024757e-05,
+      "entry": 5.947870948137154e-05,
+      "target1": 5.174647724879324e-05,
+      "target2": 4.6393393395469806e-05,
+      "sl": 6.245264495544012e-05,
       "sm_buyers": 11,
-      "sm_netflow": -147594.14311992624,
+      "sm_netflow": -152913.24154317155,
       "arkham_entities": 0,
       "token_address": "0xf280b16ef293d8e534e370794ef26bf312694126",
       "coingecko_url": "https://www.coingecko.com/en/coins/asteroid-shiba",
@@ -87,7 +87,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $147,594 \u2014 strong selling pressure",
+          "t": "\ud83d\udcc9 [Nansen] SM OUTFLOW: $152,913 \u2014 strong selling pressure",
           "cls": "bad"
         },
         {
@@ -99,14 +99,14 @@
           "cls": "neu"
         },
         {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 21/100 \u2014 caution shorting in fear market",
+          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 26/100 \u2014 caution shorting in fear market",
           "cls": "neu"
         }
       ],
       "nansen_traders": 11,
-      "nansen_netflow": -147594.14311992624,
+      "nansen_netflow": -152913.24154317155,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-17T23:56:00.580718Z"
+      "timestamp": "2026-04-18T02:32:13.687232Z"
     }
   ]
 }
