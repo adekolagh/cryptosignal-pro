@@ -189,6 +189,15 @@ class TokenSignal:
     arkham_flagged:      bool = False
     arkham_entity_count: int = 0
     signal_type:         str = "LONG"   # LONG = buy signal, SHORT = sell/dump signal
+    # ── Valuation Engine fields ──────────────────────────────────
+    liquidity_usd:       float = 0.0
+    market_cap_usd:      float = 0.0
+    liq_mcap_ratio:      float = 0.0
+    flow_impact_pct:     float = 0.0
+    flow_classification: str = "NOISE"
+    price_change_24h:    float = 0.0
+    price_confirmed:     bool = False
+    projection:          str = ""
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -1709,6 +1718,14 @@ class CryptoSignalScannerV2:
                     smart_money_buyers=sm_count,
                     sm_netflow_usd=netflow,
                     arkham_entity_count=0,
+                    liquidity_usd=token_valuation.get("liquidity_usd", 0),
+                    market_cap_usd=token_valuation.get("market_cap_usd", 0),
+                    liq_mcap_ratio=token_valuation.get("liq_mcap_ratio", 0),
+                    flow_impact_pct=token_valuation.get("flow_pct", 0),
+                    flow_classification=token_valuation.get("flow_classification", "NOISE"),
+                    price_change_24h=token_valuation.get("price_change_24h", 0),
+                    price_confirmed=token_valuation.get("price_confirmed", False),
+                    projection=token_valuation.get("projection", ""),
                 ))
 
             # ── Sort + Send ───────────────────────────────────────────
