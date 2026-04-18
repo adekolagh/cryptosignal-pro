@@ -1408,6 +1408,14 @@ class CryptoSignalScannerV2:
                     "nansen_netflow":  sig.sm_netflow_usd,
                     "signal_type":     sig.signal_type,
                     "timestamp":       datetime.utcnow().isoformat() + "Z",
+                    "liquidity_usd":       sig.liquidity_usd,
+                    "market_cap_usd":      sig.market_cap_usd,
+                    "liq_mcap_ratio":      sig.liq_mcap_ratio,
+                    "flow_impact_pct":     sig.flow_impact_pct,
+                    "flow_classification": sig.flow_classification,
+                    "price_change_24h":    sig.price_change_24h,
+                    "price_confirmed":     sig.price_confirmed,
+                    "projection":          sig.projection,
                 })
             SIGNALS_JSON.parent.mkdir(parents=True, exist_ok=True)
             SIGNALS_JSON.write_text(json.dumps(data, indent=2))
@@ -1614,6 +1622,16 @@ class CryptoSignalScannerV2:
                 price_raw = token.get("price_usd", token.get("price", 0)) or 0
 
                 # ── PRE-FILTER GATE (SHORT) ───────────────────────
+                # Rule 0: Skip Pump.fun meme coins — no futures market
+                _addr = token.get("token_address", token.get("address", "")) or ""
+                if _addr.lower().endswith("pump"):
+                    log.debug(f"   SHORT {sym} rejected — Pump.fun token, no futures market")
+                    continue
+                # Rule 0b: Skip Solana tokens — limited futures availability
+                _chain_s = token.get("chain", "")
+                if _chain_s.lower() == "solana":
+                    log.debug(f"   SHORT {sym} rejected — Solana token, no perps market")
+                    continue
                 # Rule 1: SM must be net selling
                 _netflow   = token.get("netflow", 0) or 0
                 if _netflow >= 0:
