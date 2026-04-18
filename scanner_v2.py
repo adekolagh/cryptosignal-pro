@@ -1706,6 +1706,35 @@ class CryptoSignalScannerV2:
                 tok_addr  = token.get("token_address", token.get("address", ""))
                 price_raw = token.get("price_usd", token.get("price", 0)) or 0
 
+                # ── PRE-FILTER GATE (SHORT) ───────────────────────
+                # Block Pump.fun meme coins — no futures market exists
+                if tok_addr and tok_addr.lower().endswith("pump"):
+                    log.debug(f"   SHORT {sym} rejected — Pump.fun token")
+                    continue
+                # Block Solana tokens — no perps market for most
+                if chain.lower() == "solana":
+                    log.debug(f"   SHORT {sym} rejected — Solana, no perps market")
+                    continue
+                # Block if netflow is not negative (SM not selling)
+                _netflow = token.get("netflow", 0) or 0
+                if _netflow >= 0:
+                    log.debug(f"   SHORT {sym} rejected — SM not selling")
+                    continue
+                # Block noise — flow < 5% of liquidity
+                _liq = token.get("liquidity", 0) or 1
+                _sell = token.get("sell_volume", 0) or 0
+                _flow_usd = abs(_netflow) if _netflow < 0 else _sell
+                _flow_pct = (_flow_usd / _liq) * 100
+                if _flow_pct < 5.0:
+                    log.debug(f"   SHORT {sym} rejected — flow {_flow_pct:.1f}% is noise")
+                    continue
+                # Block if price rising against selling
+                _pchg = (token.get("price_change", 0) or 0) * 100
+                if _pchg > 2.0:
+                    log.debug(f"   SHORT {sym} rejected — price +{_pchg:.1f}% rising")
+                    continue
+                # ── END PRE-FILTER ────────────────────────────────
+
                 cg_coin   = cg_markets.get(sym, {})
                 price     = price_raw or (cg_coin.get("current_price") or 0)
                 if price <= 0:
