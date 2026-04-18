@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-18T10:51:25.567553Z",
+  "last_scan": "2026-04-18T11:00:50.342587Z",
   "threshold": 30,
   "max_raw": 100,
   "layer_status": {
@@ -16,14 +16,14 @@
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.12907712456545292,
+      "price": 0.12854171433418085,
       "score": 50,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.12907712456545292,
-      "target1": 0.11229709837194404,
-      "target2": 0.10068015716105329,
-      "sl": 0.13553098079372558,
+      "entry": 0.12854171433418085,
+      "target1": 0.11183129147073734,
+      "target2": 0.10026253718066107,
+      "sl": 0.1349688000508899,
       "sm_buyers": 10,
       "sm_netflow": -1486925.5407219944,
       "arkham_entities": 0,
@@ -37,7 +37,7 @@
       ],
       "breakdown": [
         {
-          "t": "\ud83d\udfe1 [Valuation] Outflow 28.4% of liquidity \u2014 SIGNIFICANT",
+          "t": "\ud83d\udfe1 [Valuation] Outflow 28.3% of liquidity \u2014 SIGNIFICANT",
           "cls": "neu"
         },
         {
@@ -45,11 +45,11 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca Price flat (-1.5%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
+          "t": "\ud83d\udcca Price flat (-1.9%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $5,231,128 | MCap $780,299,566 | Ratio 0.67% | MODERATE",
+          "t": "\ud83d\udca1 [Valuation] Liq $5,261,653 | MCap $778,764,040 | Ratio 0.68% | MODERATE",
           "cls": "neu"
         },
         {
@@ -65,20 +65,20 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [CoinGecko] -1.1% in 24h \u2014 slight decline",
+          "t": "\ud83d\udcca [CoinGecko] -1.5% in 24h \u2014 slight decline",
           "cls": "neu"
         }
       ],
       "nansen_traders": 10,
       "nansen_netflow": -1486925.5407219944,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T10:51:25.567590Z",
-      "liquidity_usd": 5231127.791245965,
-      "market_cap_usd": 780299566.0,
-      "liq_mcap_ratio": 0.6703999360222591,
-      "flow_impact_pct": 28.424569233622833,
+      "timestamp": "2026-04-18T11:00:50.342630Z",
+      "liquidity_usd": 5261653.3880223865,
+      "market_cap_usd": 778764040.0,
+      "liq_mcap_ratio": 0.6756415445200046,
+      "flow_impact_pct": 28.25966347587296,
       "flow_classification": "SIGNIFICANT",
-      "price_change_24h": -1.5415250240939058,
+      "price_change_24h": -1.9499294957229125,
       "price_confirmed": true,
       "projection": "\ud83d\udd36 Selling pressure: 28% of liquidity \u2014 watch for breakout"
     },
@@ -86,16 +86,16 @@
       "symbol": "ASTEROID",
       "name": "ASTEROID",
       "chain": "ethereum",
-      "price": 4.153081016561787e-05,
+      "price": 3.947453471410817e-05,
       "score": 40,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 4.153081016561787e-05,
-      "target1": 3.6131804844087546e-05,
-      "target2": 3.239403192918194e-05,
-      "sl": 4.3607350673898764e-05,
+      "entry": 3.947453471410817e-05,
+      "target1": 3.4342845201274106e-05,
+      "target2": 3.079013707700437e-05,
+      "sl": 4.144826144981358e-05,
       "sm_buyers": 8,
-      "sm_netflow": -80271.16638197607,
+      "sm_netflow": -80269.81975489865,
       "arkham_entities": 0,
       "token_address": "0xf280b16ef293d8e534e370794ef26bf312694126",
       "coingecko_url": "https://www.coingecko.com/en/coins/asteroid-shiba",
@@ -107,7 +107,7 @@
       ],
       "breakdown": [
         {
-          "t": "\ud83d\udd36 [Valuation] Outflow 10.5% of liquidity \u2014 WATCH",
+          "t": "\ud83d\udd36 [Valuation] Outflow 10.6% of liquidity \u2014 WATCH",
           "cls": "med"
         },
         {
@@ -115,15 +115,15 @@
           "cls": "neu"
         },
         {
-          "t": "\u2705 Price -9.8% confirms selling \u2014 BEARISH",
+          "t": "\u2705 Price -14.3% confirms selling \u2014 BEARISH",
           "cls": "ok"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $767,770 | MCap $17,978,632 | Ratio 4.27% | HEALTHY",
+          "t": "\ud83d\udca1 [Valuation] Liq $757,018 | MCap $17,327,377 | Ratio 4.37% | HEALTHY",
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 10% outflow \u2014 monitor, insufficient for major move yet",
+          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 11% outflow \u2014 monitor, insufficient for major move yet",
           "cls": "neu"
         },
         {
@@ -144,30 +144,30 @@
         }
       ],
       "nansen_traders": 8,
-      "nansen_netflow": -80271.16638197607,
+      "nansen_netflow": -80269.81975489865,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T10:51:25.567619Z",
-      "liquidity_usd": 767770.2691879096,
-      "market_cap_usd": 17978632.0,
-      "liq_mcap_ratio": 4.270459894767908,
-      "flow_impact_pct": 10.455102210050535,
+      "timestamp": "2026-04-18T11:00:50.342651Z",
+      "liquidity_usd": 757017.7489688402,
+      "market_cap_usd": 17327377.0,
+      "liq_mcap_ratio": 4.368911399393227,
+      "flow_impact_pct": 10.603426387853775,
       "flow_classification": "WATCH",
-      "price_change_24h": -9.81823594627069,
+      "price_change_24h": -14.28331974449244,
       "price_confirmed": true,
-      "projection": "\ud83d\udcca 10% outflow \u2014 monitor, insufficient for major move yet"
+      "projection": "\ud83d\udcca 11% outflow \u2014 monitor, insufficient for major move yet"
     },
     {
       "symbol": "\ud83c\udf31 \u4e2d\u6587\u65f6\u4ee3",
       "name": "\ud83c\udf31 \u4e2d\u6587\u65f6\u4ee3",
       "chain": "bnb",
-      "price": 0.000231788863809505,
+      "price": 0.000222033500701675,
       "score": 40,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.000231788863809505,
-      "target1": 0.00020165631151426933,
-      "target2": 0.0001807953137714139,
-      "sl": 0.00024337830699998025,
+      "entry": 0.000222033500701675,
+      "target1": 0.00019316914561045727,
+      "target2": 0.0001731861305473065,
+      "sl": 0.00023313517573675876,
       "sm_buyers": 3,
       "sm_netflow": -6518.615421805595,
       "arkham_entities": 0,
@@ -193,7 +193,7 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $37,620 | MCap $240,395 | Ratio 15.65% | DEEP",
+          "t": "\ud83d\udca1 [Valuation] Liq $37,712 | MCap $232,679 | Ratio 16.21% | DEEP",
           "cls": "neu"
         },
         {
@@ -212,11 +212,11 @@
       "nansen_traders": 3,
       "nansen_netflow": -6518.615421805595,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T10:51:25.567636Z",
-      "liquidity_usd": 37619.57319529855,
-      "market_cap_usd": 240394.712100564,
-      "liq_mcap_ratio": 15.649085151074873,
-      "flow_impact_pct": 17.32772295944136,
+      "timestamp": "2026-04-18T11:00:50.342667Z",
+      "liquidity_usd": 37711.88752389852,
+      "market_cap_usd": 232679.407660315,
+      "liq_mcap_ratio": 16.207660103275455,
+      "flow_impact_pct": 17.28530670249444,
       "flow_classification": "SIGNIFICANT",
       "price_change_24h": 0,
       "price_confirmed": true,
