@@ -1,6 +1,6 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-04-18T08:27:28.676770Z",
+  "last_scan": "2026-04-18T09:25:32.511745Z",
   "threshold": 30,
   "max_raw": 100,
   "layer_status": {
@@ -16,14 +16,14 @@
       "symbol": "ARB",
       "name": "ARB",
       "chain": "arbitrum",
-      "price": 0.13292631165170857,
+      "price": 0.13015110126172694,
       "score": 49,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.13292631165170857,
-      "target1": 0.11564589113698645,
-      "target2": 0.10368252308833269,
-      "sl": 0.139572627234294,
+      "entry": 0.13015110126172694,
+      "target1": 0.11323145809770244,
+      "target2": 0.10151785898414702,
+      "sl": 0.13665865632481328,
       "sm_buyers": 10,
       "sm_netflow": -1486925.5407219944,
       "arkham_entities": 0,
@@ -37,7 +37,7 @@
       ],
       "breakdown": [
         {
-          "t": "\ud83d\udfe1 [Valuation] Outflow 28.5% of liquidity \u2014 SIGNIFICANT",
+          "t": "\ud83d\udfe1 [Valuation] Outflow 28.3% of liquidity \u2014 SIGNIFICANT",
           "cls": "neu"
         },
         {
@@ -45,11 +45,11 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca Price flat (+1.4%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
+          "t": "\ud83d\udcca Price flat (-0.7%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $5,221,538 | MCap $806,317,732 | Ratio 0.65% | MODERATE",
+          "t": "\ud83d\udca1 [Valuation] Liq $5,246,024 | MCap $789,599,773 | Ratio 0.66% | MODERATE",
           "cls": "neu"
         },
         {
@@ -68,20 +68,20 @@
       "nansen_traders": 10,
       "nansen_netflow": -1486925.5407219944,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T08:27:28.676815Z"
+      "timestamp": "2026-04-18T09:25:32.511791Z"
     },
     {
       "symbol": "RENDER",
       "name": "RENDER",
       "chain": "solana",
-      "price": 1.8569405902756102,
+      "price": 1.83371615041044,
       "score": 44,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 1.8569405902756102,
-      "target1": 1.615538313539781,
-      "target2": 1.448413660414976,
-      "sl": 1.9497876197893909,
+      "entry": 1.83371615041044,
+      "target1": 1.5953330508570829,
+      "target2": 1.4302985973201432,
+      "sl": 1.925401957930962,
       "sm_buyers": 1,
       "sm_netflow": -319645.9094470113,
       "arkham_entities": 0,
@@ -95,7 +95,7 @@
       ],
       "breakdown": [
         {
-          "t": "\ud83d\udd34 [Valuation] Outflow 36.1% of liquidity \u2014 MAJOR",
+          "t": "\ud83d\udd34 [Valuation] Outflow 35.8% of liquidity \u2014 MAJOR",
           "cls": "neu"
         },
         {
@@ -103,11 +103,11 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca Price flat (-1.2%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
+          "t": "\ud83d\udcca Price flat (-2.5%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $884,962 | MCap $969,779,261 | Ratio 0.09% | ULTRA-THIN",
+          "t": "\ud83d\udca1 [Valuation] Liq $893,079 | MCap $956,176,131 | Ratio 0.09% | ULTRA-THIN",
           "cls": "neu"
         },
         {
@@ -123,27 +123,27 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udcca [CoinGecko] -0.5% in 24h \u2014 slight decline",
+          "t": "\ud83d\udcca [CoinGecko] -1.7% in 24h \u2014 slight decline",
           "cls": "neu"
         }
       ],
       "nansen_traders": 1,
       "nansen_netflow": -319645.9094470113,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T08:27:28.676833Z"
+      "timestamp": "2026-04-18T09:25:32.511807Z"
     },
     {
       "symbol": "\ud83c\udf31 QUACK",
       "name": "\ud83c\udf31 QUACK",
       "chain": "solana",
-      "price": 0.00012556934984539814,
+      "price": 0.0001270108283889288,
       "score": 43,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.00012556934984539814,
-      "target1": 0.00010924533436549638,
-      "target2": 9.794409287941055e-05,
-      "sl": 0.00013184781733766805,
+      "entry": 0.0001270108283889288,
+      "target1": 0.00011049942069836804,
+      "target2": 9.906844614336446e-05,
+      "sl": 0.00013336136980837525,
       "sm_buyers": 1,
       "sm_netflow": -4596.837243867325,
       "arkham_entities": 0,
@@ -157,7 +157,7 @@
       ],
       "breakdown": [
         {
-          "t": "\ud83d\udd34 [Valuation] Outflow 34.1% of liquidity \u2014 MAJOR",
+          "t": "\ud83d\udd34 [Valuation] Outflow 33.4% of liquidity \u2014 MAJOR",
           "cls": "neu"
         },
         {
@@ -165,15 +165,15 @@
           "cls": "neu"
         },
         {
-          "t": "\u2705 Price -64.4% confirms selling \u2014 BEARISH",
+          "t": "\u2705 Price -64.0% confirms selling \u2014 BEARISH",
           "cls": "ok"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $13,465 | MCap $120,238 | Ratio 11.20% | DEEP",
+          "t": "\ud83d\udca1 [Valuation] Liq $13,747 | MCap $124,144 | Ratio 11.07% | DEEP",
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 34% outflow \u2014 monitor, insufficient for major move yet",
+          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 33% outflow \u2014 monitor, insufficient for major move yet",
           "cls": "neu"
         },
         {
@@ -188,26 +188,26 @@
       "nansen_traders": 1,
       "nansen_netflow": -4596.837243867325,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T08:27:28.676847Z"
+      "timestamp": "2026-04-18T09:25:32.511819Z"
     },
     {
-      "symbol": "EMYC",
-      "name": "EMYC",
-      "chain": "bnb",
-      "price": 0.004631740959622208,
-      "score": 36,
+      "symbol": "ASTEROID",
+      "name": "ASTEROID",
+      "chain": "ethereum",
+      "price": 4.2411015141260564e-05,
+      "score": 40,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.004631740959622208,
-      "target1": 0.00402961463487132,
-      "target2": 0.0036127579485053223,
-      "sl": 0.004863328007603318,
-      "sm_buyers": 1,
-      "sm_netflow": -4668.719298302909,
+      "entry": 4.2411015141260564e-05,
+      "target1": 3.689758317289669e-05,
+      "target2": 3.308059181018324e-05,
+      "sl": 4.4531565898323594e-05,
+      "sm_buyers": 8,
+      "sm_netflow": -90257.67137380214,
       "arkham_entities": 0,
-      "token_address": "0xe3f53c0d48360de764ddc2a1a82c3e6db5d4624d",
-      "coingecko_url": "",
-      "explorer_url": "https://bscscan.com/token/0xe3f53c0d48360de764ddc2a1a82c3e6db5d4624d",
+      "token_address": "0xf280b16ef293d8e534e370794ef26bf312694126",
+      "coingecko_url": "https://www.coingecko.com/en/coins/asteroid-shiba",
+      "explorer_url": "https://etherscan.io/token/0xf280b16ef293d8e534e370794ef26bf312694126",
       "layers": [
         "nansen",
         "etherscan",
@@ -215,27 +215,93 @@
       ],
       "breakdown": [
         {
-          "t": "\ud83d\udfe1 [Valuation] Outflow 23.4% of liquidity \u2014 SIGNIFICANT",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca [Nansen] 1 SM wallet selling",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udcca Price flat (+0.8%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udca1 [Valuation] Liq $19,955 | MCap $838,143 | Ratio 2.38% | HEALTHY",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udd2e [Projection] \ud83d\udd36 Selling pressure: 23% of liquidity \u2014 watch for breakout",
+          "t": "\ud83d\udd36 [Valuation] Outflow 11.9% of liquidity \u2014 WATCH",
           "cls": "med"
         },
         {
-          "t": "\ud83d\udcca [Safety] BNB token \u2014 contract check not available (non-EVM)",
+          "t": "\ud83d\udcc9 [Nansen] 8 SM wallets selling",
+          "cls": "neu"
+        },
+        {
+          "t": "\u2705 Price -7.9% confirms selling \u2014 BEARISH",
+          "cls": "ok"
+        },
+        {
+          "t": "\ud83d\udca1 [Valuation] Liq $759,448 | MCap $17,246,454 | Ratio 4.40% | HEALTHY",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 12% outflow \u2014 monitor, insufficient for major move yet",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udd36 [Safety] Contract verification status unknown",
+          "cls": "med"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Safety] No holder data \u2014 token may be very new or illiquid",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 26/100 \u2014 caution shorting in fear market",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcc9 [CoinGecko] -12.5% in 24h \u2014 confirmed downtrend",
+          "cls": "neu"
+        }
+      ],
+      "nansen_traders": 8,
+      "nansen_netflow": -90257.67137380214,
+      "signal_type": "SHORT",
+      "timestamp": "2026-04-18T09:25:32.511831Z"
+    },
+    {
+      "symbol": "\ud83c\udf31 WASABI",
+      "name": "\ud83c\udf31 WASABI",
+      "chain": "solana",
+      "price": 0.00028130358473971997,
+      "score": 40,
+      "risk": "HIGH",
+      "timeframe": "30\u201390 minutes",
+      "entry": 0.00028130358473971997,
+      "target1": 0.00024473411872355635,
+      "target2": 0.00021941679609698158,
+      "sl": 0.00029536876397670596,
+      "sm_buyers": 2,
+      "sm_netflow": -6763.100007864645,
+      "arkham_entities": 0,
+      "token_address": "DSZeB6pCzZsM43gTz7jakiYeCafinsNMKcpeB1FApump",
+      "coingecko_url": "",
+      "explorer_url": "https://solscan.io/token/DSZeB6pCzZsM43gTz7jakiYeCafinsNMKcpeB1FApump",
+      "layers": [
+        "nansen",
+        "etherscan",
+        "cg"
+      ],
+      "breakdown": [
+        {
+          "t": "\ud83d\udfe1 [Valuation] Outflow 17.3% of liquidity \u2014 SIGNIFICANT",
+          "cls": "neu"
+        },
+        {
+          "t": "\u26a0\ufe0f [Nansen] 2 SM wallets selling",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udcca Price flat (-0.8%) + outflow = DISTRIBUTION \u2014 pre-dump likely",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udca1 [Valuation] Liq $39,000 | MCap $280,600 | Ratio 13.90% | DEEP",
+          "cls": "neu"
+        },
+        {
+          "t": "\ud83d\udd2e [Projection] \ud83d\udd36 Selling pressure: 17% of liquidity \u2014 watch for breakout",
+          "cls": "med"
+        },
+        {
+          "t": "\ud83d\udcca [Safety] SOLANA token \u2014 contract check not available (non-EVM)",
           "cls": "neu"
         },
         {
@@ -243,23 +309,23 @@
           "cls": "neu"
         }
       ],
-      "nansen_traders": 1,
-      "nansen_netflow": -4668.719298302909,
+      "nansen_traders": 2,
+      "nansen_netflow": -6763.100007864645,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T08:27:28.676859Z"
+      "timestamp": "2026-04-18T09:25:32.511840Z"
     },
     {
       "symbol": "\ud83c\udf31 INCOME",
       "name": "\ud83c\udf31 INCOME",
       "chain": "solana",
-      "price": 0.0007276121748935758,
+      "price": 0.0007579902895970575,
       "score": 33,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.0007276121748935758,
-      "target1": 0.000633022592157411,
-      "target2": 0.0005675374964169891,
-      "sl": 0.0007639927836382547,
+      "entry": 0.0007579902895970575,
+      "target1": 0.0006594515519494401,
+      "target2": 0.0005912324258857049,
+      "sl": 0.0007958898040769105,
       "sm_buyers": 3,
       "sm_netflow": -5925.03456994205,
       "arkham_entities": 0,
@@ -281,11 +347,11 @@
           "cls": "neu"
         },
         {
-          "t": "\u2705 Price -49.5% confirms selling \u2014 BEARISH",
+          "t": "\u2705 Price -47.4% confirms selling \u2014 BEARISH",
           "cls": "ok"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $49,509 | MCap $721,225 | Ratio 6.86% | HEALTHY",
+          "t": "\ud83d\udca1 [Valuation] Liq $49,460 | MCap $755,876 | Ratio 6.54% | HEALTHY",
           "cls": "neu"
         },
         {
@@ -304,22 +370,22 @@
       "nansen_traders": 3,
       "nansen_netflow": -5925.03456994205,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T08:27:28.676871Z"
+      "timestamp": "2026-04-18T09:25:32.511850Z"
     },
     {
       "symbol": "\ud83c\udf31 \u4e2d\u6587\u65f6\u4ee3",
       "name": "\ud83c\udf31 \u4e2d\u6587\u65f6\u4ee3",
       "chain": "bnb",
-      "price": 0.000410703811216553,
+      "price": 0.000237800324038317,
       "score": 33,
       "risk": "HIGH",
       "timeframe": "30\u201390 minutes",
-      "entry": 0.000410703811216553,
-      "target1": 0.0003573123157584011,
-      "target2": 0.00032034897274891134,
-      "sl": 0.0004312390017773807,
-      "sm_buyers": 2,
-      "sm_netflow": -5310.048577592865,
+      "entry": 0.000237800324038317,
+      "target1": 0.00020688628191333579,
+      "target2": 0.00018548425274988726,
+      "sl": 0.00024969034024023286,
+      "sm_buyers": 3,
+      "sm_netflow": -4410.323385029242,
       "arkham_entities": 0,
       "token_address": "0x638de589e66b7b7c59983937a903b1d086254444",
       "coingecko_url": "",
@@ -331,11 +397,11 @@
       ],
       "breakdown": [
         {
-          "t": "\ud83d\udd36 [Valuation] Outflow 11.5% of liquidity \u2014 WATCH",
+          "t": "\ud83d\udd36 [Valuation] Outflow 12.9% of liquidity \u2014 WATCH",
           "cls": "med"
         },
         {
-          "t": "\u26a0\ufe0f [Nansen] 2 SM wallets selling",
+          "t": "\u26a0\ufe0f [Nansen] 3 SM wallets selling",
           "cls": "neu"
         },
         {
@@ -343,11 +409,11 @@
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udca1 [Valuation] Liq $46,021 | MCap $383,274 | Ratio 12.01% | DEEP",
+          "t": "\ud83d\udca1 [Valuation] Liq $34,243 | MCap $213,166 | Ratio 16.06% | DEEP",
           "cls": "neu"
         },
         {
-          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 12% outflow \u2014 monitor, insufficient for major move yet",
+          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 13% outflow \u2014 monitor, insufficient for major move yet",
           "cls": "neu"
         },
         {
@@ -359,150 +425,10 @@
           "cls": "neu"
         }
       ],
-      "nansen_traders": 2,
-      "nansen_netflow": -5310.048577592865,
+      "nansen_traders": 3,
+      "nansen_netflow": -4410.323385029242,
       "signal_type": "SHORT",
-      "timestamp": "2026-04-18T08:27:28.676883Z"
-    },
-    {
-      "symbol": "ASTEROID",
-      "name": "ASTEROID",
-      "chain": "ethereum",
-      "price": 4.165667805095531e-05,
-      "score": 32,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 4.165667805095531e-05,
-      "target1": 3.624130990433112e-05,
-      "target2": 3.2492208879745145e-05,
-      "sl": 4.373951195350308e-05,
-      "sm_buyers": 9,
-      "sm_netflow": -87429.4900780693,
-      "arkham_entities": 0,
-      "token_address": "0xf280b16ef293d8e534e370794ef26bf312694126",
-      "coingecko_url": "https://www.coingecko.com/en/coins/asteroid-shiba",
-      "explorer_url": "https://etherscan.io/token/0xf280b16ef293d8e534e370794ef26bf312694126",
-      "layers": [
-        "nansen",
-        "etherscan",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\ud83d\udd36 [Valuation] Outflow 11.3% of liquidity \u2014 WATCH",
-          "cls": "med"
-        },
-        {
-          "t": "\ud83d\udcc9 [Nansen] 9 SM wallets selling",
-          "cls": "neu"
-        },
-        {
-          "t": "\u2705 Price -9.5% confirms selling \u2014 BEARISH",
-          "cls": "ok"
-        },
-        {
-          "t": "\ud83d\udca1 [Valuation] Liq $774,445 | MCap $17,294,078 | Ratio 4.48% | HEALTHY",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udd2e [Projection] \ud83d\udcca 11% outflow \u2014 monitor, insufficient for major move yet",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udd36 [Safety] Contract verification status unknown",
-          "cls": "med"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Safety] No holder data \u2014 token may be very new or illiquid",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Fear&Greed] Fear 26/100 \u2014 caution shorting in fear market",
-          "cls": "neu"
-        }
-      ],
-      "nansen_traders": 9,
-      "nansen_netflow": -87429.4900780693,
-      "signal_type": "SHORT",
-      "timestamp": "2026-04-18T08:27:28.676895Z"
-    },
-    {
-      "symbol": "",
-      "name": "",
-      "chain": "ethereum",
-      "price": 0.4256103479342495,
-      "score": 31,
-      "risk": "HIGH",
-      "timeframe": "30\u201390 minutes",
-      "entry": 0.4256103479342495,
-      "target1": 0.4681713827276745,
-      "target2": 0.5107324175210994,
-      "sl": 0.404329830537537,
-      "sm_buyers": 2,
-      "sm_netflow": 0.0,
-      "arkham_entities": 0,
-      "token_address": "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
-      "coingecko_url": "",
-      "explorer_url": "https://etherscan.io/token/0x5a98fcbea516cf06857215779fd812ca3bef1b32",
-      "layers": [
-        "nansen",
-        "etherscan",
-        "cg"
-      ],
-      "breakdown": [
-        {
-          "t": "\ud83d\udfe1 [Valuation] Flow 18.3% of liquidity \u2014 SIGNIFICANT",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26a0\ufe0f [Valuation] THIN market 0.41% liq/mcap \u2014 signals amplified",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udd36 [Nansen] 2 SM wallets",
-          "cls": "med"
-        },
-        {
-          "t": "\ud83d\udcca Price flat (-0.2%) + inflow = ACCUMULATION \u2014 pre-pump likely",
-          "cls": "neu"
-        },
-        {
-          "t": "\u2705 [Nansen] Token age 1948d \u2014 established",
-          "cls": "ok"
-        },
-        {
-          "t": "\ud83d\udd2e [Projection] \ud83d\udd36 Buying pressure: 18% of liquidity \u2014 watch for breakout",
-          "cls": "med"
-        },
-        {
-          "t": "\u26aa [Nansen] Netflow: No data",
-          "cls": "neu"
-        },
-        {
-          "t": "\ud83d\udd36 [Safety] Contract verification status unknown",
-          "cls": "med"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Safety] No holder data \u2014 token may be very new or illiquid",
-          "cls": "neu"
-        },
-        {
-          "t": "\u26aa [Social] No data \u2014 add CRYPTOCOMPARE_API_KEY (free at cryptocompare.com)",
-          "cls": "neu"
-        },
-        {
-          "t": "\u2705 [Fear&Greed] Fear 26/100 (Fear) \u2191 \u2014 good entry conditions",
-          "cls": "ok"
-        },
-        {
-          "t": "\u26a0\ufe0f  [Arkham] Wintermute (fund) outflow $-122,687",
-          "cls": "neu"
-        }
-      ],
-      "nansen_traders": 2,
-      "nansen_netflow": 0.0,
-      "signal_type": "LONG",
-      "timestamp": "2026-04-18T08:27:28.676914Z"
+      "timestamp": "2026-04-18T09:25:32.511859Z"
     }
   ]
 }
