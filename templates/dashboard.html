@@ -446,7 +446,7 @@ input[type=range]::-webkit-slider-thumb{
 <!-- STATS BAR -->
 <div class="stats">
   <div class="stat"><div class="stat-l">Signals</div><div class="stat-v" id="sSignals">—</div><div class="stat-s">above threshold</div></div>
-  <div class="stat"><div class="stat-l">Scans</div><div class="stat-v" id="sScans">—</div><div class="stat-s">every 15 min</div></div>
+  <div class="stat"><div class="stat-l">Scans</div><div class="stat-v" id="sScans">—</div><div class="stat-s">every 5 min</div></div>
   <div class="stat"><div class="stat-l">Best Score</div><div class="stat-v" id="sBest" style="color:var(--amber)">—</div><div class="stat-s" id="sBestSym">—</div></div>
   <div class="stat"><div class="stat-l">Last Scan</div><div class="stat-v" id="sLast" style="font-size:16px;color:var(--green)">—</div><div class="stat-s">UTC</div></div>
   <div class="stat"><div class="stat-l">Refresh In</div><div class="stat-v" id="sNext" style="color:var(--accent2)">15s</div><div class="stat-s">auto-refresh</div></div>
@@ -559,7 +559,7 @@ input[type=range]::-webkit-slider-thumb{
 // ═══════════════════════════════════════════════
 let signals = [];
 let layerStatus = {};
-let threshold = 30;
+let threshold = 38; // updated dynamically from signals.json each scan
 let filter = 'all';
 let countdown = 15;
 let scanCount = 0;
@@ -608,9 +608,12 @@ async function fetchSignals() {
       log('Scan #'+scanCount+' @ '+p(t.getUTCHours())+':'+p(t.getUTCMinutes())+' UTC', 'ok');
     }
 
-    // Update threshold from scanner if signals.json has it
+    // Update threshold from scanner — always use dynamic value from signals.json
     if (d.threshold && d.threshold !== threshold) {
-      // Don't override user setting, just log it
+      threshold = d.threshold;
+      document.getElementById('threshNum').textContent = threshold;
+      document.getElementById('threshSlider').value = threshold;
+      document.getElementById('threshLabel').textContent = threshold + ' min score';
     }
 
     // Update layer badges
@@ -681,7 +684,7 @@ function renderFeed() {
         signals.length + ' signal(s) found — lower the threshold slider to see them.\nBest score: ' + (signals[0]?.score || 0) + '/100';
     } else {
       empty.querySelector('.empty-t').textContent = 'No signals this scan';
-      empty.querySelector('.empty-s').textContent = 'Smart Money not moving right now.\nScanner checks every 15 minutes automatically.';
+      empty.querySelector('.empty-s').textContent = 'Smart Money not moving right now.\nScanner checks every 5 minutes automatically.';
     }
     return;
   }
@@ -729,82 +732,129 @@ function getExchanges(sig) {
   const isLarge  = hasCGUrl; // if CoinGecko has a direct page, it's a known token
 
   let exchanges = [];
-  const isThin = (sig.liquidity_usd || 0) < 1_000_000;
 
   if (chain === 'solana') {
-    exchanges.push({name:'Jupiter', url:'https://jup.ag/swap/SOL-'+sym, type:'dex', icon:'🪐'});
-    exchanges.push({name:'Raydium', url:addr?'https://raydium.io/swap/?inputMint=sol&outputMint='+addr:'https://raydium.io', type:'dex', icon:'⚡'});
-    exchanges.push({name:'MEXC',    url:'https://www.mexc.com/exchange/'+sym+'_USDT', type:'cex', icon:'🔵'});
-    exchanges.push({name:'Gate.io', url:'https://www.gate.io/trade/'+sym+'_USDT', type:'cex', icon:'⚪'});
-    exchanges.push({name:'BingX',   url:'https://bingx.com/en/tradeIng/'+sym+'-USDT/', type:'cex', icon:'🟣'});
+    // Solana tokens — DEX only unless major token
+    exchanges.push({
+      name: 'Jupiter',
+      url:  'https://jup.ag/swap/SOL-' + sym,
+      type: 'dex',
+      icon: '🪐'
+    });
+    exchanges.push({
+      name: 'Raydium',
+      url:  addr
+        ? 'https://raydium.io/swap/?inputMint=sol&outputMint=' + addr
+        : 'https://raydium.io',
+      type: 'dex',
+      icon: '⚡'
+    });
     if (isLarge) {
       exchanges.push({name:'Binance', url:'https://www.binance.com/en/trade/'+sym+'_USDT', type:'cex', icon:'🟡'});
       exchanges.push({name:'OKX',     url:'https://www.okx.com/trade-spot/'+sym.toLowerCase()+'-usdt', type:'cex', icon:'⚫'});
-      exchanges.push({name:'Bybit',   url:'https://www.bybit.com/en/trade/usdt/'+sym+'USDT', type:'cex', icon:'🔴'});
     }
   }
 
   else if (chain === 'ethereum') {
-    exchanges.push({name:'Uniswap', url:addr?'https://app.uniswap.org/swap?inputCurrency=ETH&outputCurrency='+addr:'https://app.uniswap.org', type:'dex', icon:'🦄'});
-    // New/thin tokens — MEXC, Gate, KuCoin list earliest
-    exchanges.push({name:'MEXC',    url:'https://www.mexc.com/exchange/'+sym+'_USDT', type:'cex', icon:'🔵'});
-    exchanges.push({name:'Gate.io', url:'https://www.gate.io/trade/'+sym+'_USDT', type:'cex', icon:'⚪'});
-    exchanges.push({name:'KuCoin',  url:'https://www.kucoin.com/trade/'+sym+'-USDT', type:'cex', icon:'🟢'});
-    exchanges.push({name:'BingX',   url:'https://bingx.com/en/tradeIng/'+sym+'-USDT/', type:'cex', icon:'🟣'});
+    exchanges.push({
+      name: 'Uniswap',
+      url:  addr
+        ? 'https://app.uniswap.org/swap?inputCurrency=ETH&outputCurrency=' + addr
+        : 'https://app.uniswap.org',
+      type: 'dex',
+      icon: '🦄'
+    });
     if (isLarge) {
-      exchanges.push({name:'Binance',  url:'https://www.binance.com/en/trade/'+sym+'_USDT', type:'cex', icon:'🟡'});
-      exchanges.push({name:'Bybit',    url:'https://www.bybit.com/en/trade/usdt/'+sym+'USDT', type:'cex', icon:'🔴'});
-      exchanges.push({name:'OKX',      url:'https://www.okx.com/trade-spot/'+sym.toLowerCase()+'-usdt', type:'cex', icon:'⚫'});
-      exchanges.push({name:'Coinbase', url:'https://www.coinbase.com/advanced-trade/spot/'+sym+'-USDT', type:'cex', icon:'🔵'});
+      exchanges.push({name:'Binance',  url:'https://www.binance.com/en/trade/'+sym+'_USDT',                    type:'cex', icon:'🟡'});
+      exchanges.push({name:'Coinbase', url:'https://www.coinbase.com/advanced-trade/spot/'+sym+'-USDT',         type:'cex', icon:'🔵'});
+      exchanges.push({name:'Kraken',   url:'https://www.kraken.com/prices/'+sym.toLowerCase(),                  type:'cex', icon:'🐙'});
+      exchanges.push({name:'OKX',      url:'https://www.okx.com/trade-spot/'+sym.toLowerCase()+'-usdt',         type:'cex', icon:'⚫'});
+      exchanges.push({name:'Bybit',    url:'https://www.bybit.com/en/trade/spot/'+sym+'/USDT',                  type:'cex', icon:'🔴'});
     }
   }
 
   else if (chain === 'bnb') {
-    exchanges.push({name:'PancakeSwap', url:addr?'https://pancakeswap.finance/swap?outputCurrency='+addr:'https://pancakeswap.finance', type:'dex', icon:'🥞'});
-    exchanges.push({name:'MEXC',    url:'https://www.mexc.com/exchange/'+sym+'_USDT', type:'cex', icon:'🔵'});
-    exchanges.push({name:'Gate.io', url:'https://www.gate.io/trade/'+sym+'_USDT', type:'cex', icon:'⚪'});
-    exchanges.push({name:'KuCoin',  url:'https://www.kucoin.com/trade/'+sym+'-USDT', type:'cex', icon:'🟢'});
-    exchanges.push({name:'BingX',   url:'https://bingx.com/en/tradeIng/'+sym+'-USDT/', type:'cex', icon:'🟣'});
+    exchanges.push({
+      name: 'PancakeSwap',
+      url:  addr
+        ? 'https://pancakeswap.finance/swap?outputCurrency=' + addr
+        : 'https://pancakeswap.finance/swap',
+      type: 'dex',
+      icon: '🥞'
+    });
+    exchanges.push({
+      name: 'Binance',
+      url:  'https://www.binance.com/en/trade/' + sym + '_USDT',
+      type: 'cex',
+      icon: '🟡'
+    });
     if (isLarge) {
-      exchanges.push({name:'Binance', url:'https://www.binance.com/en/trade/'+sym+'_USDT', type:'cex', icon:'🟡'});
-      exchanges.push({name:'Bybit',   url:'https://www.bybit.com/en/trade/usdt/'+sym+'USDT', type:'cex', icon:'🔴'});
-      exchanges.push({name:'OKX',     url:'https://www.okx.com/trade-spot/'+sym.toLowerCase()+'-usdt', type:'cex', icon:'⚫'});
+      exchanges.push({name:'OKX',   url:'https://www.okx.com/trade-spot/'+sym.toLowerCase()+'-usdt', type:'cex', icon:'⚫'});
+      exchanges.push({name:'Bybit', url:'https://www.bybit.com/en/trade/spot/'+sym+'/USDT',           type:'cex', icon:'🔴'});
     }
   }
 
   else if (chain === 'base') {
-    exchanges.push({name:'Aerodrome', url:addr?'https://aerodrome.finance/swap?to='+addr:'https://aerodrome.finance', type:'dex', icon:'🛫'});
-    exchanges.push({name:'Uniswap',   url:addr?'https://app.uniswap.org/swap?chain=base&outputCurrency='+addr:'https://app.uniswap.org', type:'dex', icon:'🦄'});
-    exchanges.push({name:'MEXC',    url:'https://www.mexc.com/exchange/'+sym+'_USDT', type:'cex', icon:'🔵'});
-    exchanges.push({name:'Gate.io', url:'https://www.gate.io/trade/'+sym+'_USDT', type:'cex', icon:'⚪'});
-    exchanges.push({name:'BingX',   url:'https://bingx.com/en/tradeIng/'+sym+'-USDT/', type:'cex', icon:'🟣'});
+    exchanges.push({
+      name: 'Aerodrome',
+      url:  'https://aerodrome.finance/swap?from=eth&to=' + (addr || ''),
+      type: 'dex',
+      icon: '✈️'
+    });
+    exchanges.push({
+      name: 'Uniswap',
+      url:  addr
+        ? 'https://app.uniswap.org/swap?chain=base&inputCurrency=ETH&outputCurrency=' + addr
+        : 'https://app.uniswap.org/?chain=base',
+      type: 'dex',
+      icon: '🦄'
+    });
     if (isLarge) {
-      exchanges.push({name:'Binance', url:'https://www.binance.com/en/trade/'+sym+'_USDT', type:'cex', icon:'🟡'});
-      exchanges.push({name:'Bybit',   url:'https://www.bybit.com/en/trade/usdt/'+sym+'USDT', type:'cex', icon:'🔴'});
-      exchanges.push({name:'OKX',     url:'https://www.okx.com/trade-spot/'+sym.toLowerCase()+'-usdt', type:'cex', icon:'⚫'});
+      exchanges.push({name:'Coinbase', url:'https://www.coinbase.com/advanced-trade/spot/'+sym+'-USDT', type:'cex', icon:'🔵'});
     }
   }
 
   else if (chain === 'arbitrum') {
-    exchanges.push({name:'Uniswap',  url:addr?'https://app.uniswap.org/swap?chain=arbitrum&outputCurrency='+addr:'https://app.uniswap.org', type:'dex', icon:'🦄'});
-    exchanges.push({name:'Bybit',    url:'https://www.bybit.com/en/trade/usdt/'+sym+'USDT', type:'cex', icon:'🔴'});
-    exchanges.push({name:'OKX',      url:'https://www.okx.com/trade-swap/'+sym.toLowerCase()+'-usdt-swap', type:'cex', icon:'⚫'});
-    exchanges.push({name:'MEXC',     url:'https://www.mexc.com/exchange/'+sym+'_USDT', type:'cex', icon:'🔵'});
-    exchanges.push({name:'Gate.io',  url:'https://www.gate.io/trade/'+sym+'_USDT', type:'cex', icon:'⚪'});
-    exchanges.push({name:'BingX',    url:'https://bingx.com/en/tradeIng/'+sym+'-USDT/', type:'cex', icon:'🟣'});
+    exchanges.push({
+      name: 'Camelot',
+      url:  'https://app.camelot.exchange/?token2=' + (addr || ''),
+      type: 'dex',
+      icon: '⚔️'
+    });
+    exchanges.push({
+      name: 'Uniswap',
+      url:  addr
+        ? 'https://app.uniswap.org/swap?chain=arbitrum&inputCurrency=ETH&outputCurrency=' + addr
+        : 'https://app.uniswap.org/?chain=arbitrum',
+      type: 'dex',
+      icon: '🦄'
+    });
     if (isLarge) {
-      exchanges.push({name:'Binance',  url:'https://www.binance.com/en/trade/'+sym+'_USDT', type:'cex', icon:'🟡'});
-      exchanges.push({name:'KuCoin',   url:'https://www.kucoin.com/trade/'+sym+'-USDT', type:'cex', icon:'🟢'});
-      exchanges.push({name:'Hyperliquid', url:'https://app.hyperliquid.xyz/trade/'+sym, type:'cex', icon:'💧'});
+      exchanges.push({name:'Binance', url:'https://www.binance.com/en/trade/'+sym+'_USDT', type:'cex', icon:'🟡'});
+      exchanges.push({name:'Bybit',   url:'https://www.bybit.com/en/trade/spot/'+sym+'/USDT', type:'cex', icon:'🔴'});
     }
   }
 
   else {
-    exchanges.push({name:'MEXC',    url:'https://www.mexc.com/exchange/'+sym+'_USDT', type:'cex', icon:'🔵'});
-    exchanges.push({name:'Gate.io', url:'https://www.gate.io/trade/'+sym+'_USDT', type:'cex', icon:'⚪'});
-    exchanges.push({name:'KuCoin',  url:'https://www.kucoin.com/trade/'+sym+'-USDT', type:'cex', icon:'🟢'});
-    exchanges.push({name:'BingX',   url:'https://bingx.com/en/tradeIng/'+sym+'-USDT/', type:'cex', icon:'🟣'});
-    exchanges.push({name:'Bybit',   url:'https://www.bybit.com/en/trade/usdt/'+sym+'USDT', type:'cex', icon:'🔴'});
+    // Unknown chain — generic search
+    exchanges.push({
+      name: 'CoinGecko Markets',
+      url:  sig.coingecko_url
+        ? sig.coingecko_url + '#markets'
+        : 'https://www.coingecko.com/en/search?query=' + encodeURIComponent(sym),
+      type: 'dex',
+      icon: '🦎'
+    });
+  }
+
+  // For SHORT signals — add futures/perps platforms
+  if (sig.signal_type === 'SHORT') {
+    return [
+      {name:'Binance Futures', url:'https://www.binance.com/en/futures/'+sym+'USDT',      type:'cex', icon:'🟡'},
+      {name:'Bybit Perps',     url:'https://www.bybit.com/trade/usdt/'+sym+'USDT',         type:'cex', icon:'🔴'},
+      {name:'OKX Futures',     url:'https://www.okx.com/trade-swap/'+sym.toLowerCase()+'-usdt-swap', type:'cex', icon:'⚫'},
+      {name:'Hyperliquid',     url:'https://app.hyperliquid.xyz/trade/'+sym,                type:'dex', icon:'💧'},
+    ];
   }
 
   return exchanges;
