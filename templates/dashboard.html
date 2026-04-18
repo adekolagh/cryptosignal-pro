@@ -609,11 +609,17 @@ async function fetchSignals() {
     }
 
     // Update threshold from scanner — always use dynamic value from signals.json
-    if (d.threshold && d.threshold !== threshold) {
+    if (d.threshold) {
       threshold = d.threshold;
-      document.getElementById('threshNum').textContent = threshold;
-      document.getElementById('threshSlider').value = threshold;
-      document.getElementById('threshLabel').textContent = threshold + ' min score';
+      // Update all possible threshold display elements
+      ['threshNum','thresh-num','sThresh'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = threshold;
+      });
+      const slider = document.getElementById('threshSlider');
+      if (slider) slider.value = threshold;
+      const label = document.getElementById('threshLabel');
+      if (label) label.textContent = threshold + ' min score';
     }
 
     // Update layer badges
