@@ -1396,7 +1396,7 @@ class TelegramAlerter:
 🛑 *Stop Loss:* `${fmt_price(sig.stop_loss)}` `(+{sl_pct:.1f}%)` — exit if wrong
 ⏱ *Window:* `{sig.timeframe}`
 {risk_e} *Risk:* `{sig.risk}` — use trailing stop
-_Platforms: {'Binance · Bybit · OKX · KuCoin · MEXC · Gate.io · Hyperliquid' if sig.chain.lower() in ('ethereum','arbitrum','bnb','base') and sig.market_cap_usd > 50_000_000 else 'MEXC · Gate.io · KuCoin list new tokens early — check listing before trading'}_"""
+_Platforms: {'Binance · Bybit · OKX · KuCoin · MEXC · Gate.io · Hyperliquid' if sig.chain.lower() in ('ethereum','arbitrum','bnb','base') and sig.market_cap_usd > 50_000_000 else 'MEXC · Gate.io · KuCoin · BingX list new tokens early — check listing before trading'}_"""
         else:
             t1_pct = round((sig.target_1/sig.entry - 1)*100, 1) if sig.entry else 7
             t2_pct = round((sig.target_2/sig.entry - 1)*100, 1) if sig.entry else 15
