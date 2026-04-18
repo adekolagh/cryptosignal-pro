@@ -46,7 +46,7 @@ TELEGRAM_CHAT_ID      = os.getenv("TELEGRAM_CHAT_ID", "")
 CRYPTOCOMPARE_API_KEY = os.getenv("CRYPTOCOMPARE_API_KEY", "")
 
 SCAN_INTERVAL_SEC   = 300   # 5 minutes
-SIGNAL_THRESHOLD    = 30    # 30 = testing, raise to 50 when scoring stabilises
+SIGNAL_THRESHOLD    = 45    # 45 = filters noise, raise to 55 when market recovers
 COOLDOWN_HOURS      = 4     # Hours before re-alerting same token
 MAX_ALERTS_PER_SCAN = 2
 
@@ -1335,29 +1335,36 @@ class TelegramAlerter:
 {sm_flow}"""
 
         # ── Trade levels ──────────────────────────────────────────────
+        def fmt_price(p):
+            if p == 0: return "0"
+            if p >= 1:     return f"{p:,.4f}"
+            if p >= 0.01:  return f"{p:.6f}"
+            if p >= 0.0001: return f"{p:.8f}"
+            return f"{p:.10f}"
+
         if is_short:
             t1_pct = round((sig.target_1/sig.entry - 1)*100, 1) if sig.entry else -8
             t2_pct = round((sig.target_2/sig.entry - 1)*100, 1) if sig.entry else -15
             sl_pct = round((sig.stop_loss/sig.entry - 1)*100, 1) if sig.entry else 3
             trade_block = f"""
 ━━ *SHORT TRADE LEVELS* ━━
-📤 *Entry:*     `${sig.entry:,.6g}` — short here
-🎯 *Target 1:*  `${sig.target_1:,.6g}` `({t1_pct:.1f}%)` — partial profit
-🎯 *Target 2:*  `${sig.target_2:,.6g}` `({t2_pct:.1f}%)` — full target
-🛑 *Stop Loss:* `${sig.stop_loss:,.6g}` `(+{sl_pct:.1f}%)` — exit if wrong
+📤 *Entry:*     `${fmt_price(sig.entry)}` — short here
+🎯 *Target 1:*  `${fmt_price(sig.target_1)}` `({t1_pct:.1f}%)` — partial profit
+🎯 *Target 2:*  `${fmt_price(sig.target_2)}` `({t2_pct:.1f}%)` — full target
+🛑 *Stop Loss:* `${fmt_price(sig.stop_loss)}` `(+{sl_pct:.1f}%)` — exit if wrong
 ⏱ *Window:* `{sig.timeframe}`
 {risk_e} *Risk:* `{sig.risk}` — use trailing stop
-_Platforms: Binance Futures · Bybit Perps · OKX · Hyperliquid_"""
+_Platforms: {'Binance Futures · Bybit Perps · OKX · Hyperliquid' if sig.chain.lower() in ('ethereum','arbitrum','bnb','base') and sig.market_cap_usd > 50_000_000 else 'DEX only — check if listed on Bybit/OKX before shorting'}_"""
         else:
             t1_pct = round((sig.target_1/sig.entry - 1)*100, 1) if sig.entry else 7
             t2_pct = round((sig.target_2/sig.entry - 1)*100, 1) if sig.entry else 15
             sl_pct = round((sig.stop_loss/sig.entry - 1)*100, 1) if sig.entry else -3
             trade_block = f"""
 ━━ *LONG TRADE LEVELS* ━━
-📥 *Entry:*     `${sig.entry:,.6g}` — buy here
-🏆 *Target 1:*  `${sig.target_1:,.6g}` `(+{t1_pct:.1f}%)` — partial profit
-🏆 *Target 2:*  `${sig.target_2:,.6g}` `(+{t2_pct:.1f}%)` — full target
-🛑 *Stop Loss:* `${sig.stop_loss:,.6g}` `({sl_pct:.1f}%)` — exit if wrong
+📥 *Entry:*     `${fmt_price(sig.entry)}` — buy here
+🏆 *Target 1:*  `${fmt_price(sig.target_1)}` `(+{t1_pct:.1f}%)` — partial profit
+🏆 *Target 2:*  `${fmt_price(sig.target_2)}` `(+{t2_pct:.1f}%)` — full target
+🛑 *Stop Loss:* `${fmt_price(sig.stop_loss)}` `({sl_pct:.1f}%)` — exit if wrong
 ⏱ *Window:* `{sig.timeframe}`
 {risk_e} *Risk:* `{sig.risk}` — use trailing stop
 _Verify contract before buying. DYOR._"""
