@@ -1522,8 +1522,28 @@ class CryptoSignalScannerV2:
     }
 
     def _write_signals_json(self, candidates: list, threshold: int = None):
-        """Write signals to templates/signals.json so dashboard.html can read them."""
+        """Write signals to templates/signals.json so dashboard.html can read them.
+        Signals are kept for 2 hours even if next scan finds nothing.
+        """
         try:
+            # Load existing signals — keep ones less than 2 hours old
+            existing_signals = []
+            try:
+                if SIGNALS_JSON.exists():
+                    old_data = json.loads(SIGNALS_JSON.read_text())
+                    cutoff = datetime.utcnow() - timedelta(hours=2)
+                    for s in old_data.get("signals", []):
+                        ts_str = s.get("timestamp","")
+                        if ts_str:
+                            try:
+                                ts = datetime.fromisoformat(ts_str.replace("Z",""))
+                                if ts > cutoff:
+                                    existing_signals.append(s)
+                            except:
+                                pass
+            except:
+                pass
+
             data = {
                 "scan_count":    self.scan_no,
                 "last_scan":     datetime.utcnow().isoformat() + "Z",
@@ -1539,6 +1559,13 @@ class CryptoSignalScannerV2:
                 },
                 "signals": []
             }
+            # Build new signals list
+            new_symbols = {sig.symbol for sig in candidates}
+            # Keep old signals that are not superseded by new ones
+            for old_sig in existing_signals:
+                if old_sig.get("symbol") not in new_symbols:
+                    data["signals"].append(old_sig)
+            # Add new signals first
             for sig in candidates[:20]:
                 data["signals"].append({
                     "symbol":          sig.symbol,
