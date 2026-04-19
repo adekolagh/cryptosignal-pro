@@ -1504,7 +1504,7 @@ class CryptoSignalScannerV2:
         cg_max        = 5    # CoinGecko — always free
         self.MAX_RAW  = nansen_max + etherscan_max + cc_max + fg_max + cg_max
 
-    CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb"]
+    CHAINS = ["ethereum", "solana", "base", "arbitrum", "bnb", "polygon", "optimism", "avalanche"]
 
     # Block explorer URLs for contract address verification
     EXPLORERS = {
@@ -1516,6 +1516,9 @@ class CryptoSignalScannerV2:
         "polygon":   "https://polygonscan.com/token/",
         "optimism":  "https://optimistic.etherscan.io/token/",
         "avalanche": "https://snowtrace.io/token/",
+        "near":      "https://nearblocks.io/token/",
+        "ton":       "https://tonviewer.com/",
+        "sui":       "https://suiscan.xyz/mainnet/coin/",
     }
 
     def _write_signals_json(self, candidates: list, threshold: int = None):
