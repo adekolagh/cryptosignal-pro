@@ -1,10 +1,10 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-05-12T23:58:37.938840Z",
-  "threshold": 50,
+  "last_scan": "2026-05-13T04:07:06.635379Z",
+  "threshold": 40,
   "max_raw": 100,
   "layer_status": {
-    "nansen": true,
+    "nansen": false,
     "etherscan": true,
     "cryptocompare": true,
     "fear_greed": true,
