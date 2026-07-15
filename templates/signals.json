@@ -1,7 +1,7 @@
 {
   "scan_count": 1,
-  "last_scan": "2026-07-14T23:10:38.856184Z",
-  "threshold": 35,
+  "last_scan": "2026-07-15T00:04:44.657733Z",
+  "threshold": 40,
   "max_raw": 100,
   "layer_status": {
     "nansen": false,
